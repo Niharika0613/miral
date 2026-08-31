@@ -1,6 +1,5 @@
 # server-fastapi/models.py
-from sqlalchemy import Column, String, Integer, Float, Text, TIMESTAMP, Boolean
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import Column, String, Integer, Float, Text, TIMESTAMP, Boolean, JSON
 from sqlalchemy.sql import func
 from database import Base
 import uuid
@@ -29,9 +28,9 @@ class Session(Base):
     words_per_minute = Column(Float, nullable=False, default=0)  # Match wordsPerMinute
     filler_words_count = Column(Integer, nullable=False, default=0)  # Match fillerWordsCount
     posture_score = Column(Float, default=0)
-    posture_data = Column(JSONB, default=list)
+    posture_data = Column(JSON, default=list)
     transcript = Column(Text, nullable=True)
-    strengths = Column(JSONB, nullable=False, default=list)
-    improvements = Column(JSONB, nullable=False, default=list)
-    eye_contact_data = Column(JSONB, nullable=False, default=list)  # Match eyeContactData
+    strengths = Column(JSON, nullable=False, default=list)
+    improvements = Column(JSON, nullable=False, default=list)
+    eye_contact_data = Column(JSON, nullable=False, default=list)  # Match eyeContactData
     is_public = Column(Boolean, default=False)

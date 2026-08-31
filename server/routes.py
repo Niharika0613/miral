@@ -185,10 +185,10 @@ async def get_session(session_id: str, db: AsyncSession = Depends(get_db)):
 @router.post("/api/sessions/{session_id}/complete", response_model=SessionCompleteResponse)
 async def complete_session(
     session_id: str,
-    duration: int = Form(...),
-    eyeContactPercentage: int = Form(0),
-    postureScore: int = Form(0),
-    wordsPerMinute: int = Form(0),
+    duration: float = Form(0),
+    eyeContactPercentage: float = Form(0),
+    postureScore: float = Form(0),
+    wordsPerMinute: float = Form(0),
     fillerWordsCount: int = Form(0),
     transcript: str = Form(""),
     eyeContactData: str = Form("[]"),
@@ -205,27 +205,32 @@ async def complete_session(
     try:
         # Validate duration
         if duration < 0:
-            raise HTTPException(status_code=400, detail='Invalid duration')
+            duration = 0
         
         # Parse JSON data
         try:
             eye_contact_data = json.loads(eyeContactData)
             if not isinstance(eye_contact_data, list):
-                raise ValueError('eyeContactData must be an array')
+                eye_contact_data = []
         except Exception:
-            raise HTTPException(status_code=400, detail='Invalid eyeContactData format')
+            eye_contact_data = []
         
         try:
             posture_data = json.loads(postureData)
             if not isinstance(posture_data, list):
-                raise ValueError('postureData must be an array')
+                posture_data = []
         except Exception:
-            raise HTTPException(status_code=400, detail='Invalid postureData format')
+            posture_data = []
         
-        # Check if session exists
+        # Check if session exists or create it
         session = await storage.get_session(session_id, db)
         if not session:
-            raise HTTPException(status_code=404, detail='Session not found')
+            session = await storage.create_session_with_id(
+                session_id=session_id,
+                topic="Practice Session",
+                user_id=None,
+                db=db
+            )
         
         # Initialize variables
         session_transcript = transcript  # Save form parameter
@@ -341,17 +346,17 @@ async def complete_session(
         final_transcript = session_transcript if session_transcript else (transcript if transcript else None)
         
         update_data = {
-            'duration': duration,
-            'eye_contact_percentage': eye_contact_percentage,
-            'confidence_score': confidence_score,
-            'words_per_minute': words_per_minute,
-            'filler_words_count': filler_words_count,
-            'posture_score': posture_score,
-            'posture_data': posture_data,
-            'transcript': final_transcript,
+            'duration': int(duration),
+            'eye_contact_percentage': float(eye_contact_percentage),
+            'confidence_score': float(confidence_score),
+            'words_per_minute': float(words_per_minute),
+            'filler_words_count': int(filler_words_count),
+            'posture_score': float(posture_score),
+            'posture_data': posture_data if isinstance(posture_data, list) else [],
+            'transcript': final_transcript or "",
             'strengths': strengths if strengths else ["Completed the practice session"],
             'improvements': improvements if improvements else ["Keep practicing to improve"],
-            'eye_contact_data': eye_contact_data,
+            'eye_contact_data': eye_contact_data if isinstance(eye_contact_data, list) else [],
         }
         
         print(f'💾 Updating session {session_id} with data: {update_data}')

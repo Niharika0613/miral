@@ -40,6 +40,33 @@ class DatabaseStorage:
         await db.commit()
         await db.refresh(new_session)
         return new_session
+
+    async def create_session_with_id(
+        self,
+        session_id: str,
+        topic: str,
+        user_id: Optional[str],
+        db: AsyncSession
+    ) -> Session:
+        """Create session with a specific ID"""
+        new_session = Session(
+            id=session_id,
+            topic=topic or "Practice Session",
+            user_id=user_id,
+            duration=0,
+            eye_contact_percentage=0,
+            confidence_score=0,
+            words_per_minute=0,
+            filler_words_count=0,
+            transcript='',
+            strengths=[],
+            improvements=[],
+            eye_contact_data=[],
+        )
+        db.add(new_session)
+        await db.commit()
+        await db.refresh(new_session)
+        return new_session
     
     async def get_session(self, session_id: str, db: AsyncSession) -> Optional[Session]:
         """Get session by ID"""

@@ -165,7 +165,7 @@ Access the application at `http://localhost:5000`.
 Deploy easily on [Render](https://render.com) as a single Web Service:
 
 - **Runtime**: Python 3
-- **Build Command**: `npm install && npm run build && pip install -r requirements.txt`
+- **Build Command**: `npm install && npm run build && pip install --upgrade pip && pip install -r requirements.txt`
 - **Start Command**: `cd server && uvicorn main:app --host 0.0.0.0 --port $PORT`
 - **Environment Variables**:
   - `PYTHON_VERSION`: `3.11.9`

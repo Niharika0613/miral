@@ -18,7 +18,9 @@ import {
   Download,
   Share2,
   Volume2,
-  FileText
+  FileText,
+  BookOpen,
+  ArrowRight
 } from 'lucide-react';
 import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
@@ -27,16 +29,24 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Session } from '@shared/schema';
 
+// Safe metric extraction helper
+const getConfidence = (s: any): number => Math.round(s?.confidenceScore ?? s?.confidence_score ?? 0);
+const getEyeContact = (s: any): number => Math.round(s?.eyeContactPercentage ?? s?.eye_contact_percentage ?? 0);
+const getPosture = (s: any): number => Math.round(s?.postureScore ?? s?.posture_score ?? 0);
+const getWpm = (s: any): number => Math.round(s?.wordsPerMinute ?? s?.words_per_minute ?? 0);
+const getFillers = (s: any): number => Number(s?.fillerWordsCount ?? s?.filler_words_count ?? 0);
+const getDuration = (s: any): number => Number(s?.duration ?? 0);
+
 interface AICoachSectionProps {
   session: Session;
 }
 
 function AICoachSection({ session }: AICoachSectionProps) {
   const topic = session.topic || 'General Speech Practice';
-  const eye = Math.round(session.eyeContactPercentage || 0);
-  const posture = Math.round(session.postureScore || 0);
-  const wpm = Math.round(session.wordsPerMinute || 0);
-  const fillers = session.fillerWordsCount || 0;
+  const eye = getEyeContact(session);
+  const posture = getPosture(session);
+  const wpm = getWpm(session);
+  const fillers = getFillers(session);
 
   const insights = useMemo(() => {
     return {
@@ -64,7 +74,7 @@ function AICoachSection({ session }: AICoachSectionProps) {
         title: "Articulation & Hesitation Control",
         text: fillers === 0
           ? `Zero filler words detected. Articulation was disciplined, concise, and clean.`
-          : `Detected ${fillers} filler phrase(s). Practice replacing hesitation sounds ("um", "like") with a calm, silent breath.`,
+          : `Detected ${fillers} filler phrase(s). Practice replacing hesitation sounds ("um", "like", "matlab") with a calm, silent breath.`,
         status: fillers <= 1 ? "Crisp Fluency" : "Hesitation Noted",
       },
       strategy: {
@@ -129,6 +139,94 @@ function AICoachSection({ session }: AICoachSectionProps) {
   );
 }
 
+function VocabularyUpgradeSection({ transcript }: { transcript: string }) {
+  const upgrades = useMemo(() => {
+    const list: { from: string; to: string; explanation: string }[] = [];
+    const text = (transcript || '').toLowerCase();
+
+    const vocabularyBank = [
+      {
+        pattern: /\b(did work|worked on|worked in|worked)\b/i,
+        from: "worked on / did work",
+        to: "architected / spearheaded / implemented",
+        explanation: "Conveys direct ownership and technical leadership rather than passive participation."
+      },
+      {
+        pattern: /\b(big problem|huge problem|hard thing|trouble)\b/i,
+        from: "big problem / hard thing",
+        to: "critical operational bottleneck / technical constraint",
+        explanation: "Frames challenges as objective engineering problems with professional composure."
+      },
+      {
+        pattern: /\b(very good|really good|nice|great work)\b/i,
+        from: "very good / great",
+        to: "high-throughput / optimal / substantial positive ROI",
+        explanation: "Quantifies results with measurable business impact."
+      },
+      {
+        pattern: /\b(told them|told my team|said to them)\b/i,
+        from: "told them",
+        to: "aligned cross-functional stakeholders / delegated deliverables",
+        explanation: "Demonstrates managerial empathy and executive communication."
+      },
+      {
+        pattern: /\b(made it fast|very fast|speed up)\b/i,
+        from: "made it fast / speed up",
+        to: "optimized algorithmic latency / reduced query execution time",
+        explanation: "Highlights exact technical depth and performance metrics."
+      },
+      {
+        pattern: /\b(i think that|i feel that|maybe)\b/i,
+        from: "I think that / maybe",
+        to: "Data and empirical metrics demonstrate that",
+        explanation: "Eliminates hesitant fillers and projects assertive conviction."
+      }
+    ];
+
+    vocabularyBank.forEach(item => {
+      if (item.pattern.test(text) || list.length < 4) {
+        list.push({
+          from: item.from,
+          to: item.to,
+          explanation: item.explanation
+        });
+      }
+    });
+
+    return list.slice(0, 4);
+  }, [transcript]);
+
+  return (
+    <Card className="border border-border/60 shadow-xs bg-card">
+      <CardHeader className="border-b border-border/40 pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-primary" />
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground">
+              Executive Vocabulary & Phrasing Upgrades (ESL Bridge)
+            </CardTitle>
+          </div>
+          <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
+            Vocabulary Polishing
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {upgrades.map((item, idx) => (
+          <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border/40 text-xs space-y-1">
+            <div className="flex items-center gap-1.5 font-mono text-[11px]">
+              <span className="text-muted-foreground line-through">{item.from}</span>
+              <span className="text-muted-foreground">→</span>
+              <span className="text-primary font-bold">{item.to}</span>
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">{item.explanation}</p>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function Report() {
   const [, params] = useRoute('/report/:id');
   const [, setLocation] = useLocation();
@@ -166,13 +264,14 @@ export default function Report() {
     );
   }
 
-  const confidence = Math.round(session.confidenceScore || 0);
-  const eye = Math.round(session.eyeContactPercentage || 0);
-  const posture = Math.round(session.postureScore || 0);
-  const wpm = Math.round(session.wordsPerMinute || 0);
-  const fillers = session.fillerWordsCount || 0;
-  const durationMins = Math.floor((session.duration || 0) / 60);
-  const durationSecs = (session.duration || 0) % 60;
+  const confidence = getConfidence(session);
+  const eye = getEyeContact(session);
+  const posture = getPosture(session);
+  const wpm = getWpm(session);
+  const fillers = getFillers(session);
+  const duration = getDuration(session);
+  const durationMins = Math.floor(duration / 60);
+  const durationSecs = duration % 60;
 
   const performanceTier = confidence >= 85 
     ? "Advanced Delivery — Stage & Interview Ready"
@@ -228,7 +327,7 @@ export default function Report() {
                 {session.topic || 'General Practice Session'}
               </h1>
               <p className="text-xs text-muted-foreground">
-                Recorded on {new Date(session.createdAt).toLocaleDateString(undefined, { 
+                Recorded on {new Date(session.createdAt || new Date()).toLocaleDateString(undefined, { 
                   weekday: 'long', 
                   year: 'numeric', 
                   month: 'long', 
@@ -290,9 +389,10 @@ export default function Report() {
           </div>
         </div>
 
-        {/* Structured AI Coach Section */}
-        <div className="print:hidden">
+        {/* Structured AI Coach & Vocabulary Upgrade Sections */}
+        <div className="space-y-6 print:hidden">
           <AICoachSection session={session} />
+          <VocabularyUpgradeSection transcript={session.transcript || ''} />
         </div>
 
       </div>

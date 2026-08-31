@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environment variables
+.env
+.env.local
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Uploads and temp files
+uploads/
+server/uploads/
+server-fastapi/uploads/
+*.webm
+*.wav
+*.mp3
+*.db
+*.sqlite3
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+Thumbs.db
+
+# Misc
+server/public
+vite.config.ts.*
+*.tar.gz

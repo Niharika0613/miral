@@ -312,18 +312,16 @@ export default function Practice() {
               
               // Show suggestion after 6 consecutive detections (3 seconds) - less sensitive
               if (lookAwayCountRef.current >= 6 && !showSuggestion) {
-                let message = '👀 Please look at the camera';
+                let message = 'Direct your gaze towards the camera';
                 
                 if (!faceAnalysis.isInFrame) {
-                  message = '⚠️ Please stay in frame';
-                } else if (faceAnalysis.position === 'left') {
-                  message = '👀 Look at the camera, not to the right';
-                } else if (faceAnalysis.position === 'right') {
-                  message = '👀 Look at the camera, not to the left';
+                  message = 'Position yourself within camera view';
+                } else if (faceAnalysis.position === 'left' || faceAnalysis.position === 'right') {
+                  message = 'Re-center your gaze towards the camera';
                 } else if (faceAnalysis.headTilt === 'down') {
-                  message = '👀 Look up at the camera';
+                  message = 'Elevate chin slightly towards camera';
                 } else if (faceAnalysis.headTilt === 'up') {
-                  message = '👀 Look straight at the camera';
+                  message = 'Look directly at camera lens';
                 }
                 
                 setSuggestionMessage(message);
@@ -486,8 +484,8 @@ export default function Practice() {
       startAudioStream();
       
       toast({
-        title: "Session Started! 🎬",
-        description: "Maintain eye contact and speak naturally. You've got this!",
+        title: "Session Initialized",
+        description: "Maintain natural eye engagement and speak clearly.",
       });
       
       // Wait for session creation in background
@@ -577,8 +575,8 @@ export default function Practice() {
       await queryClient.invalidateQueries({ queryKey: ['/api/sessions', sessionId] });
       
       toast({
-        title: "Session Saved! 🎉",
-        description: "Your performance report is ready!",
+        title: "Session Saved",
+        description: "Your performance report is ready.",
       });
       
       // Navigate to report

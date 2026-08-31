@@ -25,33 +25,33 @@ function AICoachSection({ session }: AICoachSectionProps) {
 
       // 1. Executive Presence & Non-verbal
       if (eye >= 75 && posture >= 75) {
-        paragraphs.push(`🎯 **Executive Presence**: Strong session for "${topic}". Your visual focus (${eye}%) and posture (${posture}%) projected natural authority and self-assurance.`);
+        paragraphs.push(`**Executive Presence**: Strong performance on "${topic}". Your visual focus (${eye}%) and posture (${posture}%) projected authority and self-assurance.`);
       } else if (eye < 75) {
-        paragraphs.push(`🎯 **Executive Presence**: Good attempt on "${topic}". In virtual placements, looking directly into the camera lens (currently at ${eye}%) creates immediate personal rapport and conveys conviction.`);
+        paragraphs.push(`**Executive Presence**: Good progress on "${topic}". In virtual interviews and placement rounds, direct eye engagement with the camera (${eye}%) builds immediate rapport and trust.`);
       } else {
-        paragraphs.push(`🎯 **Executive Presence**: Good energy on "${topic}". Maintain an upright spine and square shoulders (${posture}%) to reinforce non-verbal credibility.`);
+        paragraphs.push(`**Executive Presence**: Good energy on "${topic}". Keep your spine upright and shoulders level (${posture}%) to reinforce non-verbal credibility.`);
       }
 
       // 2. Vocal Delivery & Pacing
       if (wpm >= 125 && wpm <= 165) {
-        paragraphs.push(`🎙️ **Vocal Delivery**: Excellent conversational pace at **${wpm} WPM**. This cadence allows recruiters to absorb technical concepts without feeling rushed.`);
+        paragraphs.push(`**Vocal Delivery**: Excellent conversational pace at **${wpm} WPM**. This cadence allows interviewers to absorb technical concepts clearly.`);
       } else if (wpm > 0 && wpm < 125) {
-        paragraphs.push(`🎙️ **Vocal Delivery**: Your pace was measured at **${wpm} WPM**. In campus placements and technical interviews, aim for **130–155 WPM** with expressive pitch inflection.`);
+        paragraphs.push(`**Vocal Delivery**: Speaking pace was measured at **${wpm} WPM**. For campus placement GDs and technical interviews, aim for **130–155 WPM** with expressive inflection.`);
       } else if (wpm > 165) {
-        paragraphs.push(`🎙️ **Vocal Delivery**: You spoke quickly at **${wpm} WPM**. Try incorporating 1-second strategic pauses before key takeaways to let your points land.`);
+        paragraphs.push(`**Vocal Delivery**: You spoke quickly at **${wpm} WPM**. Incorporate strategic 1-second pauses before key takeaways to maximize impact.`);
       } else {
-        paragraphs.push(`🎙️ **Vocal Delivery**: Focus on maintaining continuous, clear speech delivery throughout your response.`);
+        paragraphs.push(`**Vocal Delivery**: Focus on maintaining continuous, confident speech delivery throughout your response.`);
       }
 
       // 3. Articulation & Fillers
       if (fillers === 0) {
-        paragraphs.push(`✨ **Speech Clarity**: Zero filler words detected. Your articulation was clean and disciplined.`);
+        paragraphs.push(`**Speech Clarity**: Zero filler words detected. Articulation was disciplined and concise.`);
       } else {
-        paragraphs.push(`✨ **Speech Clarity**: Detected **${fillers} filler phrase(s)**. Practice replacing hesitation words with a calm, silent pause.`);
+        paragraphs.push(`**Speech Clarity**: Detected **${fillers} filler word(s)**. Practice replacing hesitation sounds with brief silent pauses.`);
       }
 
       // 4. Placement Pro-Tip
-      paragraphs.push(`💡 **Placement Pro-Tip**: When answering questions for ${topic}, apply the **STAR Method** (Situation → Task → Action → Result) and highlight measurable outcomes.`);
+      paragraphs.push(`**Placement Action Tip**: For questions relating to ${topic}, structure your response using the **STAR Framework** (Situation, Task, Action, Result) with measurable metrics.`);
 
       setAiCoach(paragraphs.join('\n\n'));
       setIsLoading(false);

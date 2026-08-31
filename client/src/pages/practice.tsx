@@ -249,7 +249,7 @@ export default function Practice() {
         frameCount++;
         const faces = await detectFaces(videoRef.current);
         const faceAnalysis = analyzeFace(faces, videoRef.current);
-        const posture = await analyzePosture(videoRef.current);
+        const posture = await analyzePosture(videoRef.current, faces);
         const hasEyeContact = faceAnalysis.hasEyeContact && faceAnalysis.isInFrame;
         
         if (frameCount % 20 === 0) {

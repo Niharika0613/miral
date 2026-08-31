@@ -12,19 +12,27 @@ import tempfile
 import wave
 from typing import Optional
 
-from vosk import Model, KaldiRecognizer
+try:
+    from vosk import Model, KaldiRecognizer
+    VOSK_AVAILABLE = True
+except ImportError:
+    Model = None
+    KaldiRecognizer = None
+    VOSK_AVAILABLE = False
   
 from config import settings
 
-_vosk_model: Optional[Model] = None
+_vosk_model: Optional[object] = None
 
 
-def _get_vosk_model() -> Model:
+def _get_vosk_model():
     """
     Lazily load the Vosk model from the path configured in .env.
     Expect env var: VOSK_MODEL_PATH pointing to an unpacked model folder.
     """
     global _vosk_model
+    if not VOSK_AVAILABLE:
+        raise RuntimeError("Vosk package is not installed.")
     if _vosk_model is None:
         model_path = settings.vosk_model_path
         if not model_path:

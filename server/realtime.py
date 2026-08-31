@@ -8,16 +8,23 @@ import numpy as np
 import soundfile as sf
 import requests
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from vosk import Model, KaldiRecognizer
+try:
+    from vosk import Model, KaldiRecognizer
+    VOSK_AVAILABLE = True
+except ImportError:
+    Model = None
+    KaldiRecognizer = None
+    VOSK_AVAILABLE = False
 
-# IMPORTANT: adjust this path to your actual model directory
 VOSK_MODEL_PATH = os.path.join(os.path.dirname(__file__), "vosk-model")
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
-if not os.path.exists(VOSK_MODEL_PATH):
-    raise RuntimeError(f"VOSK model not found at {VOSK_MODEL_PATH}")
-
-vosk_model = Model(VOSK_MODEL_PATH)
+vosk_model = None
+if VOSK_AVAILABLE and os.path.exists(VOSK_MODEL_PATH):
+    try:
+        vosk_model = Model(VOSK_MODEL_PATH)
+    except Exception:
+        vosk_model = None
 
 router = APIRouter()
 

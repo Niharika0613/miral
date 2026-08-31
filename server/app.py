@@ -112,15 +112,6 @@ def create_app() -> FastAPI:
             print(f"[WARNING] Could not initialize database tables: {e}")
             print("   Make sure your database is accessible and DATABASE_URL is correct")
     
-    # Root endpoint
-    @app.get("/")
-    async def root():
-        return {
-            "message": "MiralAI FastAPI Backend",
-            "version": "2.0.0",
-            "status": "running"
-        }
-    
     # Health check endpoint
     @app.get("/health")
     async def health_check():
@@ -252,23 +243,37 @@ def create_app() -> FastAPI:
             except:
                 pass
     
-    # Serve static frontend build if present
+    # Serve static frontend build
     dist_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dist", "public")
+    index_path = os.path.join(dist_dir, "index.html")
+    
     if os.path.exists(dist_dir):
         assets_dir = os.path.join(dist_dir, "assets")
         if os.path.exists(assets_dir):
             app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
         
-        @app.get("/{full_path:path}")
-        async def serve_spa(full_path: str):
-            if full_path.startswith("api") or full_path.startswith("ws"):
-                return JSONResponse(status_code=404, content={"message": "Not Found"})
+    @app.get("/api")
+    async def api_info():
+        return {
+            "message": "MiralAI FastAPI Backend",
+            "version": "2.0.0",
+            "status": "running"
+        }
+        
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str = ""):
+        if full_path.startswith("api/") or full_path.startswith("ws/"):
+            return JSONResponse(status_code=404, content={"message": "Not Found"})
+        if os.path.exists(dist_dir):
             file_path = os.path.join(dist_dir, full_path)
-            if os.path.isfile(file_path):
+            if full_path and os.path.isfile(file_path):
                 return FileResponse(file_path)
-            index_path = os.path.join(dist_dir, "index.html")
             if os.path.isfile(index_path):
                 return FileResponse(index_path)
-            return JSONResponse(status_code=404, content={"message": "Not Found"})
+        return JSONResponse(status_code=200, content={
+            "message": "MiralAI FastAPI Backend",
+            "version": "2.0.0",
+            "status": "running"
+        })
     
     return app

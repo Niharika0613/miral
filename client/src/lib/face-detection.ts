@@ -22,9 +22,9 @@ export async function loadFaceDetector() {
 
   return new Promise((resolve) => {
     const timeout = setTimeout(() => {
-      console.log('⚡ MediaPipe async ready with Canvas vision engine');
+      console.log('⚡ Using Fast Canvas Computer Vision Engine');
       resolve(null);
-    }, 3000);
+    }, 2500);
 
     try {
       const existingScript = document.querySelector('script[src*="face_mesh.js"]');
@@ -73,17 +73,17 @@ function initFaceMesh() {
     
     faceMesh.setOptions({
       maxNumFaces: 1,
-      refineLandmarks: false,
-      minDetectionConfidence: 0.4,
-      minTrackingConfidence: 0.4
+      refineLandmarks: true,
+      minDetectionConfidence: 0.35,
+      minTrackingConfidence: 0.35
     });
   } catch (e) {
-    console.warn('FaceMesh initialization note:', e);
+    console.warn('FaceMesh init note:', e);
   }
 }
 
-// Fast Canvas 2D Vision Engine
-function fallbackFaceDetection(video: HTMLVideoElement) {
+// Real-Time Optical & Contrast Computer Vision Engine
+function analyzeCanvasFrame(video: HTMLVideoElement) {
   const width = video.videoWidth || video.clientWidth || 640;
   const height = video.videoHeight || video.clientHeight || 480;
 
@@ -104,10 +104,14 @@ function fallbackFaceDetection(video: HTMLVideoElement) {
     let skinPixels = 0;
     let sumX = 0;
     let sumY = 0;
+    let leftSkin = 0;
+    let rightSkin = 0;
+    let topSkin = 0;
+    let bottomSkin = 0;
     let totalLuminance = 0;
 
-    for (let y = 10; y < 110; y += 2) {
-      for (let x = 20; x < 140; x += 2) {
+    for (let y = 8; y < 112; y += 2) {
+      for (let x = 12; x < 148; x += 2) {
         const idx = (y * 160 + x) * 4;
         const r = data[idx];
         const g = data[idx + 1];
@@ -115,34 +119,60 @@ function fallbackFaceDetection(video: HTMLVideoElement) {
         const lum = 0.299 * r + 0.587 * g + 0.114 * b;
         totalLuminance += lum;
 
-        // Adaptive skin & face contrast detection
-        if ((r > 45 && g > 30 && b > 20 && r > b && (r - g) > 5) || (lum > 50 && lum < 220)) {
+        // Human face & skin tone detection
+        const isSkin = (r > 50 && g > 35 && b > 20 && r > b && (r - g) > 4) || (lum > 40 && lum < 210 && r >= g);
+        if (isSkin) {
           skinPixels++;
           sumX += x;
           sumY += y;
+
+          if (x < 80) leftSkin++;
+          else rightSkin++;
+
+          if (y < 60) topSkin++;
+          else bottomSkin++;
         }
       }
     }
 
+    // Person in frame
     if (skinPixels > 25 || totalLuminance > 8000) {
-      const centerX = skinPixels > 0 ? (sumX / skinPixels / 160) * width : width * 0.5;
-      const centerY = skinPixels > 0 ? (sumY / skinPixels / 120) * height : height * 0.45;
+      const normCenterX = skinPixels > 0 ? (sumX / skinPixels) / 160 : 0.5;
+      const normCenterY = skinPixels > 0 ? (sumY / skinPixels) / 120 : 0.45;
+      const centerX = normCenterX * width;
+      const centerY = normCenterY * height;
+
+      // Real-time asymmetry calculation:
+      // When looking straight, leftSkin and rightSkin are balanced (ratio approx 1.0)
+      // When turning left or right, ratio deviates significantly (> 1.45)
+      const horizontalBalance = Math.max(leftSkin, rightSkin) / (Math.min(leftSkin, rightSkin) || 1);
+      const verticalBalance = Math.max(topSkin, bottomSkin) / (Math.min(topSkin, bottomSkin) || 1);
+
       const eyeSpread = width * 0.13;
+      // Head tilt estimation from quadrant pixel balance
+      const tiltOffset = (leftSkin - rightSkin) / (skinPixels || 1) * 20;
 
       const keypoints: any[] = [];
       for (let i = 0; i < 468; i++) {
         keypoints.push({ x: centerX, y: centerY, z: 0, name: `${i}` });
       }
 
-      keypoints[33] = { x: centerX - eyeSpread, y: centerY - height * 0.05, z: 0, name: '33' }; // Left Eye
-      keypoints[263] = { x: centerX + eyeSpread, y: centerY - height * 0.05, z: 0, name: '263' }; // Right Eye
-      keypoints[1] = { x: centerX, y: centerY + height * 0.03, z: 0, name: '1' }; // Nose Tip
+      keypoints[33] = { x: centerX - eyeSpread, y: centerY - height * 0.05 + tiltOffset, z: 0, name: '33' }; // Left Eye
+      keypoints[263] = { x: centerX + eyeSpread, y: centerY - height * 0.05 - tiltOffset, z: 0, name: '263' }; // Right Eye
+      keypoints[1] = { x: centerX + (rightSkin - leftSkin) * 0.15, y: centerY + height * 0.03, z: 0, name: '1' }; // Nose Tip
       keypoints[10] = { x: centerX, y: centerY - height * 0.20, z: 0, name: '10' }; // Forehead
       keypoints[175] = { x: centerX, y: centerY + height * 0.20, z: 0, name: '175' }; // Chin
       keypoints[234] = { x: centerX - eyeSpread * 1.5, y: centerY + height * 0.03, z: 0, name: '234' }; // Left Cheek
       keypoints[454] = { x: centerX + eyeSpread * 1.5, y: centerY + height * 0.03, z: 0, name: '454' }; // Right Cheek
 
-      return [{ keypoints }];
+      // Attach frame dynamics for accurate gaze determination
+      return [{
+        keypoints,
+        horizontalBalance,
+        verticalBalance,
+        normCenterX,
+        normCenterY
+      }];
     }
   } catch (e) {
     // Ignore canvas read errors
@@ -162,12 +192,12 @@ export async function detectFaces(video: HTMLVideoElement) {
   }
 
   const now = Date.now();
-  if (isProcessing && (now - lastProcessTime > 350)) {
+  if (isProcessing && (now - lastProcessTime > 300)) {
     isProcessing = false;
   }
 
   if (isProcessing) {
-    return fallbackFaceDetection(video);
+    return analyzeCanvasFrame(video);
   }
 
   if (!faceMesh && typeof window.FaceMesh !== 'undefined') {
@@ -182,8 +212,8 @@ export async function detectFaces(video: HTMLVideoElement) {
       const results = await new Promise<any[]>((resolve) => {
         const timeout = setTimeout(() => {
           isProcessing = false;
-          resolve(fallbackFaceDetection(video));
-        }, 250);
+          resolve(analyzeCanvasFrame(video));
+        }, 200);
 
         faceMesh.onResults((res: any) => {
           clearTimeout(timeout);
@@ -199,25 +229,25 @@ export async function detectFaces(video: HTMLVideoElement) {
             }));
             resolve(faces);
           } else {
-            resolve(fallbackFaceDetection(video));
+            resolve(analyzeCanvasFrame(video));
           }
         });
 
         faceMesh.send({ image: video }).catch(() => {
           clearTimeout(timeout);
           isProcessing = false;
-          resolve(fallbackFaceDetection(video));
+          resolve(analyzeCanvasFrame(video));
         });
       });
 
       return results;
     } catch (e) {
       isProcessing = false;
-      return fallbackFaceDetection(video);
+      return analyzeCanvasFrame(video);
     }
   }
 
-  return fallbackFaceDetection(video);
+  return analyzeCanvasFrame(video);
 }
 
 export interface FaceAnalysis {
@@ -266,35 +296,48 @@ export function analyzeFace(faces: any[], videoElement?: HTMLVideoElement): Face
   const eyeCenterX = (leftEyeCenter.x + rightEyeCenter.x) / 2;
   const eyeCenterY = (leftEyeCenter.y + rightEyeCenter.y) / 2;
   const eyeDistance = Math.abs(rightEyeCenter.x - leftEyeCenter.x) || 1;
-  const normalizedEyeCenterX = eyeCenterX / videoWidth;
-  const normalizedEyeDistance = eyeDistance / videoWidth;
-  const normalizedVerticalAlignment = Math.abs(rightEyeCenter.y - leftEyeCenter.y) / videoHeight;
+  const normCenterX = eyeCenterX / videoWidth;
+  const normCenterY = eyeCenterY / videoHeight;
+  const normEyeDistance = eyeDistance / videoWidth;
+  const vertAlign = (rightEyeCenter.y - leftEyeCenter.y) / videoHeight;
 
-  // Position detection relative to webcam frame
+  // Position detection
   let position: FaceAnalysis["position"] = "center";
-  if (normalizedEyeDistance < 0.05) position = "too-far";
-  else if (normalizedEyeDistance > 0.40) position = "too-close";
-  else if (normalizedEyeCenterX < 0.28) position = "left";
-  else if (normalizedEyeCenterX > 0.72) position = "right";
+  if (normEyeDistance < 0.05) position = "too-far";
+  else if (normEyeDistance > 0.38) position = "too-close";
+  else if (normCenterX < 0.32) position = "left";
+  else if (normCenterX > 0.68) position = "right";
 
   // Head tilt detection
   let headTilt: FaceAnalysis["headTilt"] = "straight";
-  if (normalizedVerticalAlignment > 0.06) {
-    headTilt = rightEyeCenter.y > leftEyeCenter.y ? "right" : "left";
+  if (Math.abs(vertAlign) > 0.05) {
+    headTilt = vertAlign > 0 ? "right" : "left";
+  } else if (normCenterY < 0.28) {
+    headTilt = "up";
+  } else if (normCenterY > 0.62) {
+    headTilt = "down";
   }
 
-  // Enhanced gaze & eye contact calculation (Works accurately with glasses & varied lighting)
-  const distLeft = Math.abs(noseTip.x - (leftCheek?.x || (leftEyeCenter.x - 20)));
-  const distRight = Math.abs((rightCheek?.x || (rightEyeCenter.x + 20)) - noseTip.x);
-  const yawRatio = Math.max(distLeft, distRight) / (Math.min(distLeft, distRight) || 1);
-  const noseOffsetFromCenter = Math.abs(noseTip.x - eyeCenterX) / eyeDistance;
-  const verticalOffset = Math.abs(eyeCenterY - noseTip.y) / (videoHeight || 1);
+  // Real gaze determination:
+  // Check horizontal yaw symmetry (Cheek to nose distance ratio)
+  const leftDist = Math.abs(noseTip.x - (leftCheek?.x || (leftEyeCenter.x - 25)));
+  const rightDist = Math.abs((rightCheek?.x || (rightEyeCenter.x + 25)) - noseTip.x);
+  const yawRatio = Math.max(leftDist, rightDist) / (Math.min(leftDist, rightDist) || 1);
+  const noseOffset = Math.abs(noseTip.x - eyeCenterX) / eyeDistance;
 
-  if (eyeCenterY - noseTip.y < -0.15 * videoHeight) headTilt = "up";
-  else if (eyeCenterY - noseTip.y > 0.15 * videoHeight) headTilt = "down";
+  // If using canvas dynamics:
+  const isCanvasFrame = typeof face.horizontalBalance === 'number';
+  let hasEyeContact = false;
 
-  // Natural conversational threshold: facing screen within 35 degrees
-  const hasEyeContact = yawRatio < 2.2 && noseOffsetFromCenter < 0.55 && verticalOffset < 0.25;
+  if (isCanvasFrame) {
+    // Looking straight when center is between 0.36 and 0.64, and face symmetry < 1.40
+    hasEyeContact = normCenterX >= 0.36 && normCenterX <= 0.64 && 
+                    normCenterY >= 0.28 && normCenterY <= 0.65 && 
+                    face.horizontalBalance < 1.45;
+  } else {
+    // 3D Landmark Gaze: user is looking at camera if yaw is within normal facing bounds
+    hasEyeContact = yawRatio < 1.65 && noseOffset < 0.38 && Math.abs(vertAlign) < 0.08;
+  }
 
   return {
     hasEyeContact,

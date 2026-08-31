@@ -98,7 +98,12 @@ export default function Practice() {
         /\bhonestly\b/gi,
         /\bso\b/gi,
         /\bwell\b/gi,
-        /\bright\b/gi
+        /\bright\b/gi,
+        /\bmatlab\b/gi,
+        /\byaani\b/gi,
+        /\band all\b/gi,
+        /\bso yeah\b/gi,
+        /\byeah\b/gi
       ];
       let count = 0;
       fillerPatterns.forEach(pattern => {

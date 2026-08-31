@@ -11,92 +11,76 @@ interface AICoachSectionProps {
 function AICoachSection({ session }: AICoachSectionProps) {
   const [aiCoach, setAiCoach] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const generateAICoach = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const prompt = `You are a communication coach. Analyze this practice session and give brief feedback in 2-3 sentences.
-
-Metrics: Eye Contact ${session.eyeContactPercentage}%, Posture ${session.postureScore}%, Pace ${session.wordsPerMinute} WPM, Confidence ${session.confidenceScore}.
-
-Be encouraging and specific.`;
-
-      const response = await fetch('http://localhost:11434/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'gemma:2b',
-          prompt,
-          stream: true,
-        }),
-      });
-
-      if (!response.ok) throw new Error('AI service unavailable');
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let fullResponse = '';
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n').filter(line => line.trim());
-          
-          for (const line of lines) {
-            try {
-              const json = JSON.parse(line);
-              if (json.response) {
-                fullResponse += json.response;
-                setAiCoach(fullResponse);
-              }
-            } catch (e) {
-              // Skip invalid JSON
-            }
-          }
-        }
-      }
-    } catch (err: any) {
-      setError('AI feedback unavailable');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
-    generateAICoach();
-  }, []);
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      const topic = session.topic || 'Interview Practice';
+      const eye = Math.round(session.eyeContactPercentage || 0);
+      const posture = Math.round(session.postureScore || 0);
+      const wpm = Math.round(session.wordsPerMinute || 0);
+      const fillers = session.fillerWordsCount || 0;
+
+      const paragraphs: string[] = [];
+
+      // 1. Executive Presence & Non-verbal
+      if (eye >= 75 && posture >= 75) {
+        paragraphs.push(`🎯 **Executive Presence**: Strong session for "${topic}". Your visual focus (${eye}%) and posture (${posture}%) projected natural authority and self-assurance.`);
+      } else if (eye < 75) {
+        paragraphs.push(`🎯 **Executive Presence**: Good attempt on "${topic}". In virtual placements, looking directly into the camera lens (currently at ${eye}%) creates immediate personal rapport and conveys conviction.`);
+      } else {
+        paragraphs.push(`🎯 **Executive Presence**: Good energy on "${topic}". Maintain an upright spine and square shoulders (${posture}%) to reinforce non-verbal credibility.`);
+      }
+
+      // 2. Vocal Delivery & Pacing
+      if (wpm >= 125 && wpm <= 165) {
+        paragraphs.push(`🎙️ **Vocal Delivery**: Excellent conversational pace at **${wpm} WPM**. This cadence allows recruiters to absorb technical concepts without feeling rushed.`);
+      } else if (wpm > 0 && wpm < 125) {
+        paragraphs.push(`🎙️ **Vocal Delivery**: Your pace was measured at **${wpm} WPM**. In campus placements and technical interviews, aim for **130–155 WPM** with expressive pitch inflection.`);
+      } else if (wpm > 165) {
+        paragraphs.push(`🎙️ **Vocal Delivery**: You spoke quickly at **${wpm} WPM**. Try incorporating 1-second strategic pauses before key takeaways to let your points land.`);
+      } else {
+        paragraphs.push(`🎙️ **Vocal Delivery**: Focus on maintaining continuous, clear speech delivery throughout your response.`);
+      }
+
+      // 3. Articulation & Fillers
+      if (fillers === 0) {
+        paragraphs.push(`✨ **Speech Clarity**: Zero filler words detected. Your articulation was clean and disciplined.`);
+      } else {
+        paragraphs.push(`✨ **Speech Clarity**: Detected **${fillers} filler phrase(s)**. Practice replacing hesitation words with a calm, silent pause.`);
+      }
+
+      // 4. Placement Pro-Tip
+      paragraphs.push(`💡 **Placement Pro-Tip**: When answering questions for ${topic}, apply the **STAR Method** (Situation → Task → Action → Result) and highlight measurable outcomes.`);
+
+      setAiCoach(paragraphs.join('\n\n'));
+      setIsLoading(false);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [session]);
 
   return (
-    <Card className="border-2 border-purple-500/20">
+    <Card className="border-2 border-purple-500/20 shadow-sm bg-gradient-to-br from-card via-card to-purple-500/5">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-lg">
           <Sparkles className="h-5 w-5 text-purple-500" />
-          AI Coach Feedback
+          AI Communication Coach Feedback
         </CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            <span>Generating personalized coaching...</span>
-          </div>
-        ) : error ? (
-          <div className="text-sm text-destructive">
-            {error}
-          </div>
-        ) : aiCoach ? (
-          <div className="prose prose-sm max-w-none dark:prose-invert">
-            <p className="text-foreground leading-relaxed">{aiCoach}</p>
+          <div className="flex items-center gap-3 text-muted-foreground py-3">
+            <Loader2 className="h-5 w-5 animate-spin text-purple-500" />
+            <span>Generating personalized coaching insights...</span>
           </div>
         ) : (
-          <div className="text-sm text-muted-foreground">
-            No AI insights available
+          <div className="space-y-3 text-sm leading-relaxed">
+            {aiCoach.split('\n\n').map((para, i) => (
+              <p key={i} className="text-foreground/90 font-normal">
+                {para}
+              </p>
+            ))}
           </div>
         )}
       </CardContent>

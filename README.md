@@ -1,4 +1,4 @@
-﻿# MIRAL — AI-Powered Confidence Coach & Real-Time Communication Mirror
+# MIRAL — AI-Powered Confidence Coach & Real-Time Communication Mirror
 
 A full-stack, multimodal AI communication and public speaking coach that analyzes user body language, facial engagement, posture, and speech metrics in real-time, delivering supportive, actionable feedback through an intelligent mirror interface.
 
@@ -157,6 +157,21 @@ npm install
 npm run dev
 ```
 Access the application at `http://localhost:5000`.
+
+---
+
+### Deployment Configuration (Render)
+
+Deploy easily on [Render](https://render.com) as a single Web Service:
+
+- **Runtime**: Python 3
+- **Build Command**: `npm install && npm run build && pip install -r requirements.txt`
+- **Start Command**: `cd server && uvicorn main:app --host 0.0.0.0 --port $PORT`
+- **Environment Variables**:
+  - `PYTHON_VERSION`: `3.11.9`
+  - `NODE_VERSION`: `20.14.0`
+  - `DATABASE_URL`: `sqlite+aiosqlite:///./miral.db` (or PostgreSQL / Neon DB URL)
+  - `SECRET_KEY`: `your-random-secret-key`
 
 ---
 

@@ -96,7 +96,9 @@ export function useAudioStream(options: AudioStreamOptions = {}) {
   const startRecording = async () => {
     try {
       // Connect WebSocket
-      const wsUrl = `ws://${window.location.hostname}:8000/ws/audio`;
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const defaultWsHost = window.location.port ? `${window.location.hostname}:8000` : window.location.host;
+      const wsUrl = (import.meta as any).env?.VITE_WS_URL || `${protocol}//${window.location.host.includes(':5000') ? `${window.location.hostname}:8000` : window.location.host}/ws/audio`;
       wsRef.current = new WebSocket(wsUrl);
       wsRef.current.binaryType = 'arraybuffer';
 

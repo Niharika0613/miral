@@ -10,22 +10,22 @@ ENV_FILE = BASE_DIR / ".env"
 
 class Settings(BaseSettings):
     # Database
-    database_url: str
+    database_url: str = os.environ.get('DATABASE_URL', 'sqlite+aiosqlite:///./miral.db')
     
     # OpenAI
-    openai_api_key: Optional[str] = None
+    openai_api_key: Optional[str] = os.environ.get('OPENAI_API_KEY', None)
     # Local speech-to-text (Vosk)
     vosk_model_path: Optional[str] = None
     
     # Server
-    port: int = 8000
+    port: int = int(os.environ.get('PORT', 8000))
     host: str = "0.0.0.0"
     
     # Security
-    session_secret: str = "your-random-secret-key-here"
+    session_secret: str = os.environ.get('SECRET_KEY', 'miral-secret-key')
     
-    # CORS - Use string instead of list, we'll parse it manually
-    cors_origins: str = "http://localhost:5000"
+    # CORS
+    cors_origins: str = os.environ.get('CORS_ORIGINS', '*')
     
     model_config = {
         "env_file": str(ENV_FILE),

@@ -24,6 +24,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { Session } from '@shared/schema';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
+// Safe metric extraction helper supporting both camelCase and snake_case API serialization
+const getConfidence = (s: any): number => Math.round(s?.confidenceScore ?? s?.confidence_score ?? 0);
+const getEyeContact = (s: any): number => Math.round(s?.eyeContactPercentage ?? s?.eye_contact_percentage ?? 0);
+const getPosture = (s: any): number => Math.round(s?.postureScore ?? s?.posture_score ?? 0);
+const getWpm = (s: any): number => Math.round(s?.wordsPerMinute ?? s?.words_per_minute ?? 0);
+const getFillers = (s: any): number => Number(s?.fillerWordsCount ?? s?.filler_words_count ?? 0);
+const getDuration = (s: any): number => Number(s?.duration ?? 0);
+const getCreatedAt = (s: any): string => s?.createdAt ?? s?.created_at ?? new Date().toISOString();
+
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const userId = sessionStorage.getItem('userId');
@@ -59,17 +68,17 @@ export default function Dashboard() {
   const [baselineId, setBaselineId] = useState<string>('');
   const [currentId, setCurrentId] = useState<string>('');
 
-  // Default comparison to oldest vs latest
+  // Default comparison to oldest (baseline) vs newest (current)
   const baselineSession = useMemo(() => {
     if (!sessionsList.length) return null;
     if (baselineId) return sessionsList.find(s => s.id === baselineId) || sessionsList[sessionsList.length - 1];
-    return sessionsList[sessionsList.length - 1]; // Oldest
+    return sessionsList[sessionsList.length - 1]; // Oldest recorded
   }, [sessionsList, baselineId]);
 
   const currentSession = useMemo(() => {
     if (!sessionsList.length) return null;
     if (currentId) return sessionsList.find(s => s.id === currentId) || sessionsList[0];
-    return sessionsList[0]; // Latest
+    return sessionsList[0]; // Most recent recorded
   }, [sessionsList, currentId]);
 
   if (isLoading) {
@@ -87,39 +96,45 @@ export default function Dashboard() {
 
   const totalSessions = sessionsList.length;
   const avgConfidence = totalSessions > 0
-    ? Math.round(sessionsList.reduce((sum, s) => sum + (s.confidenceScore || 0), 0) / totalSessions)
+    ? Math.round(sessionsList.reduce((sum, s) => sum + getConfidence(s), 0) / totalSessions)
     : 0;
   const totalMinutes = totalSessions > 0
-    ? Math.round(sessionsList.reduce((sum, s) => sum + (s.duration || 0), 0) / 60)
+    ? Math.round(sessionsList.reduce((sum, s) => sum + getDuration(s), 0) / 60)
     : 0;
 
   // Chart data sorted chronologically
   const chartData = [...sessionsList]
-    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    .sort((a, b) => new Date(getCreatedAt(a)).getTime() - new Date(getCreatedAt(b)).getTime())
     .slice(-10)
     .map((session, index) => ({
       name: `#${index + 1}`,
-      confidence: Math.round(session.confidenceScore || 0),
-      eyeContact: Math.round(session.eyeContactPercentage || 0),
-      posture: Math.round(session.postureScore || 0),
-      wpm: Math.round(session.wordsPerMinute || 0),
-      date: new Date(session.createdAt).toLocaleDateString(),
-      topic: session.topic || 'Practice',
+      confidence: getConfidence(session),
+      eyeContact: getEyeContact(session),
+      posture: getPosture(session),
+      wpm: getWpm(session),
+      date: new Date(getCreatedAt(session)).toLocaleDateString(),
+      topic: session.topic || 'Practice Session',
     }));
 
   // Delta calculations
-  const eyeDelta = (currentSession && baselineSession)
-    ? Math.round((currentSession.eyeContactPercentage || 0) - (baselineSession.eyeContactPercentage || 0))
-    : 0;
-  const postureDelta = (currentSession && baselineSession)
-    ? Math.round((currentSession.postureScore || 0) - (baselineSession.postureScore || 0))
-    : 0;
-  const confidenceDelta = (currentSession && baselineSession)
-    ? Math.round((currentSession.confidenceScore || 0) - (baselineSession.confidenceScore || 0))
-    : 0;
-  const fillerDelta = (currentSession && baselineSession)
-    ? (baselineSession.fillerWordsCount || 0) - (currentSession.fillerWordsCount || 0)
-    : 0;
+  const baselineConfidence = baselineSession ? getConfidence(baselineSession) : 0;
+  const currentConfidence = currentSession ? getConfidence(currentSession) : 0;
+  const confidenceDelta = currentConfidence - baselineConfidence;
+
+  const baselineEye = baselineSession ? getEyeContact(baselineSession) : 0;
+  const currentEye = currentSession ? getEyeContact(currentSession) : 0;
+  const eyeDelta = currentEye - baselineEye;
+
+  const baselinePosture = baselineSession ? getPosture(baselineSession) : 0;
+  const currentPosture = currentSession ? getPosture(currentSession) : 0;
+  const postureDelta = currentPosture - baselinePosture;
+
+  const baselineWpm = baselineSession ? getWpm(baselineSession) : 0;
+  const currentWpm = currentSession ? getWpm(currentSession) : 0;
+
+  const baselineFillers = baselineSession ? getFillers(baselineSession) : 0;
+  const currentFillers = currentSession ? getFillers(currentSession) : 0;
+  const fillerDelta = baselineFillers - currentFillers;
 
   return (
     <div className="min-h-screen bg-background">
@@ -206,7 +221,7 @@ export default function Dashboard() {
         {sessionsList.length >= 2 && baselineSession && currentSession && (
           <Card className="border-2 border-primary/20 bg-card shadow-xs overflow-hidden">
             <CardHeader className="bg-muted/30 border-b border-border/40 pb-4">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider">
                     <ArrowRightLeft className="h-4 w-4" />
@@ -216,9 +231,41 @@ export default function Dashboard() {
                     Baseline vs Current Improvement
                   </CardTitle>
                 </div>
-                <Badge variant="outline" className="text-xs font-medium py-1 px-3 border-primary/30 text-primary">
-                  Pilot Progression Verified
-                </Badge>
+
+                {/* Session Selectors */}
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground font-medium">Baseline:</span>
+                    <select 
+                      value={baselineId || baselineSession.id} 
+                      onChange={(e) => setBaselineId(e.target.value)}
+                      className="bg-background border border-border/80 rounded px-2 py-1 text-xs text-foreground font-medium"
+                    >
+                      {sessionsList.map((s, idx) => (
+                        <option key={s.id} value={s.id}>
+                          Session #{sessionsList.length - idx}: {s.topic || 'Practice'} ({getConfidence(s)} pts)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <span className="text-muted-foreground">vs</span>
+
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground font-medium">Current:</span>
+                    <select 
+                      value={currentId || currentSession.id} 
+                      onChange={(e) => setCurrentId(e.target.value)}
+                      className="bg-background border border-border/80 rounded px-2 py-1 text-xs text-foreground font-medium"
+                    >
+                      {sessionsList.map((s, idx) => (
+                        <option key={s.id} value={s.id}>
+                          Session #{sessionsList.length - idx}: {s.topic || 'Practice'} ({getConfidence(s)} pts)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
             </CardHeader>
 
@@ -230,14 +277,14 @@ export default function Dashboard() {
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Eye Engagement</span>
                   <div className="flex items-baseline justify-between">
                     <span className="text-2xl font-bold text-foreground">
-                      {Math.round(currentSession.eyeContactPercentage || 0)}%
+                      {currentEye}%
                     </span>
                     <span className={`text-xs font-semibold flex items-center ${eyeDelta >= 0 ? 'text-green-600' : 'text-amber-600'}`}>
                       {eyeDelta >= 0 ? `+${eyeDelta}%` : `${eyeDelta}%`}
                     </span>
                   </div>
                   <div className="text-[11px] text-muted-foreground pt-1">
-                    Initial Baseline: {Math.round(baselineSession.eyeContactPercentage || 0)}%
+                    Initial Baseline: {baselineEye}%
                   </div>
                 </div>
 
@@ -246,14 +293,14 @@ export default function Dashboard() {
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Posture Alignment</span>
                   <div className="flex items-baseline justify-between">
                     <span className="text-2xl font-bold text-foreground">
-                      {Math.round(currentSession.postureScore || 0)}%
+                      {currentPosture}%
                     </span>
                     <span className={`text-xs font-semibold flex items-center ${postureDelta >= 0 ? 'text-green-600' : 'text-amber-600'}`}>
                       {postureDelta >= 0 ? `+${postureDelta}%` : `${postureDelta}%`}
                     </span>
                   </div>
                   <div className="text-[11px] text-muted-foreground pt-1">
-                    Initial Baseline: {Math.round(baselineSession.postureScore || 0)}%
+                    Initial Baseline: {baselinePosture}%
                   </div>
                 </div>
 
@@ -262,14 +309,14 @@ export default function Dashboard() {
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Speech Pacing</span>
                   <div className="flex items-baseline justify-between">
                     <span className="text-2xl font-bold text-foreground">
-                      {Math.round(currentSession.wordsPerMinute || 0)} <span className="text-xs font-normal text-muted-foreground">WPM</span>
+                      {currentWpm} <span className="text-xs font-normal text-muted-foreground">WPM</span>
                     </span>
                     <Badge variant="secondary" className="text-[10px] font-normal">
-                      {currentSession.wordsPerMinute >= 125 && currentSession.wordsPerMinute <= 165 ? 'Optimal Band' : 'Needs Practice'}
+                      {currentWpm >= 125 && currentWpm <= 165 ? 'Optimal Band' : 'Pacing Adjustment'}
                     </Badge>
                   </div>
                   <div className="text-[11px] text-muted-foreground pt-1">
-                    Initial Baseline: {Math.round(baselineSession.wordsPerMinute || 0)} WPM
+                    Initial Baseline: {baselineWpm} WPM
                   </div>
                 </div>
 
@@ -278,14 +325,14 @@ export default function Dashboard() {
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Filler Words Count</span>
                   <div className="flex items-baseline justify-between">
                     <span className="text-2xl font-bold text-foreground">
-                      {currentSession.fillerWordsCount || 0}
+                      {currentFillers}
                     </span>
                     <span className={`text-xs font-semibold flex items-center ${fillerDelta >= 0 ? 'text-green-600' : 'text-amber-600'}`}>
                       {fillerDelta > 0 ? `-${fillerDelta} Less` : fillerDelta === 0 ? 'Constant' : `+${Math.abs(fillerDelta)}`}
                     </span>
                   </div>
                   <div className="text-[11px] text-muted-foreground pt-1">
-                    Initial Baseline: {baselineSession.fillerWordsCount || 0} fillers
+                    Initial Baseline: {baselineFillers} fillers
                   </div>
                 </div>
 
@@ -378,11 +425,11 @@ export default function Dashboard() {
                       {s.topic || 'General Practice Session'}
                     </span>
                     <Badge variant="outline" className="text-[10px] py-0 px-1.5 font-normal">
-                      {Math.floor((s.duration || 0) / 60)}m {(s.duration || 0) % 60}s
+                      {Math.floor(getDuration(s) / 60)}m {getDuration(s) % 60}s
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(s.createdAt).toLocaleDateString(undefined, {
+                    {new Date(getCreatedAt(s)).toLocaleDateString(undefined, {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',
@@ -395,15 +442,15 @@ export default function Dashboard() {
                 <div className="flex items-center gap-4 text-xs">
                   <div className="text-right">
                     <span className="text-muted-foreground block text-[10px] uppercase">Score</span>
-                    <span className="font-bold text-primary text-sm">{Math.round(s.confidenceScore || 0)} / 100</span>
+                    <span className="font-bold text-primary text-sm">{getConfidence(s)} / 100</span>
                   </div>
                   <div className="text-right">
                     <span className="text-muted-foreground block text-[10px] uppercase">Eye Contact</span>
-                    <span className="font-medium text-foreground">{Math.round(s.eyeContactPercentage || 0)}%</span>
+                    <span className="font-medium text-foreground">{getEyeContact(s)}%</span>
                   </div>
                   <div className="text-right">
                     <span className="text-muted-foreground block text-[10px] uppercase">Pacing</span>
-                    <span className="font-medium text-foreground">{Math.round(s.wordsPerMinute || 0)} WPM</span>
+                    <span className="font-medium text-foreground">{getWpm(s)} WPM</span>
                   </div>
                   <Button variant="ghost" size="sm" className="h-8 px-2 text-primary">
                     <ArrowRight className="h-4 w-4" />

@@ -133,6 +133,12 @@ async def create_session(
         print(f'Error creating session: {e}')
         raise HTTPException(status_code=500, detail=str(e))
 
+def serialize_session(session) -> dict:
+    resp = SessionResponse.model_validate(session)
+    camel = resp.model_dump(by_alias=False)
+    snake = resp.model_dump(by_alias=True)
+    return {**snake, **camel}
+
 @router.get("/api/sessions")
 async def get_sessions(
     userId: Optional[str] = None,
@@ -147,11 +153,7 @@ async def get_sessions(
         if sessions is None:
             return []
         
-        # Convert each session to Pydantic and serialize with camelCase
-        return [
-            SessionResponse.model_validate(session).model_dump(by_alias=True)
-            for session in sessions
-        ]
+        return [serialize_session(session) for session in sessions]
     
     except Exception as e:
         import traceback
@@ -172,9 +174,7 @@ async def get_session(session_id: str, db: AsyncSession = Depends(get_db)):
         if not session:
             raise HTTPException(status_code=404, detail='Session not found')
         
-        # Convert to Pydantic model and serialize with aliases
-        session_response = SessionResponse.model_validate(session)
-        return session_response.model_dump(by_alias=True)
+        return serialize_session(session)
     
     except HTTPException:
         raise

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'wouter';
-import { Video, Square, Loader2 } from 'lucide-react';
+import { Video, Square, Loader2, HelpCircle, BookOpen, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -37,8 +37,19 @@ export default function Practice() {
   const { videoRef, isReady, error: webcamError } = useWebcam();
   const { isRecording, startRecording, stopRecording } = useAudioRecorder();
   const { aiStatus, liveFeedback, isLoadingFeedback, generateLiveFeedback } = useAIFeatures();
-  
-  const [topic, setTopic] = useState('');
+  const [topic, setTopic] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlTopic = params.get('topic');
+    return urlTopic || sessionStorage.getItem('preferredTopic') || '';
+  });
+  const [activeQuestion, setActiveQuestion] = useState<{ question: string; outline: string[] } | null>(() => {
+    try {
+      const stored = sessionStorage.getItem('practiceQuestion');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [duration, setDuration] = useState(0);
@@ -619,6 +630,30 @@ export default function Practice() {
       <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+          {activeQuestion && (
+            <div className="p-4 rounded-xl border border-primary/30 bg-primary/5 shadow-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
+                  <HelpCircle className="h-4 w-4" />
+                  Target Practice Script
+                </div>
+                <Badge variant="outline" className="text-[11px] border-primary/40 text-primary">
+                  Teleprompter Guide
+                </Badge>
+              </div>
+              <p className="text-sm md:text-base font-semibold text-foreground">
+                "{activeQuestion.question}"
+              </p>
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-[11px] font-medium text-muted-foreground">Speaking Structure:</span>
+                {activeQuestion.outline.map((step, idx) => (
+                  <Badge key={idx} variant="secondary" className="text-[11px] font-normal py-0.5 px-2">
+                    {step}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
           <Card className="border-2 border-primary/10">
             <CardContent className="p-3 sm:p-6">
               <div className="relative aspect-video bg-gradient-to-br from-muted to-muted/50 rounded-lg overflow-hidden shadow-xl">

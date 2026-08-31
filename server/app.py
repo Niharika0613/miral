@@ -23,6 +23,8 @@ try:
     from vosk import Model, KaldiRecognizer
     VOSK_AVAILABLE = True
 except ImportError:
+    Model = None
+    KaldiRecognizer = None
     VOSK_AVAILABLE = False
 
 def create_app() -> FastAPI:
@@ -132,9 +134,9 @@ def create_app() -> FastAPI:
     # ============ WebSocket & Ollama Endpoints ============
     
     # Global Vosk model
-    vosk_model: Optional[Model] = None
+    vosk_model: Optional[object] = None
     
-    def get_vosk_model() -> Optional[Model]:
+    def get_vosk_model() -> Optional[object]:
         """Lazy load Vosk model"""
         nonlocal vosk_model
         if vosk_model is None and VOSK_AVAILABLE:

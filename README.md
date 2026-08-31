@@ -2,6 +2,9 @@
 
 A full-stack, multimodal AI communication and public speaking coach that analyzes user body language, facial engagement, posture, and speech metrics in real-time, delivering supportive, actionable feedback through an intelligent mirror interface.
 
+**Live Application**: [https://miral-ai.onrender.com](https://miral-ai.onrender.com)  
+**Repository**: [https://github.com/Niharika0613/miral](https://github.com/Niharika0613/miral)
+
 ---
 
 ### Tech Stack

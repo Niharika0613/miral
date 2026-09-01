@@ -1,6 +1,6 @@
 ﻿// client/src/components/navigation.tsx
 import { Link, useLocation } from "wouter";
-import { Video, LayoutDashboard, User, LogOut, LogIn, Sparkles, Compass } from "lucide-react";
+import { Video, LayoutDashboard, User, LogOut, LogIn, Sparkles, Compass, Menu, X, ShieldCheck, HelpCircle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState } from "react";
@@ -9,9 +9,11 @@ import { logout, getCurrentUser } from "@/utils/auth";
 export function Navigation() {
   const [location] = useLocation();
   const [user, setUser] = useState<{ id: string; name: string } | null>(null);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
     setUser(getCurrentUser());
+    setIsMobileOpen(false); // Close mobile drawer on route change
   }, [location]);
 
   const navItems = [
@@ -19,6 +21,8 @@ export function Navigation() {
     { path: "/practice", label: "Practice", icon: Video },
     { path: "/scenarios", label: "Scenarios", icon: Compass },
     { path: "/learning", label: "Learn", icon: Sparkles },
+    { path: "/faq", label: "FAQ", icon: HelpCircle },
+    { path: "/contact", label: "Contact", icon: Mail },
   ];
 
   const handleLogout = () => {
@@ -32,13 +36,13 @@ export function Navigation() {
         {/* Brand & Nav */}
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="flex items-center gap-2.5 font-bold text-base tracking-tight text-foreground">
-            <div className="h-7 w-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-mono text-sm">
+            <div className="h-7 w-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-mono text-sm font-bold">
               M
             </div>
             <span>MIRAL</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location === item.path || (location === '/' && item.path === '/dashboard');
@@ -58,7 +62,7 @@ export function Navigation() {
           </nav>
         </div>
 
-        {/* Right Actions: User / Sign In + Theme Toggle */}
+        {/* Right Actions: User / Sign In + Theme Toggle + Mobile Menu Button */}
         <div className="flex items-center gap-2 sm:gap-3">
           {user ? (
             <div className="flex items-center gap-2">
@@ -86,10 +90,55 @@ export function Navigation() {
               </Button>
             </Link>
           )}
+
           <ThemeToggle />
+
+          {/* Mobile Menu Hamburger */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden h-8 w-8 p-0"
+            onClick={() => setIsMobileOpen(!isMobileOpen)}
+            aria-label="Toggle Navigation Menu"
+          >
+            {isMobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </Button>
         </div>
 
       </div>
+
+      {/* Mobile Drawer (Visible on screens < lg) */}
+      {isMobileOpen && (
+        <div className="lg:hidden border-b border-border/60 bg-card p-4 space-y-2 animate-in slide-in-from-top-2 duration-150 shadow-md">
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location === item.path;
+              return (
+                <Link key={item.path} href={item.path}>
+                  <div
+                    onClick={() => setIsMobileOpen(false)}
+                    className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all ${
+                      isActive 
+                        ? 'bg-primary/10 border-primary/30 text-primary font-semibold' 
+                        : 'bg-muted/30 border-border/40 text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="pt-2 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground">
+            <Link href="/privacy" onClick={() => setIsMobileOpen(false)} className="hover:underline">Privacy Policy</Link>
+            <Link href="/terms" onClick={() => setIsMobileOpen(false)} className="hover:underline">Terms of Service</Link>
+            <Link href="/contact" onClick={() => setIsMobileOpen(false)} className="hover:underline">Campus Pilot</Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

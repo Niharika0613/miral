@@ -1,3 +1,4 @@
+﻿// client/src/App.tsx
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -5,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/lib/theme-provider";
 import { Navigation } from "@/components/navigation";
+import { Footer } from "@/components/footer";
 import { useEffect, useState } from "react";
 import Practice from "@/pages/practice";
 import Dashboard from "@/pages/dashboard";
@@ -13,34 +15,29 @@ import Login from "@/pages/login";
 import Profile from "@/pages/profile";
 import Scenarios from "@/pages/scenarios";
 import LearningResources from "@/pages/learning-resources";
+import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms";
+import Contact from "@/pages/contact";
+import FAQ from "@/pages/faq";
 import NotFound from "@/pages/not-found";
-import { AudioStreamDemo } from "@/components/AudioStreamDemo";
+import { getCurrentUser } from "@/utils/auth";
 
-function Router({ userId }: { userId: string | null }) {
-  // If not logged in, show only login/signup
-  if (!userId) {
-    return (
-      <Switch>
-        <Route path="/login" component={Login} />
-        <Route path="/signup" component={Login} />
-        <Route component={Login} />
-      </Switch>
-    );
-  }
-
-  // If logged in, show all protected pages
+function AppRouter() {
   return (
     <Switch>
-      <Route path="/login" component={Login} />
-      <Route path="/signup" component={Login} />
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/practice" component={Practice} />
-      <Route path="/report/:id" component={Report} />
-      <Route path="/profile" component={Profile} />
       <Route path="/scenarios" component={Scenarios} />
       <Route path="/learning" component={LearningResources} />
-      <Route path="/audio-test" component={AudioStreamDemo} />
+      <Route path="/report/:id" component={Report} />
+      <Route path="/profile" component={Profile} />
+      <Route path="/login" component={Login} />
+      <Route path="/signup" component={Login} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/faq" component={FAQ} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -48,46 +45,18 @@ function Router({ userId }: { userId: string | null }) {
 
 function App() {
   const [location] = useLocation();
-  const [userId, setUserId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const isAuthPage = location === '/login';
-
-  useEffect(() => {
-    // Check sessionStorage first (cleared on browser/tab close)
-    const sessionUserId = sessionStorage.getItem('userId');
-    if (sessionUserId) {
-      setUserId(sessionUserId);
-    } else {
-      // Clear any old localStorage data
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userName');
-      setUserId(null);
-    }
-    setIsLoading(false);
-  }, []);
-
-  // Listen for storage changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const sessionUserId = sessionStorage.getItem('userId');
-      setUserId(sessionUserId);
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  if (isLoading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>;
-  }
+  const isAuthPage = location === '/login' || location === '/signup';
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <div className="min-h-screen bg-background">
-            {userId && !isAuthPage && <Navigation />}
-            <Router userId={userId} />
+          <div className="min-h-screen bg-background flex flex-col justify-between selection:bg-primary/20">
+            <Navigation />
+            <main className="flex-1">
+              <AppRouter />
+            </main>
+            {!isAuthPage && <Footer />}
           </div>
           <Toaster />
         </TooltipProvider>

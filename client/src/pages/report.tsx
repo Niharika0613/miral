@@ -154,31 +154,31 @@ function VocabularyUpgradeSection({ transcript }: { transcript: string }) {
       {
         pattern: /\b(big problem|huge problem|hard thing|trouble)\b/i,
         from: "big problem / hard thing",
-        to: "critical operational bottleneck / technical constraint",
+        to: "critical operational bottleneck",
         explanation: "Frames challenges as objective engineering problems with professional composure."
       },
       {
         pattern: /\b(very good|really good|nice|great work)\b/i,
         from: "very good / great",
-        to: "high-throughput / optimal / substantial positive ROI",
+        to: "high-throughput / substantial ROI",
         explanation: "Quantifies results with measurable business impact."
       },
       {
         pattern: /\b(told them|told my team|said to them)\b/i,
         from: "told them",
-        to: "aligned cross-functional stakeholders / delegated deliverables",
+        to: "aligned cross-functional stakeholders",
         explanation: "Demonstrates managerial empathy and executive communication."
       },
       {
         pattern: /\b(made it fast|very fast|speed up)\b/i,
         from: "made it fast / speed up",
-        to: "optimized algorithmic latency / reduced query execution time",
+        to: "optimized algorithmic latency",
         explanation: "Highlights exact technical depth and performance metrics."
       },
       {
         pattern: /\b(i think that|i feel that|maybe)\b/i,
         from: "I think that / maybe",
-        to: "Data and empirical metrics demonstrate that",
+        to: "Empirical metrics demonstrate that",
         explanation: "Eliminates hesitant fillers and projects assertive conviction."
       }
     ];
@@ -213,13 +213,19 @@ function VocabularyUpgradeSection({ transcript }: { transcript: string }) {
       </CardHeader>
       <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         {upgrades.map((item, idx) => (
-          <div key={idx} className="p-3 rounded-lg bg-muted/30 border border-border/40 text-xs space-y-1">
-            <div className="flex items-center gap-1.5 font-mono text-[11px]">
-              <span className="text-muted-foreground line-through">{item.from}</span>
-              <span className="text-muted-foreground">→</span>
-              <span className="text-primary font-bold">{item.to}</span>
+          <div key={idx} className="p-3.5 rounded-lg bg-muted/20 border border-border/40 text-xs space-y-2">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground uppercase font-semibold">
+                <span>Informal / Colloquial</span>
+                <span>Executive Upgrade</span>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded bg-muted/40 font-mono text-xs gap-2">
+                <span className="text-muted-foreground line-through truncate max-w-[45%]">{item.from}</span>
+                <ArrowRight className="h-3.5 w-3.5 text-primary shrink-0" />
+                <span className="text-primary font-bold text-right truncate max-w-[50%]">{item.to}</span>
+              </div>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">{item.explanation}</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed pt-0.5">{item.explanation}</p>
           </div>
         ))}
       </CardContent>

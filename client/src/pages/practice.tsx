@@ -23,7 +23,6 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useWebcam } from '@/hooks/use-webcam';
 import { useAudioRecorder } from '@/hooks/use-audio-recorder';
-import { useAIFeatures } from '@/hooks/useAIFeatures';
 import { detectFaces, calculateEyeContact, analyzeFace, loadFaceDetector } from '@/lib/face-detection';
 import { analyzePosture, loadPostureDetector, getPostureColor } from '@/lib/posture-detection';
 import { useToast } from '@/hooks/use-toast';
@@ -158,7 +157,6 @@ export default function Practice() {
               return 30;
             }
           }
-          // Cycle breathing steps every 4 seconds
           if (warmupPhase === 'breathing') {
             const mod = prev % 16;
             if (mod > 12) setBreathingStep('Inhale');
@@ -200,7 +198,7 @@ export default function Practice() {
         try {
           const faces = await detectFaces(videoRef.current);
           const faceAnalysis = analyzeFace(faces, videoRef.current);
-          const posture = await analyzePosture(videoRef.current);
+          const posture = await analyzePosture(videoRef.current, faces);
 
           const hasEyeContact = faceAnalysis.hasEyeContact && faceAnalysis.isInFrame;
           setCurrentEyeContact(hasEyeContact);
@@ -266,7 +264,7 @@ export default function Practice() {
       setEstimatedWPM(0);
 
       await startRecording();
-      const userId = sessionStorage.getItem('userId');
+      const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
       
       fetch('/api/sessions', {
         method: 'POST',
@@ -350,7 +348,7 @@ export default function Practice() {
       });
 
       if (response.ok) {
-        const userId = sessionStorage.getItem('userId');
+        const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
         await queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
         await queryClient.invalidateQueries({ queryKey: ['/api/sessions', userId] });
         await queryClient.invalidateQueries({ queryKey: ['/api/sessions', sessionId] });
@@ -463,50 +461,27 @@ export default function Practice() {
         </div>
       )}
 
-      <div className="container max-w-7xl mx-auto px-4 py-8 space-y-6">
+      <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
         
-        {/* Thought Scaffolding Teleprompter Banner */}
-        <div className="p-4 rounded-xl border border-border/60 bg-card shadow-xs space-y-3">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-border/40 pb-2.5">
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-primary" />
-              <span className="text-xs font-bold uppercase tracking-wider text-foreground">
-                Anti-Fumble Thought Scaffolding
-              </span>
-            </div>
-            <Badge variant="outline" className="text-[11px] text-muted-foreground border-border/80 w-fit">
-              Structured Roadmap (Prevents Freezing)
-            </Badge>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-            <div className="p-2.5 rounded-lg bg-muted/40 border border-border/40">
-              <span className="font-semibold text-primary block mb-0.5">Step 1: Core Stance</span>
-              <p className="text-muted-foreground text-[11px]">Direct 1-sentence opening answer without hesitation.</p>
-            </div>
-            <div className="p-2.5 rounded-lg bg-muted/40 border border-border/40">
-              <span className="font-semibold text-primary block mb-0.5">Step 2: Concrete Action / STAR</span>
-              <p className="text-muted-foreground text-[11px]">2-3 sentences explaining your specific technical steps.</p>
-            </div>
-            <div className="p-2.5 rounded-lg bg-muted/40 border border-border/40">
-              <span className="font-semibold text-primary block mb-0.5">Step 3: Strategic Impact</span>
-              <p className="text-muted-foreground text-[11px]">1 concluding takeaway with measurable results.</p>
-            </div>
-          </div>
-
-          {activeQuestion && (
-            <div className="pt-1">
-              <span className="text-xs font-semibold text-foreground">Target Prompt: </span>
-              <span className="text-xs text-primary font-medium">"{activeQuestion.question}"</span>
-            </div>
-          )}
-        </div>
-
         {/* Video & Real-Time Analytics Area */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* Main Video Stream */}
+          {/* Main Video Stream & Compact Prompter Deck */}
           <div className="lg:col-span-2 space-y-4">
+            
+            {/* Active Question Bar (if loaded) */}
+            {activeQuestion && (
+              <div className="p-3 rounded-lg border border-primary/30 bg-primary/5 flex items-center justify-between gap-3 text-xs">
+                <div className="space-y-0.5 flex-1">
+                  <span className="font-semibold text-primary block">Target Prompt:</span>
+                  <p className="text-foreground font-medium truncate">"{activeQuestion.question}"</p>
+                </div>
+                <Badge variant="outline" className="text-[10px] shrink-0 border-primary/30 text-primary">
+                  {activeQuestion.outline.join(' • ')}
+                </Badge>
+              </div>
+            )}
+
             <Card className="border border-border/60 bg-card shadow-xs overflow-hidden">
               <CardContent className="p-2 md:p-3">
                 <div className="relative aspect-video bg-muted rounded-lg overflow-hidden shadow-inner flex items-center justify-center">
@@ -654,7 +629,7 @@ export default function Practice() {
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground font-medium">Posture Alignment</span>
                     <Badge variant={postureScore >= 75 ? "default" : "secondary"} className="text-[10px]">
-                      {postureScore >= 75 ? 'Upright' : 'Adjust'}
+                      {currentPosture === 'good' ? 'Upright' : currentPosture === 'slouching' ? 'Slouching' : currentPosture === 'leaning' ? 'Leaning' : 'Unknown'}
                     </Badge>
                   </div>
                   <div className="text-lg font-bold text-foreground">

@@ -1,4 +1,4 @@
-﻿// client/src/pages/contact.tsx
+// client/src/pages/contact.tsx
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -141,7 +141,7 @@ export default function Contact() {
                         <Label htmlFor="contact-name" className="text-xs font-semibold text-foreground">Your Name</Label>
                         <Input
                           id="contact-name"
-                          placeholder="e.g. Niharika Pandey"
+                          placeholder="e.g. Candidate Name"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           required
@@ -204,6 +204,7 @@ export default function Contact() {
                         <option value="support">Technical Support / Bug Report</option>
                         <option value="feedback">Product Feedback & Suggestions</option>
                         <option value="partnership">Institutional Partnership</option>
+                        <option value="other">Other / General Inquiry</option>
                       </select>
                     </div>
 

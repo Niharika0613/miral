@@ -1,4 +1,4 @@
-﻿// client/src/pages/login.tsx
+// client/src/pages/login.tsx
 import { useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -100,7 +100,7 @@ export default function Login() {
                 <Label htmlFor="name" className="text-xs font-semibold text-foreground">Full Name</Label>
                 <Input
                   id="name"
-                  placeholder="e.g. Niharika Pandey"
+                  placeholder="e.g. Candidate Name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="text-xs h-9"

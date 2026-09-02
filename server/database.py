@@ -49,6 +49,8 @@ else:
     }
     if sslmode == 'disable':
         connect_args['ssl'] = False
+    else:
+        connect_args['ssl'] = True
 
     engine_kwargs = {
         "echo": False,

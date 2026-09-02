@@ -47,6 +47,16 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.on_event("startup")
+    async def startup_db_tables():
+        print("🚀 Initializing database tables...")
+        try:
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            print("✅ Database tables verified and ready.")
+        except Exception as e:
+            print(f"⚠️ Database initialization error: {e}")
     
     # Custom exception handler for validation errors (422)
     @app.exception_handler(RequestValidationError)

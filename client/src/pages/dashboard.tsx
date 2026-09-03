@@ -1,4 +1,4 @@
-﻿// client/src/pages/dashboard.tsx
+// client/src/pages/dashboard.tsx
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
@@ -140,27 +140,60 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       <div className="container max-w-7xl mx-auto px-4 py-8 space-y-8">
         
-        {/* Welcome Banner */}
-        <div className="p-6 md:p-8 rounded-xl border border-border/60 bg-card flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary mb-1">
-              <Activity className="h-4 w-4" />
-              Communication Analytics Dashboard
+        {/* Welcome & Hero Banner */}
+        <div className="p-6 md:p-8 rounded-2xl border-2 border-primary/20 bg-gradient-to-b from-card via-card to-muted/20 shadow-sm space-y-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="space-y-1.5 max-w-2xl">
+              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary px-3 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Multi-Modal AI Mirror for Campus Placements</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+                Master Interview Confidence & Speech Delivery
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Objective real-time 3D eye gaze tracking, posture alignment, vocal pacing calibration, and bilingual hesitation control — 100% private in your browser.
+              </p>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              Candidate Performance & Progress
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Track objective non-verbal engagement, vocal pacing, and quantifiable mock interview improvement.
-            </p>
+
+            <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full md:w-auto">
+              <Button 
+                className="w-full sm:w-auto font-semibold text-xs gap-2 h-9 px-5"
+                onClick={() => setLocation('/practice')}
+              >
+                <Video className="h-3.5 w-3.5" />
+                <span>Start Practice Studio</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+              <Button 
+                variant="outline"
+                className="w-full sm:w-auto font-semibold text-xs gap-2 h-9 px-4 border-border/70"
+                onClick={() => setLocation('/login')}
+              >
+                <span>Candidate Sign In</span>
+              </Button>
+            </div>
           </div>
-          <Button 
-            className="font-semibold text-xs gap-2 px-4 py-2"
-            onClick={() => setLocation('/scenarios')}
-          >
-            <span>Launch New Session</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Button>
+
+          {/* Quick Capability Highlights */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t border-border/40">
+            <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-0.5 text-xs">
+              <span className="font-bold text-foreground block">3D Iris Tracking</span>
+              <p className="text-[11px] text-muted-foreground">478-point facial mesh via WebAssembly</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-0.5 text-xs">
+              <span className="font-bold text-foreground block">130–155 WPM Pacing</span>
+              <p className="text-[11px] text-muted-foreground">Real-time speech rate & filler counter</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-0.5 text-xs">
+              <span className="font-bold text-foreground block">Custom Teleprompter</span>
+              <p className="text-[11px] text-muted-foreground">Practice your own resume script</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-0.5 text-xs">
+              <span className="font-bold text-foreground block">100% Client Privacy</span>
+              <p className="text-[11px] text-muted-foreground">Zero video uploads or cloud storage</p>
+            </div>
+          </div>
         </div>
 
         {/* Aggregate Stats Cards */}

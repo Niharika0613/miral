@@ -1,4 +1,4 @@
-﻿// client/src/components/navigation.tsx
+// client/src/components/navigation.tsx
 import { Link, useLocation } from "wouter";
 import { Video, LayoutDashboard, User, LogOut, LogIn, Sparkles, Compass, Menu, X, ShieldCheck, HelpCircle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,11 +35,21 @@ export function Navigation() {
         
         {/* Brand & Nav */}
         <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="flex items-center gap-2.5 font-bold text-base tracking-tight text-foreground">
-            <div className="h-7 w-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-mono text-sm font-bold">
-              M
-            </div>
-            <span>MIRAL</span>
+          <Link href="/dashboard" className="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 40" width="120" height="34">
+              <defs>
+                <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#2563eb" />
+                  <stop offset="100%" stopColor="#06b6d4" />
+                </linearGradient>
+              </defs>
+              <rect x="0" y="8" width="6" height="24" rx="3" fill="url(#waveGrad)" />
+              <rect x="10" y="16" width="6" height="16" rx="3" fill="url(#waveGrad)" />
+              <rect x="20" y="10" width="6" height="22" rx="3" fill="url(#waveGrad)" />
+              <rect x="30" y="16" width="6" height="16" rx="3" fill="url(#waveGrad)" />
+              <rect x="40" y="8" width="6" height="24" rx="3" fill="url(#waveGrad)" />
+              <text x="56" y="28" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontSize="22" fontWeight="900" fill="currentColor" letterSpacing="-0.5">MIRAL</text>
+            </svg>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">

@@ -1,4 +1,4 @@
-﻿// client/src/pages/login.tsx
+// client/src/pages/login.tsx
 import { useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -123,10 +123,20 @@ export default function Login() {
       <Card className="w-full max-w-md border border-border/80 shadow-lg bg-card">
         <CardHeader className="text-center pb-4 border-b border-border/40 bg-muted/20">
           <div className="flex flex-col items-center mb-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-mono text-lg font-bold mb-2">
-              M
-            </div>
-            <span className="text-xs font-bold uppercase tracking-widest text-primary">MIRAL AI</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 40" width="110" height="32">
+              <defs>
+                <linearGradient id="waveGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#2563eb" />
+                  <stop offset="100%" stopColor="#06b6d4" />
+                </linearGradient>
+              </defs>
+              <rect x="0" y="8" width="6" height="24" rx="3" fill="url(#waveGradLogin)" />
+              <rect x="10" y="16" width="6" height="16" rx="3" fill="url(#waveGradLogin)" />
+              <rect x="20" y="10" width="6" height="22" rx="3" fill="url(#waveGradLogin)" />
+              <rect x="30" y="16" width="6" height="16" rx="3" fill="url(#waveGradLogin)" />
+              <rect x="40" y="8" width="6" height="24" rx="3" fill="url(#waveGradLogin)" />
+              <text x="56" y="28" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontSize="22" fontWeight="900" fill="currentColor" letterSpacing="-0.5">MIRAL</text>
+            </svg>
           </div>
           <CardTitle className="text-xl font-bold tracking-tight text-foreground">
             {mode === 'login' && 'Sign In to Your Workspace'}

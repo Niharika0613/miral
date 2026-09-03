@@ -15,7 +15,8 @@ import {
   CheckCircle2,
   Play,
   X,
-  AlertCircle
+  AlertCircle,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,6 +50,12 @@ export default function Practice() {
       return null;
     }
   });
+
+  const [customScript, setCustomScript] = useState<string>(() => {
+    return sessionStorage.getItem('practiceScript') || '';
+  });
+
+  const [prompterFontSize, setPrompterFontSize] = useState<number>(14);
 
   const hasSpeechRecognition = typeof window !== 'undefined' && (('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window));
 
@@ -482,6 +489,57 @@ export default function Practice() {
           {/* Main Video Stream & Prompter Deck */}
           <div className="lg:col-span-2 space-y-4">
             
+            {/* Custom Teleprompter Box */}
+            {customScript && (
+              <div className="p-4 rounded-xl border-2 border-primary/30 bg-card shadow-xs space-y-2">
+                <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-3.5 w-3.5 text-primary" />
+                    <span className="font-bold text-xs uppercase tracking-wider text-foreground">
+                      Live Teleprompter Notes
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center border border-border/60 rounded-md overflow-hidden bg-muted/40">
+                      <button
+                        type="button"
+                        onClick={() => setPrompterFontSize(prev => Math.max(prev - 2, 11))}
+                        className="px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
+                        title="Smaller Font"
+                      >
+                        A-
+                      </button>
+                      <span className="text-[10px] px-1 font-mono text-muted-foreground border-x border-border/40">
+                        {prompterFontSize}px
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setPrompterFontSize(prev => Math.min(prev + 2, 22))}
+                        className="px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
+                        title="Larger Font"
+                      >
+                        A+
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCustomScript('')}
+                      className="text-muted-foreground hover:text-foreground p-1 rounded"
+                      title="Hide Teleprompter"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+                <div 
+                  className="max-h-36 overflow-y-auto leading-relaxed text-foreground whitespace-pre-line font-medium p-2.5 rounded bg-muted/20 border border-border/20"
+                  style={{ fontSize: `${prompterFontSize}px` }}
+                >
+                  {customScript}
+                </div>
+              </div>
+            )}
+
             {/* Active Question Bar (if loaded) */}
             {activeQuestion && (
               <div className="p-3.5 rounded-xl border border-primary/30 bg-primary/5 space-y-2 text-xs relative">

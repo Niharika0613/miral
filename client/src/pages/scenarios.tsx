@@ -3,21 +3,21 @@ import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { 
   Briefcase, 
-  Plane, 
-  Code, 
-  MessageSquare, 
   Users, 
-  LineChart, 
-  Zap, 
+  Code, 
+  Sparkles, 
   ArrowRight,
-  Sparkles,
-  ShieldCheck,
-  PlayCircle,
-  HelpCircle
+  FileText,
+  Play,
+  RotateCcw,
+  CheckCircle2
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export interface PracticeQuestion {
   id: string;
@@ -28,333 +28,349 @@ export interface PracticeQuestion {
 export interface Scenario {
   id: string;
   title: string;
-  category: 'placement' | 'aviation' | 'tech' | 'executive';
+  category: 'placement' | 'gd' | 'tech' | 'pitch';
   description: string;
   icon: any;
   difficulty: 'Foundation' | 'Intermediate' | 'Advanced';
   duration: string;
-  skills: string[];
   questions: PracticeQuestion[];
 }
 
 export const PRACTICE_SCENARIOS: Scenario[] = [
   {
     id: 'campus-placement-hr',
-    title: 'Campus Placement HR & Behavioral',
+    title: 'Campus Placement & HR Round',
     category: 'placement',
-    description: 'Master standard HR screening questions and STAR-formatted behavioral responses for placement drives.',
+    description: 'Essential behavioral & self-introduction questions asked across on-campus recruitment drives.',
     icon: Briefcase,
     difficulty: 'Foundation',
-    duration: '5-15 min',
-    skills: ['STAR Structure', 'Eye Contact', 'Pacing'],
+    duration: '5-10 min',
     questions: [
       {
         id: 'hr-intro',
-        question: 'Introduce yourself and walk me through your technical background and career goals.',
-        outline: ['1. Academic foundation', '2. Key projects & tech stack', '3. Why you are enthusiastic about this role']
+        question: 'Introduce yourself, your academic background, and what drives your career ambitions.',
+        outline: ['Educational background', 'Key technical strengths & projects', 'Why you want this role']
       },
       {
-        id: 'hr-conflict',
-        question: 'Describe a challenging bug or team conflict you encountered and how you resolved it using the STAR method.',
-        outline: ['1. Situation: Project context', '2. Task: Your responsibility', '3. Action: Specific steps taken', '4. Result: Measurable outcome']
-      },
-      {
-        id: 'hr-strengths',
-        question: 'What are your core technical strengths, and what is one area you are actively improving?',
-        outline: ['1. Primary strength with evidence', '2. Constructive area of growth', '3. Action taken to improve']
+        id: 'hr-challenge',
+        question: 'Describe a challenging project or conflict you solved using the STAR method.',
+        outline: ['Situation & context', 'Your specific role & action', 'Measurable result & learning']
       },
       {
         id: 'hr-why-hire',
-        question: 'Why should our company hire you over other qualified candidates in this placement drive?',
-        outline: ['1. Alignment with company culture', '2. Fast learning agility', '3. Drive to deliver impact']
+        question: 'Why should we select you over other qualified candidates from your batch?',
+        outline: ['Core skills alignment', 'Fast learning agility', 'Drive to add measurable value']
       }
     ]
   },
   {
-    id: 'cabin-crew-gd',
-    title: 'Cabin Crew & Aviation GD',
-    category: 'aviation',
-    description: 'Practice grooming, posture composure, visual warmth, and structured group discussion for airline selections.',
-    icon: Plane,
+    id: 'group-discussion-gd',
+    title: 'Group Discussion (GD) & Debates',
+    category: 'gd',
+    description: 'Practice crisp opening statements, logical arguments, and polite turn-taking for GD screenings.',
+    icon: Users,
     difficulty: 'Intermediate',
     duration: '5-10 min',
-    skills: ['Poise & Posture', 'Courteous Modulation', 'Composure'],
     questions: [
       {
-        id: 'crew-intro',
-        question: 'Introduce yourself and explain why you want to represent our airline as a flight attendant.',
-        outline: ['1. Warm opening & background', '2. Passion for hospitality & aviation safety', '3. Alignment with our airline values']
+        id: 'gd-ai-jobs',
+        question: 'GD Topic: Will generative AI displace knowledge workers or create higher-order opportunities?',
+        outline: ['Opening stance & balance', 'Real-world industry example', 'Forward-looking conclusion']
       },
       {
-        id: 'crew-turbulence',
-        question: 'How would you handle an anxious or demanding passenger refusing seatbelt instructions during severe turbulence?',
-        outline: ['1. Stay calm & empathetic', '2. Explain safety protocol clearly', '3. Offer reassuring assistance without compromising flight rules']
+        id: 'gd-speed-quality',
+        question: 'GD Topic: What matters more in fast-paced teams — rapid speed to market or absolute perfection?',
+        outline: ['Acknowledge trade-offs', 'Provide context-based reasoning', 'Synthesize balanced middle ground']
       },
       {
-        id: 'crew-gd-topic',
-        question: 'GD Topic: What is more critical in commercial aviation — absolute punctuality or passenger empathy?',
-        outline: ['1. Acknowledge both operational safety and customer satisfaction', '2. Give a balanced real-world example', '3. Synthesize a unified conclusion']
-      },
-      {
-        id: 'crew-teamwork',
-        question: 'Describe a situation where you had to coordinate with a difficult team member under tight time constraints.',
-        outline: ['1. Focus on mutual goal', '2. Direct, respectful communication', '3. Successful team delivery']
+        id: 'gd-remote-work',
+        question: 'GD Topic: Is fully remote work sustainable for entry-level engineering and product teams?',
+        outline: ['Benefits of flexibility vs collaboration', 'Mentorship challenges', 'Hybrid solution']
       }
     ]
   },
   {
-    id: 'campus-gd-debate',
-    title: 'Group Discussion & Debate',
-    category: 'placement',
-    description: 'Learn to initiate discussions, present clear arguments, avoid filler words, and summarize effectively.',
-    icon: MessageSquare,
-    difficulty: 'Intermediate',
-    duration: '5-10 min',
-    skills: ['Assertive Articulation', 'No Fillers', 'Cadence'],
-    questions: [
-      {
-        id: 'debate-ai',
-        question: 'Debate Opening: Will Generative AI eliminate software engineering jobs or amplify developer productivity?',
-        outline: ['1. Strong opening stance', '2. Empirical evidence / developer tools', '3. Evolution of software craftsmanship']
-      },
-      {
-        id: 'debate-remote',
-        question: 'GD Topic: Remote work vs Return to office in corporate India — which model fosters sustainable career growth?',
-        outline: ['1. Flexibility vs in-person mentorship', '2. Productivity metrics & work-life integration', '3. Hybrid consensus recommendation']
-      },
-      {
-        id: 'debate-social',
-        question: 'Debate: Social media impact on youth — democratization of knowledge vs attention deficit crisis.',
-        outline: ['1. Information access benefits', '2. Cognitive attention costs', '3. Digital mindfulness framework']
-      },
-      {
-        id: 'debate-ev',
-        question: 'GD Summary: Electric vehicle infrastructure in developing economies — opportunities and bottlenecks.',
-        outline: ['1. Environmental & economic imperative', '2. Grid & charging hurdles', '3. Forward-looking summary']
-      }
-    ]
-  },
-  {
-    id: 'sde-technical-walkthrough',
-    title: 'Software Engineering (SDE) Walkthrough',
+    id: 'technical-project-defense',
+    title: 'Technical Project Defense & Viva',
     category: 'tech',
-    description: 'Communicate complex system architecture, database choices, and algorithms clearly to technical interviewers.',
+    description: 'Explain complex engineering architectures, database decisions, and bug-fixing trade-offs calmly.',
     icon: Code,
-    difficulty: 'Advanced',
-    duration: '10-20 min',
-    skills: ['Technical Clarity', 'Conciseness', 'Flow'],
-    questions: [
-      {
-        id: 'sde-arch',
-        question: 'Walk through the high-level architecture, database choices, and scalability of your flagship full-stack project.',
-        outline: ['1. High-level architecture diagram in words', '2. SQL/NoSQL schema tradeoffs', '3. Handling concurrency & auth']
-      },
-      {
-        id: 'sde-opt',
-        question: 'Explain how you identify performance bottlenecks and optimize database queries under high concurrent load.',
-        outline: ['1. Profiling tools & indexing', '2. Caching layers (Redis)', '3. Connection pooling & async workers']
-      },
-      {
-        id: 'sde-tradeoff',
-        question: 'Tell me about a time you made a deliberate technical compromise between shipping quickly and long-term code quality.',
-        outline: ['1. Product constraint & deadline', '2. The shortcut taken vs risk mitigation', '3. Technical debt payback plan']
-      }
-    ]
-  },
-  {
-    id: 'consulting-case-presentation',
-    title: 'Consulting & Case Analysis',
-    category: 'executive',
-    description: 'Structure root-cause analysis, frame hypotheses, and present data-backed recommendations with authority.',
-    icon: LineChart,
-    difficulty: 'Advanced',
-    duration: '10-15 min',
-    skills: ['Structured Thinking', 'Executive Tone', 'Clarity'],
-    questions: [
-      {
-        id: 'case-margin',
-        question: 'Case Prompt: A retail supermarket chain is seeing a 20% margin decline in urban centers. Structure your diagnosis.',
-        outline: ['1. Clarifying questions & scope', '2. Revenue vs Cost breakdown', '3. Recommendation & next steps']
-      },
-      {
-        id: 'case-entry',
-        question: 'Market Entry: How would you evaluate whether an EV scooter company should expand into Southeast Asia?',
-        outline: ['1. Market attractiveness (TAM, regulatory)', '2. Competitive landscape', '3. Financial feasibility & supply chain']
-      }
-    ]
-  },
-  {
-    id: 'sales-executive-pitch',
-    title: 'Executive Pitch & Keynote',
-    category: 'executive',
-    description: 'Deliver persuasive product propositions, handle objections calmly, and engage professional stakeholders.',
-    icon: Zap,
-    difficulty: 'Advanced',
+    difficulty: 'Intermediate',
     duration: '5-10 min',
-    skills: ['Persuasion', 'Vocal Energy', 'Engagement'],
     questions: [
       {
-        id: 'pitch-elevator',
-        question: 'Deliver a compelling 2-minute elevator pitch for your startup vision or enterprise software proposition.',
-        outline: ['1. The sharp burning problem', '2. Your unique product solution', '3. Clear business upside & CTA']
+        id: 'tech-architecture',
+        question: 'Walk me through the end-to-end architecture of your most impactful project.',
+        outline: ['Problem solved & user base', 'Tech stack & database decisions', 'Key bottlenecks resolved']
       },
       {
-        id: 'pitch-budget',
-        question: 'Present an executive proposal to leadership requesting budget approval for an engineering modernization initiative.',
-        outline: ['1. Current efficiency losses & risks', '2. Projected ROI & cost savings', '3. Phased rollout timeline']
+        id: 'tech-tradeoff',
+        question: 'Describe a major technical compromise or design trade-off you had to make.',
+        outline: ['Why the trade-off was necessary', 'Alternatives evaluated', 'Outcome & retrospection']
       }
     ]
   },
+  {
+    id: 'executive-pitch',
+    title: '60-Second Pitch & Self-Marketing',
+    category: 'pitch',
+    description: 'Deliver concise, impactful 60-second value propositions for leadership reviews and client pitches.',
+    icon: Sparkles,
+    difficulty: 'Advanced',
+    duration: '2-5 min',
+    questions: [
+      {
+        id: 'pitch-60s',
+        question: 'Deliver your 60-second personal elevator pitch to an executive or recruiter.',
+        outline: ['Who you are & core superpower', 'What problems you solve', 'Definitive call to action']
+      }
+    ]
+  }
 ];
 
 export default function Scenarios() {
   const [, setLocation] = useLocation();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const { toast } = useToast();
 
-  const filteredScenarios = selectedCategory === 'all'
-    ? PRACTICE_SCENARIOS
-    : PRACTICE_SCENARIOS.filter(s => s.category === selectedCategory);
+  // Custom Script State
+  const [customTopic, setCustomTopic] = useState('');
+  const [customScript, setCustomScript] = useState('');
 
-  const startScenario = (scenario: Scenario, question?: PracticeQuestion) => {
-    const topic = question ? `${scenario.title}: ${question.question.substring(0, 45)}...` : scenario.title;
-    sessionStorage.setItem('preferredTopic', topic);
-    if (question) {
-      sessionStorage.setItem('practiceQuestion', JSON.stringify(question));
-    } else {
-      sessionStorage.removeItem('practiceQuestion');
+  const handleLaunchCustom = () => {
+    if (!customScript.trim() && !customTopic.trim()) {
+      toast({
+        title: "Please enter your script or topic",
+        description: "Paste your speech or enter a topic to launch practice.",
+        variant: "destructive"
+      });
+      return;
     }
-    setLocation(`/practice?scenario=${scenario.id}&topic=${encodeURIComponent(topic)}`);
+
+    const topicTitle = customTopic.trim() || 'Custom Prepared Speech';
+    sessionStorage.setItem('preferredTopic', topicTitle);
+    sessionStorage.setItem('practiceScript', customScript.trim());
+    sessionStorage.removeItem('practiceQuestion');
+
+    toast({
+      title: "Teleprompter Ready",
+      description: "Launching practice room with your custom speech script...",
+    });
+
+    setLocation(`/practice?topic=${encodeURIComponent(topicTitle)}`);
+  };
+
+  const handleLaunchQuestion = (scenario: Scenario, q: PracticeQuestion) => {
+    sessionStorage.setItem('preferredTopic', `${scenario.title} — ${q.question.substring(0, 35)}...`);
+    sessionStorage.setItem('practiceQuestion', JSON.stringify({
+      question: q.question,
+      outline: q.outline
+    }));
+    sessionStorage.removeItem('practiceScript');
+
+    setLocation(`/practice?topic=${encodeURIComponent(scenario.title)}`);
+  };
+
+  const setScriptTemplate = (templateType: 'intro' | 'star' | 'pitch') => {
+    if (templateType === 'intro') {
+      setCustomTopic('Campus HR Self-Introduction');
+      setCustomScript(`Good morning. My name is [Your Name], and I am currently completing my degree in [Your Major] at [Your University].
+
+Over the past two years, I have focused extensively on [Key Skill 1, e.g. Full-Stack Development] and [Key Skill 2, e.g. Data Structures]. In my latest project, I architected a [Brief project description] which helped [Key metric or user outcome].
+
+I am excited about this opportunity because your team's work in [Company domain/product] directly aligns with my goal to build high-performance systems.`);
+    } else if (templateType === 'star') {
+      setCustomTopic('STAR Story — Technical Challenge');
+      setCustomScript(`Situation: During our final semester capstone project, our application began experiencing intermittent 500 latency spikes.
+
+Task: As the lead backend engineer, my responsibility was to diagnose the database bottleneck and restore response times under 200ms.
+
+Action: I profiled our SQL queries, added composite indexing, and migrated our session storage to Redis caching.
+
+Result: This reduced peak response times by 68% and allowed our service to handle 500 concurrent mock users without errors.`);
+    } else if (templateType === 'pitch') {
+      setCustomTopic('60-Second Elevator Pitch');
+      setCustomScript(`Hi, I'm [Your Name]. I specialize in translating complex technical requirements into clean, user-friendly digital products.
+
+Unlike typical developers who only focus on code syntax, I focus on business outcomes and clear communication. 
+
+I'm looking to join a fast-moving team where I can take ownership of critical features and deliver immediate impact from day one.`);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-6xl mx-auto px-4 py-8 space-y-8">
-        
-        {/* Header Section */}
-        <div className="border-b border-border/40 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary mb-1">
-              <ShieldCheck className="h-4 w-4" />
-              Role-Specific Practice Tracks & Curated Scripts
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Interview, Speech & Debate Scenarios
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Choose a dedicated track or launch straight into curated real-world questions with live teleprompter key points.
-            </p>
-          </div>
+    <div className="min-h-screen bg-background py-10">
+      <div className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
 
-          {/* Category Filter Tabs */}
-          <div className="flex flex-wrap gap-1.5 p-1 bg-muted/60 rounded-lg border border-border/40 text-xs">
-            {[
-              { id: 'all', label: 'All Tracks' },
-              { id: 'placement', label: 'Campus Placements' },
-              { id: 'aviation', label: 'Aviation & Cabin Crew' },
-              { id: 'tech', label: 'Technical SDE' },
-              { id: 'executive', label: 'Executive & Pitch' },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedCategory(tab.id)}
-                className={`px-3 py-1.5 rounded-md font-medium transition-all ${
-                  selectedCategory === tab.id
-                    ? 'bg-background text-foreground shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+        {/* Header */}
+        <div className="text-center max-w-2xl mx-auto space-y-2.5">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>Practice Modes & Scenarios</span>
           </div>
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-foreground">
+            Choose What You Want to Practice
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            Paste your own prepared script to practice with our live teleprompter, or select a standard placement scenario below.
+          </p>
         </div>
 
-        {/* Scenario Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredScenarios.map((scenario) => {
-            const Icon = scenario.icon;
-            return (
-              <Card
-                key={scenario.id}
-                className="border border-border/60 hover:border-primary/40 transition-all duration-200 shadow-xs flex flex-col justify-between bg-card"
+        {/* 1. Custom Speech / Script Notepad Card (Prominent & Top) */}
+        <Card className="border-2 border-primary/30 shadow-md bg-card overflow-hidden">
+          <CardHeader className="bg-primary/5 border-b border-primary/20 pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" />
+                <CardTitle className="text-sm md:text-base font-bold text-foreground">
+                  Practice Your Own Prepared Speech / Script
+                </CardTitle>
+              </div>
+              <Badge variant="outline" className="text-[10px] border-primary/40 text-primary w-fit">
+                Live Teleprompter + Eye Gaze Audit
+              </Badge>
+            </div>
+            <CardDescription className="text-xs text-muted-foreground mt-1">
+              Have your own resume intro, project speech, or GD notes prepared? Paste it here to read while MIRAL tracks your eye contact and vocal pace.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="p-4 sm:p-6 space-y-4">
+            
+            {/* Quick Templates */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-semibold text-muted-foreground">Quick Templates:</span>
+              <button
+                type="button"
+                onClick={() => setScriptTemplate('intro')}
+                className="text-xs px-2.5 py-1 rounded-md border border-border/70 bg-muted/40 hover:bg-primary/10 hover:text-primary hover:border-primary/40 transition-colors font-medium text-foreground"
               >
-                <div>
-                  <CardHeader className="pb-3 border-b border-border/30 bg-muted/10">
-                    <div className="flex items-center justify-between gap-2 mb-2">
+                Self-Intro Template
+              </button>
+              <button
+                type="button"
+                onClick={() => setScriptTemplate('star')}
+                className="text-xs px-2.5 py-1 rounded-md border border-border/70 bg-muted/40 hover:bg-primary/10 hover:text-primary hover:border-primary/40 transition-colors font-medium text-foreground"
+              >
+                STAR Story Template
+              </button>
+              <button
+                type="button"
+                onClick={() => setScriptTemplate('pitch')}
+                className="text-xs px-2.5 py-1 rounded-md border border-border/70 bg-muted/40 hover:bg-primary/10 hover:text-primary hover:border-primary/40 transition-colors font-medium text-foreground"
+              >
+                60s Pitch Template
+              </button>
+              {(customScript || customTopic) && (
+                <button
+                  type="button"
+                  onClick={() => { setCustomScript(''); setCustomTopic(''); }}
+                  className="text-xs text-muted-foreground hover:text-destructive transition-colors ml-auto font-medium"
+                >
+                  Clear Notepad
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label htmlFor="custom-topic" className="text-xs font-semibold text-foreground">
+                  Speech / Topic Name (Optional)
+                </label>
+                <Input
+                  id="custom-topic"
+                  placeholder="e.g., My TCS HR Self-Introduction, GD Opening on AI"
+                  value={customTopic}
+                  onChange={(e) => setCustomTopic(e.target.value)}
+                  className="text-xs h-9"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="custom-script-text" className="text-xs font-semibold text-foreground">
+                  Your Prepared Speech Script or Bullet Points
+                </label>
+                <Textarea
+                  id="custom-script-text"
+                  placeholder="Paste your speech here... (e.g. Good morning, my name is... In my project I built...)"
+                  value={customScript}
+                  onChange={(e) => setCustomScript(e.target.value)}
+                  className="text-xs font-mono min-h-32 leading-relaxed"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-1">
+              <Button
+                onClick={handleLaunchCustom}
+                className="text-xs font-semibold h-9 px-5 gap-2 w-full sm:w-auto"
+              >
+                <Play className="h-3.5 w-3.5" />
+                <span>Launch Teleprompter & Camera Practice</span>
+                <ArrowRight className="h-3.5 w-3.5 ml-1" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 2. Standard Curated Practice Scenarios (Simplified & Clean) */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold text-foreground">
+              Or Choose a Curated Placement Track
+            </h2>
+            <span className="text-xs text-muted-foreground">1-Click Launch</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {PRACTICE_SCENARIOS.map((scenario) => {
+              const Icon = scenario.icon;
+              return (
+                <Card key={scenario.id} className="border border-border/60 shadow-xs bg-card hover:border-primary/40 transition-all flex flex-col justify-between">
+                  <CardHeader className="pb-3 border-b border-border/30">
+                    <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5">
-                        <div className="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
-                          <Icon className="h-5 w-5" />
+                        <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                          <Icon className="h-4 w-4" />
                         </div>
-                        <Badge variant="outline" className="text-xs font-medium border-border/80">
-                          {scenario.duration}
-                        </Badge>
+                        <div>
+                          <CardTitle className="text-sm font-bold text-foreground">
+                            {scenario.title}
+                          </CardTitle>
+                          <span className="text-[11px] text-muted-foreground">
+                            {scenario.duration} • {scenario.difficulty}
+                          </span>
+                        </div>
                       </div>
-                      <Badge variant="secondary" className="text-[11px]">
-                        {scenario.difficulty}
-                      </Badge>
                     </div>
-                    <CardTitle className="text-base font-semibold text-foreground">
-                      {scenario.title}
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground leading-relaxed mt-1">
+                    <CardDescription className="text-xs text-muted-foreground mt-2 leading-relaxed">
                       {scenario.description}
                     </CardDescription>
                   </CardHeader>
 
-                  <CardContent className="space-y-4 pt-4">
-                    {/* Key Evaluation Focus */}
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[11px] font-medium text-muted-foreground">Focus:</span>
-                      {scenario.skills.map((skill) => (
-                        <Badge key={skill} variant="secondary" className="text-[10px] font-normal py-0.5 px-2">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    {/* Curated Question Scripts */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                        <HelpCircle className="h-3.5 w-3.5 text-primary" />
-                        <span>Curated Practice Questions (Click to Launch):</span>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        {scenario.questions.map((q, idx) => (
-                          <div
-                            key={q.id}
-                            onClick={() => startScenario(scenario, q)}
-                            className="p-2.5 rounded-lg bg-muted/40 hover:bg-primary/10 border border-border/40 hover:border-primary/30 transition-all cursor-pointer group/q flex items-start justify-between gap-2 text-xs"
-                          >
-                            <div className="space-y-1 flex-1">
-                              <span className="font-medium text-foreground group-hover/q:text-primary transition-colors block">
-                                Q{idx + 1}: {q.question}
-                              </span>
-                              <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                                <span>Guide: {q.outline.join(' • ')}</span>
-                              </div>
-                            </div>
-                            <PlayCircle className="h-4 w-4 text-muted-foreground group-hover/q:text-primary transition-colors shrink-0 mt-0.5" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                  <CardContent className="p-4 space-y-2 flex-1">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                      Select Question to Practice:
+                    </span>
+                    {scenario.questions.map((q) => (
+                      <button
+                        key={q.id}
+                        type="button"
+                        onClick={() => handleLaunchQuestion(scenario, q)}
+                        className="w-full text-left p-2.5 rounded-lg border border-border/40 bg-muted/20 hover:bg-primary/10 hover:border-primary/40 transition-all group flex items-center justify-between gap-3"
+                      >
+                        <span className="text-xs text-foreground font-medium group-hover:text-primary transition-colors line-clamp-2">
+                          "{q.question}"
+                        </span>
+                        <div className="h-6 w-6 rounded-full bg-background border border-border/60 flex items-center justify-center text-muted-foreground group-hover:text-primary group-hover:border-primary/40 shrink-0 transition-colors">
+                          <Play className="h-2.5 w-2.5 ml-0.5" />
+                        </div>
+                      </button>
+                    ))}
                   </CardContent>
-                </div>
-
-                <div className="p-4 pt-0 border-t border-border/30 bg-muted/5 mt-2">
-                  <Button 
-                    variant="outline"
-                    className="w-full text-xs font-semibold justify-between hover:bg-primary hover:text-primary-foreground transition-colors"
-                    onClick={() => startScenario(scenario)}
-                  >
-                    <span>Launch Open {scenario.title} Session</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </Card>
-            );
-          })}
+                </Card>
+              );
+            })}
+          </div>
         </div>
 
       </div>

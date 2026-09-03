@@ -1,6 +1,7 @@
 // client/src/components/footer.tsx
 import { Link } from "wouter";
 import { ShieldCheck, Lock, Activity, ArrowRight, Heart } from "lucide-react";
+import { MiralLogo } from "@/components/miral-logo";
 
 export function Footer() {
   return (
@@ -13,20 +14,7 @@ export function Footer() {
           {/* Brand & Mission */}
           <div className="col-span-2 space-y-3">
             <div className="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 40" width="110" height="32">
-                <defs>
-                  <linearGradient id="waveGradFooter" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#2563eb" />
-                    <stop offset="100%" stopColor="#06b6d4" />
-                  </linearGradient>
-                </defs>
-                <rect x="0" y="8" width="6" height="24" rx="3" fill="url(#waveGradFooter)" />
-                <rect x="10" y="16" width="6" height="16" rx="3" fill="url(#waveGradFooter)" />
-                <rect x="20" y="10" width="6" height="22" rx="3" fill="url(#waveGradFooter)" />
-                <rect x="30" y="16" width="6" height="16" rx="3" fill="url(#waveGradFooter)" />
-                <rect x="40" y="8" width="6" height="24" rx="3" fill="url(#waveGradFooter)" />
-                <text x="56" y="28" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontSize="22" fontWeight="900" fill="currentColor" letterSpacing="-0.5">MIRAL</text>
-              </svg>
+              <MiralLogo width={120} height={31} />
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
               The real-time multimodal communication mirror and speech mastery platform. Empowering students, job seekers, and debaters with objective computer vision and vocal pacing diagnostics.

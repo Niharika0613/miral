@@ -58,6 +58,9 @@ export function Footer() {
                 <Link href="/practice" className="hover:text-primary transition-colors">Practice Studio</Link>
               </li>
               <li>
+                <Link href="/pricing" className="hover:text-primary transition-colors">Pricing & Institutional Plans</Link>
+              </li>
+              <li>
                 <Link href="/learning" className="hover:text-primary transition-colors">Learning Resources</Link>
               </li>
               <li>

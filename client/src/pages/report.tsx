@@ -1,5 +1,5 @@
-﻿// client/src/pages/report.tsx
-import { useState, useMemo } from 'react';
+// client/src/pages/report.tsx
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRoute, useLocation } from 'wouter';
 import { 
@@ -22,7 +22,8 @@ import {
   FileText,
   BookOpen,
   ArrowRight,
-  Star
+  Star,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -360,6 +361,50 @@ export default function Report() {
   const [, params] = useRoute('/report/:id');
   const [, setLocation] = useLocation();
   const sessionId = params?.id;
+  const { toast } = useToast();
+
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [popupRating, setPopupRating] = useState(5);
+  const [popupHadIssue, setPopupHadIssue] = useState(false);
+  const [popupComment, setPopupComment] = useState('');
+  const [isPopupSubmitting, setIsPopupSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (sessionId) {
+      const alreadySubmitted = sessionStorage.getItem(`feedback_submitted_${sessionId}`);
+      if (!alreadySubmitted) {
+        const timer = setTimeout(() => setShowFeedbackModal(true), 2000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [sessionId]);
+
+  const handlePopupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsPopupSubmitting(true);
+    try {
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          rating: popupRating,
+          hadIssue: popupHadIssue,
+          comment: popupComment.trim() || null,
+        }),
+      });
+      sessionStorage.setItem(`feedback_submitted_${sessionId}`, 'true');
+      setShowFeedbackModal(false);
+      toast({
+        title: "Feedback Recorded",
+        description: "Thank you for helping us improve MIRAL for your placement drive!",
+      });
+    } catch {
+      setShowFeedbackModal(false);
+    } finally {
+      setIsPopupSubmitting(false);
+    }
+  };
 
   const { data: session, isLoading, error } = useQuery<Session>({
     queryKey: ['/api/sessions', sessionId],
@@ -410,6 +455,93 @@ export default function Report() {
 
   return (
     <div className="min-h-screen bg-background pb-16">
+
+      {/* 10-Second Pilot Feedback Modal */}
+      {showFeedbackModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <Card className="max-w-md w-full border-2 border-primary/30 shadow-2xl bg-card overflow-hidden">
+            <CardHeader className="border-b border-border/40 pb-3 flex flex-row items-center justify-between bg-primary/5">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-primary" />
+                <CardTitle className="text-sm font-bold text-foreground">
+                  How was this session?
+                </CardTitle>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFeedbackModal(false)}
+                className="text-muted-foreground hover:text-foreground p-1 rounded transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </CardHeader>
+            <CardContent className="p-5">
+              <form onSubmit={handlePopupSubmit} className="space-y-4 text-xs">
+                <div className="space-y-2">
+                  <span className="font-semibold text-foreground block">
+                    Rate this practice attempt (10s quick feedback):
+                  </span>
+                  <div className="flex items-center justify-between gap-1.5 pt-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setPopupRating(star)}
+                        className={`flex-1 py-2 rounded-lg border text-sm font-bold transition-all ${
+                          popupRating >= star
+                            ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                            : 'bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground'
+                        }`}
+                      >
+                        {star}★
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <label className="flex items-center gap-2 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={popupHadIssue}
+                    onChange={(e) => setPopupHadIssue(e.target.checked)}
+                    className="rounded border-input text-primary focus:ring-primary h-3.5 w-3.5"
+                  />
+                  <span className="text-muted-foreground text-xs">Did anything lag, freeze, or feel inaccurate?</span>
+                </label>
+
+                <div className="space-y-1">
+                  <Input
+                    placeholder="Optional: What would make your next attempt even better?"
+                    value={popupComment}
+                    onChange={(e) => setPopupComment(e.target.value)}
+                    className="text-xs h-9"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowFeedbackModal(false)}
+                    className="text-xs text-muted-foreground hover:text-foreground font-medium"
+                  >
+                    Skip for now
+                  </button>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={isPopupSubmitting}
+                    className="text-xs font-semibold h-8 px-5 gap-1.5"
+                  >
+                    {isPopupSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    <span>Submit & View Report</span>
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
         
         {/* Navigation & Actions */}

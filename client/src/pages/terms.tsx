@@ -1,4 +1,4 @@
-﻿// client/src/pages/terms.tsx
+// client/src/pages/terms.tsx
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FileText, CheckCircle2, AlertCircle, Scale } from 'lucide-react';
@@ -88,7 +88,7 @@ export default function Terms() {
             </CardHeader>
             <CardContent className="space-y-3 text-xs text-muted-foreground leading-relaxed">
               <p>
-                Universities and placement cells participating in campus pilots may request institutional dashboard access to aggregate student cohort performance. For enterprise and university inquiries, contact <span className="font-mono text-primary font-semibold">tpo-pilot@miral.ai</span>.
+                Universities and placement cells participating in campus pilots may request institutional dashboard access to aggregate student cohort performance. For enterprise and university inquiries, contact <span className="font-mono text-primary font-semibold">supportmiralai@gmail.com</span>.
               </p>
             </CardContent>
           </Card>

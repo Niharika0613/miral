@@ -1,4 +1,4 @@
-﻿// client/src/pages/privacy.tsx
+// client/src/pages/privacy.tsx
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ShieldCheck, Lock, Eye, Video, Server, FileText } from 'lucide-react';
@@ -112,7 +112,7 @@ export default function Privacy() {
             </CardHeader>
             <CardContent className="text-xs text-muted-foreground leading-relaxed">
               <p>
-                For questions regarding data processing, privacy compliance, or account deletion requests, reach out directly to our team at <span className="font-mono text-primary font-semibold">privacy@miral.ai</span> or through our <a href="/contact" className="text-primary underline">Contact Portal</a>.
+                For questions regarding data processing, privacy compliance, or account deletion requests, reach out directly to our team at <span className="font-mono text-primary font-semibold">supportmiralai@gmail.com</span> or through our <a href="/contact" className="text-primary underline">Contact Portal</a>.
               </p>
             </CardContent>
           </Card>

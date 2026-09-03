@@ -1,4 +1,4 @@
-﻿// client/src/pages/practice.tsx
+// client/src/pages/practice.tsx
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { 
@@ -484,14 +484,40 @@ export default function Practice() {
             
             {/* Active Question Bar (if loaded) */}
             {activeQuestion && (
-              <div className="p-3 rounded-lg border border-primary/30 bg-primary/5 flex items-center justify-between gap-3 text-xs">
-                <div className="space-y-0.5 flex-1">
-                  <span className="font-semibold text-primary block">Target Prompt:</span>
-                  <p className="text-foreground font-medium truncate">"{activeQuestion.question}"</p>
+              <div className="p-3.5 rounded-xl border border-primary/30 bg-primary/5 space-y-2 text-xs relative">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="space-y-0.5 min-w-0 flex-1">
+                    <span className="font-semibold text-primary block text-[11px] uppercase tracking-wider">
+                      Target Prompt
+                    </span>
+                    <p className="text-foreground font-semibold text-xs sm:text-sm leading-snug">
+                      "{activeQuestion.question}"
+                    </p>
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={() => setActiveQuestion(null)}
+                    className="text-muted-foreground hover:text-foreground p-1 rounded transition-colors"
+                    title="Dismiss prompt"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-                <Badge variant="outline" className="text-[10px] shrink-0 border-primary/30 text-primary">
-                  {activeQuestion.outline.join(' • ')}
-                </Badge>
+
+                {activeQuestion.outline && activeQuestion.outline.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-primary/15">
+                    <span className="text-[10px] font-bold text-primary/80 uppercase">Key Points:</span>
+                    {activeQuestion.outline.map((point, pIdx) => (
+                      <Badge 
+                        key={pIdx} 
+                        variant="outline" 
+                        className="text-[10px] font-medium border-primary/20 bg-background/60 text-foreground py-0.5 px-2"
+                      >
+                        {point}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

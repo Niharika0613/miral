@@ -63,7 +63,7 @@ export default function Contact() {
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground space-y-1">
                 <p>Deploy structured mock rounds and aggregate readiness analytics across student batches.</p>
-                <p className="font-mono text-primary font-semibold pt-1">tpo-pilot@miral.ai</p>
+                <p className="font-mono text-primary font-semibold pt-1">supportmiralai@gmail.com</p>
               </CardContent>
             </Card>
 
@@ -79,7 +79,7 @@ export default function Contact() {
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground space-y-1">
                 <p>Questions regarding camera permissions, speech analytics, or feature feedback.</p>
-                <p className="font-mono text-primary font-semibold pt-1">support@miral.ai</p>
+                <p className="font-mono text-primary font-semibold pt-1">supportmiralai@gmail.com</p>
               </CardContent>
             </Card>
 
@@ -90,12 +90,12 @@ export default function Contact() {
                   Security & Compliance
                 </div>
                 <CardTitle className="text-sm font-bold text-foreground mt-1">
-                  Data Protection Officer
+                  Data Protection & Privacy
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground space-y-1">
                 <p>Inquiries regarding client-side data ethics, account deletion, or DPDP compliance.</p>
-                <p className="font-mono text-primary font-semibold pt-1">privacy@miral.ai</p>
+                <p className="font-mono text-primary font-semibold pt-1">supportmiralai@gmail.com</p>
               </CardContent>
             </Card>
           </div>

@@ -14,7 +14,8 @@ import {
   Heart, 
   CheckCircle2,
   Play,
-  X
+  X,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,6 +49,8 @@ export default function Practice() {
       return null;
     }
   });
+
+  const hasSpeechRecognition = typeof window !== 'undefined' && (('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window));
 
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isModelLoading, setIsModelLoading] = useState(true);
@@ -461,12 +464,22 @@ export default function Practice() {
         </div>
       )}
 
-      <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <div className="container max-w-7xl mx-auto px-4 py-6 space-y-4">
         
+        {/* Browser Compatibility Alert Banner */}
+        {!hasSpeechRecognition && (
+          <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200 flex items-center gap-2.5 text-xs">
+            <AlertCircle className="h-4 w-4 shrink-0 text-amber-600" />
+            <span>
+              Your browser does not natively support continuous speech recognition. For optimal real-time transcription and WPM pacing metrics, we recommend opening MIRAL in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, or <strong>Safari</strong>.
+            </span>
+          </div>
+        )}
+
         {/* Video & Real-Time Analytics Area */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* Main Video Stream & Compact Prompter Deck */}
+          {/* Main Video Stream & Prompter Deck */}
           <div className="lg:col-span-2 space-y-4">
             
             {/* Active Question Bar (if loaded) */}

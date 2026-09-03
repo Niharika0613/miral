@@ -1,4 +1,4 @@
-# server-fastapi/schemas.py
+﻿# server-fastapi/schemas.py
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -20,6 +20,32 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# Password Reset schemas
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    newPassword: str
+
+# Feedback schemas
+class FeedbackCreate(BaseModel):
+    sessionId: Optional[str] = None
+    rating: int = Field(5, ge=1, le=5)
+    hadIssue: bool = False
+    comment: Optional[str] = None
+
+class FeedbackResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+    
+    id: str
+    userId: Optional[str] = Field(None, alias='user_id')
+    sessionId: Optional[str] = Field(None, alias='session_id')
+    rating: int
+    hadIssue: bool = Field(False, alias='had_issue')
+    comment: Optional[str] = None
+    createdAt: datetime = Field(alias='created_at')
 
 # Session schemas
 class SessionCreate(BaseModel):
@@ -51,7 +77,6 @@ class SessionCompleteResponse(BaseModel):
     session: SessionResponse
     transcriptionError: Optional[str] = None
 
-
 class LiveFeedbackRequest(BaseModel):
     eyeContactPercentage: float
     postureScore: float
@@ -63,7 +88,6 @@ class LiveFeedbackRequest(BaseModel):
     facePosition: Optional[str] = None
     headTilt: Optional[str] = None
     isInFrame: Optional[bool] = True
-
 
 class LiveFeedbackResponse(BaseModel):
     summary: str

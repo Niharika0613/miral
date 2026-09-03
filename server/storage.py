@@ -1,17 +1,17 @@
-# server-fastapi/storage.py
+﻿# server-fastapi/storage.py
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from sqlalchemy.sql import desc
 from typing import Optional, List, Dict, Any
+from datetime import datetime
 import uuid
 
-from models import User, Session
+from models import User, Session, PasswordResetToken, Feedback
 from auth import hash_password
 
 class DatabaseStorage:
     """
     Database storage operations
-    Matches: DatabaseStorage class from storage.ts
     """
     
     async def create_session(
@@ -111,8 +111,6 @@ class DatabaseStorage:
             .values(**data)
         )
         await db.commit()
-        
-        # Fetch and return updated session
         return await self.get_session(session_id, db)
     
     async def create_user(
@@ -150,6 +148,101 @@ class DatabaseStorage:
             select(User).where(User.id == user_id)
         )
         return result.scalar_one_or_none()
+
+    async def update_user_password(
+        self,
+        user_id: str,
+        new_password: str,
+        db: AsyncSession
+    ) -> bool:
+        """Update a user's password with a new hashed value"""
+        hashed_password = hash_password(new_password)
+        await db.execute(
+            update(User)
+            .where(User.id == user_id)
+            .values(password=hashed_password)
+        )
+        await db.commit()
+        return True
+
+    # Password Reset Tokens
+    async def create_password_reset_token(
+        self,
+        user_id: str,
+        email: str,
+        token: str,
+        expires_at: datetime,
+        db: AsyncSession
+    ) -> PasswordResetToken:
+        """Store a password reset token"""
+        reset_token = PasswordResetToken(
+            id=str(uuid.uuid4()),
+            user_id=user_id,
+            email=email,
+            token=token,
+            expires_at=expires_at,
+            is_used=False
+        )
+        db.add(reset_token)
+        await db.commit()
+        await db.refresh(reset_token)
+        return reset_token
+
+    async def get_password_reset_token(
+        self,
+        token: str,
+        db: AsyncSession
+    ) -> Optional[PasswordResetToken]:
+        """Retrieve a password reset token"""
+        result = await db.execute(
+            select(PasswordResetToken).where(PasswordResetToken.token == token)
+        )
+        return result.scalar_one_or_none()
+
+    async def mark_password_reset_token_used(
+        self,
+        token_id: str,
+        db: AsyncSession
+    ) -> bool:
+        """Mark a reset token as used"""
+        await db.execute(
+            update(PasswordResetToken)
+            .where(PasswordResetToken.id == token_id)
+            .values(is_used=True)
+        )
+        await db.commit()
+        return True
+
+    # Feedback Operations
+    async def create_feedback(
+        self,
+        user_id: Optional[str],
+        session_id: Optional[str],
+        rating: int,
+        had_issue: bool,
+        comment: Optional[str],
+        db: AsyncSession
+    ) -> Feedback:
+        """Record session feedback"""
+        feedback = Feedback(
+            id=str(uuid.uuid4()),
+            user_id=user_id,
+            session_id=session_id,
+            rating=rating,
+            had_issue=had_issue,
+            comment=comment
+        )
+        db.add(feedback)
+        await db.commit()
+        await db.refresh(feedback)
+        return feedback
+
+    async def get_all_feedback(self, db: AsyncSession) -> List[Feedback]:
+        """Retrieve feedback for admin review"""
+        result = await db.execute(
+            select(Feedback).order_by(desc(Feedback.created_at))
+        )
+        return result.scalars().all()
 
 # Global storage instance
 storage = DatabaseStorage()

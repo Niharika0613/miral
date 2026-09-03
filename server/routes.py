@@ -1,9 +1,11 @@
 # server-fastapi/routes.py
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional, List, Dict, Any  # ← Add List, Dict, Any here
+from typing import Optional, List, Dict, Any
 import json
 import os
+import secrets
+from datetime import datetime, timedelta
 import aiofiles
 
 from database import get_db
@@ -20,6 +22,10 @@ from schemas import (
     UserSignup,
     UserLogin,
     UserResponse,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+    FeedbackCreate,
+    FeedbackResponse,
     SessionCreate,
     SessionResponse,
     SessionCompleteResponse,
@@ -109,6 +115,87 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
         print(error_msg)
         print(f'Traceback: {traceback.format_exc()}')
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/api/auth/forgot-password", response_model=dict)
+async def forgot_password(data: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
+    """Generate a password reset token"""
+    try:
+        user = await storage.get_user(data.email, db)
+        if not user:
+            return {
+                "status": "ok",
+                "message": "If an account exists with this email, a password reset token has been generated."
+            }
+        
+        token = secrets.token_urlsafe(24)
+        expires_at = datetime.utcnow() + timedelta(minutes=15)
+        
+        await storage.create_password_reset_token(
+            user_id=user.id,
+            email=user.email,
+            token=token,
+            expires_at=expires_at,
+            db=db
+        )
+        
+        return {
+            "status": "ok",
+            "message": "Password reset token generated successfully. Valid for 15 minutes.",
+            "resetToken": token
+        }
+    except Exception as e:
+        print(f"Error in forgot_password: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process password reset")
+
+@router.post("/api/auth/reset-password", response_model=dict)
+async def reset_password(data: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    """Reset password using a valid token"""
+    try:
+        reset_token = await storage.get_password_reset_token(data.token, db)
+        if not reset_token or reset_token.is_used or reset_token.expires_at < datetime.utcnow():
+            raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+        
+        await storage.update_user_password(reset_token.user_id, data.newPassword, db)
+        await storage.mark_password_reset_token_used(reset_token.id, db)
+        
+        return {
+            "status": "ok",
+            "message": "Password has been successfully updated. Please sign in with your new password."
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error in reset_password: {e}")
+        raise HTTPException(status_code=500, detail="Failed to reset password")
+
+# ============ FEEDBACK ROUTES ============
+
+@router.post("/api/feedback", response_model=dict)
+async def submit_feedback(data: FeedbackCreate, db: AsyncSession = Depends(get_db)):
+    """Submit in-app session feedback"""
+    try:
+        feedback = await storage.create_feedback(
+            user_id=None,
+            session_id=data.sessionId,
+            rating=data.rating,
+            had_issue=data.hadIssue,
+            comment=data.comment,
+            db=db
+        )
+        return {
+            "status": "ok",
+            "id": feedback.id,
+            "message": "Thank you for your feedback!"
+        }
+    except Exception as e:
+        print(f"Error in submit_feedback: {e}")
+        raise HTTPException(status_code=500, detail="Failed to submit feedback")
+
+@router.get("/api/feedback", response_model=List[FeedbackResponse])
+async def get_feedback(db: AsyncSession = Depends(get_db)):
+    """Retrieve all feedback for admin review"""
+    feedback_list = await storage.get_all_feedback(db)
+    return feedback_list
 
 # ============ SESSION ROUTES ============
 

@@ -1,4 +1,5 @@
 ﻿// client/src/pages/report.tsx
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRoute, useLocation } from 'wouter';
 import { 
@@ -20,13 +21,15 @@ import {
   Volume2,
   FileText,
   BookOpen,
-  ArrowRight
+  ArrowRight,
+  Star
 } from 'lucide-react';
-import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 import type { Session } from '@shared/schema';
 
 // Safe metric extraction helper
@@ -233,6 +236,126 @@ function VocabularyUpgradeSection({ transcript }: { transcript: string }) {
   );
 }
 
+function SessionFeedbackCard({ sessionId }: { sessionId: string }) {
+  const { toast } = useToast();
+  const [rating, setRating] = useState(5);
+  const [hadIssue, setHadIssue] = useState(false);
+  const [comment, setComment] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          rating,
+          hadIssue,
+          comment: comment.trim() || null,
+        }),
+      });
+      if (response.ok) {
+        setIsSubmitted(true);
+        toast({
+          title: "Feedback Recorded",
+          description: "Thank you for helping us improve MIRAL for your placement drive!",
+        });
+      }
+    } catch {
+      setIsSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isSubmitted) {
+    return (
+      <Card className="border border-green-500/30 bg-green-500/5 shadow-xs">
+        <CardContent className="p-4 flex items-center gap-3 text-xs text-foreground">
+          <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+          <span>Feedback submitted successfully. Thank you for helping us improve MIRAL!</span>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="border border-border/60 shadow-xs bg-card">
+      <CardHeader className="border-b border-border/40 pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4 text-primary" />
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground">
+              Pilot Experience Feedback
+            </CardTitle>
+          </div>
+          <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/60">
+            Quick 10s Rating
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="p-4">
+        <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span className="font-semibold text-foreground">How helpful was this practice session?</span>
+            <div className="flex items-center gap-1.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  className={`h-7 w-7 rounded border text-xs font-bold transition-all ${
+                    rating >= star
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground'
+                  }`}
+                >
+                  {star}★
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 cursor-pointer pt-1">
+            <input
+              type="checkbox"
+              checked={hadIssue}
+              onChange={(e) => setHadIssue(e.target.checked)}
+              className="rounded border-input text-primary focus:ring-primary h-3.5 w-3.5"
+            />
+            <span className="text-muted-foreground text-xs">Did anything lag, freeze, or feel inaccurate?</span>
+          </label>
+
+          <div className="space-y-1">
+            <Input
+              placeholder="Optional: What would make your next attempt even better?"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              className="text-xs h-8"
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              size="sm"
+              disabled={isSubmitting}
+              className="text-xs font-semibold h-8 px-4 gap-1.5"
+            >
+              {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              <span>Submit Feedback</span>
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function Report() {
   const [, params] = useRoute('/report/:id');
   const [, setLocation] = useLocation();
@@ -395,10 +518,11 @@ export default function Report() {
           </div>
         </div>
 
-        {/* Structured AI Coach & Vocabulary Upgrade Sections */}
+        {/* Structured AI Coach, Vocabulary Upgrade, and Feedback Sections */}
         <div className="space-y-6 print:hidden">
           <AICoachSection session={session} />
           <VocabularyUpgradeSection transcript={session.transcript || ''} />
+          {sessionId && <SessionFeedbackCard sessionId={sessionId} />}
         </div>
 
       </div>

@@ -37,11 +37,9 @@ else:
     else:
         parsed = parsed._replace(query='')
 
-    # Convert postgres:// to postgresql+asyncpg://
-    if parsed.scheme in ["postgres", "postgresql"]:
-        parsed = parsed._replace(scheme="postgresql+asyncpg")
-
-    DATABASE_URL = urlunparse(parsed)
+    # Force IPv4 resolution to prevent [Errno 101] Network is unreachable on IPv4-only hosts
+    import socket
+    import ssl as ssl_lib
 
     connect_args = {
         "timeout": 30,
@@ -49,10 +47,47 @@ else:
         "statement_cache_size": 0,
         "prepared_statement_cache_size": 0
     }
-    if sslmode == 'disable':
-        connect_args['ssl'] = False
+
+    if parsed.hostname:
+        try:
+            addr_info = socket.getaddrinfo(parsed.hostname, parsed.port or 5432, socket.AF_INET, socket.SOCK_STREAM)
+            if addr_info:
+                ipv4 = addr_info[0][4][0]
+                print(f"[DATABASE] Resolved {parsed.hostname} to IPv4: {ipv4}")
+                original_host = parsed.hostname
+                # Replace host with resolved IPv4 in netloc
+                netloc_parts = parsed.netloc.split('@')
+                if len(netloc_parts) == 2:
+                    auth_part, host_port = netloc_parts
+                    if ':' in host_port:
+                        port_str = host_port.split(':')[1]
+                        parsed = parsed._replace(netloc=f"{auth_part}@{ipv4}:{port_str}")
+                    else:
+                        parsed = parsed._replace(netloc=f"{auth_part}@{ipv4}")
+                
+                # Configure SSL context with server_hostname
+                if sslmode != 'disable':
+                    ssl_ctx = ssl_lib.create_default_context()
+                    ssl_ctx.check_hostname = False
+                    ssl_ctx.verify_mode = ssl_lib.CERT_NONE
+                    connect_args['ssl'] = ssl_ctx
+        except Exception as dns_err:
+            print(f"[DATABASE] Notice during IPv4 resolution: {dns_err}")
+            if sslmode == 'disable':
+                connect_args['ssl'] = False
+            else:
+                connect_args['ssl'] = True
     else:
-        connect_args['ssl'] = True
+        if sslmode == 'disable':
+            connect_args['ssl'] = False
+        else:
+            connect_args['ssl'] = True
+
+    # Convert postgres:// to postgresql+asyncpg://
+    if parsed.scheme in ["postgres", "postgresql"]:
+        parsed = parsed._replace(scheme="postgresql+asyncpg")
+
+    DATABASE_URL = urlunparse(parsed)
 
     engine_kwargs = {
         "echo": False,

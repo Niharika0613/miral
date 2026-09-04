@@ -8,7 +8,7 @@ import secrets
 from datetime import datetime, timedelta
 import aiofiles
 
-from database import get_db
+from database import get_db, SqliteSessionLocal, sqlite_engine, Base
 from storage import storage
 from auth import verify_password
 from openai_service import transcribe_audio
@@ -40,32 +40,22 @@ router = APIRouter()
 @router.post("/api/auth/signup", response_model=dict)
 async def signup(user_data: UserSignup, db: AsyncSession = Depends(get_db)):
     """
-    User signup
-    Matches: POST /api/auth/signup from routes.ts
+    User signup with automatic SQLite fallback
     """
-    try:
-        print(f"[SIGNUP] Request received: email={user_data.email}, name={user_data.name}")
-        
-        # Validate required fields (Pydantic should handle this, but double-check)
-        if not user_data.email or not user_data.password:
-            raise HTTPException(status_code=400, detail='Email and password required')
-        
-        # Check if user exists
-        existing_user = await storage.get_user(user_data.email, db)
+    if not user_data.email or not user_data.password:
+        raise HTTPException(status_code=400, detail='Email and password required')
+
+    async def _execute_signup(session: AsyncSession):
+        existing_user = await storage.get_user(user_data.email, session)
         if existing_user:
-            print(f"[ERROR] User already exists: {user_data.email}")
             raise HTTPException(status_code=400, detail='Email already registered')
         
-        # Create user
-        print(f"[OK] Creating new user: {user_data.email}")
         user = await storage.create_user(
             email=user_data.email,
             password=user_data.password,
             name=user_data.name,
-            db=db
+            db=session
         )
-        
-        print(f"[OK] User created successfully: {user.id}")
         return {
             "user": {
                 "id": user.id,
@@ -73,32 +63,35 @@ async def signup(user_data: UserSignup, db: AsyncSession = Depends(get_db)):
                 "name": user.name
             }
         }
-    
+
+    try:
+        return await _execute_signup(db)
     except HTTPException:
         raise
     except Exception as e:
-        import traceback
-        error_msg = f'Error in signup: {e}'
-        print(f"[ERROR] {error_msg}")
-        print(f'Traceback: {traceback.format_exc()}')
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"[SIGNUP NOTICE] Retrying signup on local SQLite fallback due to: {e}")
+        try:
+            async with sqlite_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            async with SqliteSessionLocal() as fb_session:
+                return await _execute_signup(fb_session)
+        except HTTPException:
+            raise
+        except Exception as fb_err:
+            raise HTTPException(status_code=500, detail=str(fb_err))
 
 @router.post("/api/auth/login", response_model=dict)
 async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
     """
-    User login
-    Matches: POST /api/auth/login from routes.ts
+    User login with automatic SQLite fallback
     """
-    try:
-        # Validate required fields
-        if not user_data.email or not user_data.password:
-            raise HTTPException(status_code=400, detail='Email and password required')
-        
-        # Get user
-        user = await storage.get_user(user_data.email, db)
+    if not user_data.email or not user_data.password:
+        raise HTTPException(status_code=400, detail='Email and password required')
+
+    async def _execute_login(session: AsyncSession):
+        user = await storage.get_user(user_data.email, session)
         if not user or not verify_password(user_data.password, user.password):
             raise HTTPException(status_code=401, detail='Invalid credentials')
-        
         return {
             "user": {
                 "id": user.id,
@@ -106,15 +99,22 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
                 "name": user.name
             }
         }
-    
+
+    try:
+        return await _execute_login(db)
     except HTTPException:
         raise
     except Exception as e:
-        import traceback
-        error_msg = f'Error in login: {e}'
-        print(error_msg)
-        print(f'Traceback: {traceback.format_exc()}')
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"[LOGIN NOTICE] Retrying login on local SQLite fallback due to: {e}")
+        try:
+            async with sqlite_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            async with SqliteSessionLocal() as fb_session:
+                return await _execute_login(fb_session)
+        except HTTPException:
+            raise
+        except Exception as fb_err:
+            raise HTTPException(status_code=500, detail=str(fb_err))
 
 @router.post("/api/auth/forgot-password", response_model=dict)
 async def forgot_password(data: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):

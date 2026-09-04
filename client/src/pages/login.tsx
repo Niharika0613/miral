@@ -45,6 +45,9 @@ export default function Login() {
 
         if (!response.ok) {
           const error = await response.json().catch(() => ({ message: 'Authentication failed' }));
+          if (response.status === 401 && mode === 'login') {
+            throw new Error('Invalid email or password. If this is your first time, please click "Create one now" below to register.');
+          }
           throw new Error(error.detail || error.message || 'Authentication failed');
         }
 

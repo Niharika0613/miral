@@ -45,7 +45,9 @@ else:
 
     connect_args = {
         "timeout": 30,
-        "command_timeout": 30
+        "command_timeout": 30,
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0
     }
     if sslmode == 'disable':
         connect_args['ssl'] = False

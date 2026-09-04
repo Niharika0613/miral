@@ -16,7 +16,7 @@ import requests
 from routes import router
 from config import settings
 from database import engine, Base
-from models import User, Session  # Import models to register them
+from models import User, Session, PasswordResetToken, Feedback  # Import all models to register them
 
 # Try to import vosk
 try:

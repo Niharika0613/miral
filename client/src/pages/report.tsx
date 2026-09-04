@@ -416,7 +416,19 @@ export default function Report() {
     window.print();
   };
 
-  if (isLoading) {
+  const localBackupSession = useMemo(() => {
+    if (!sessionId) return null;
+    try {
+      const stored = sessionStorage.getItem(`session_data_${sessionId}`);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }, [sessionId]);
+
+  const activeSession = session || localBackupSession;
+
+  if (isLoading && !localBackupSession) {
     return (
       <div className="container max-w-5xl mx-auto px-4 py-8 space-y-6">
         <Skeleton className="h-8 w-48" />
@@ -428,7 +440,7 @@ export default function Report() {
     );
   }
 
-  if (!session || error) {
+  if (!activeSession) {
     return (
       <div className="container max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
         <h2 className="text-xl font-bold text-foreground">Session Report Unavailable</h2>
@@ -438,12 +450,12 @@ export default function Report() {
     );
   }
 
-  const confidence = getConfidence(session);
-  const eye = getEyeContact(session);
-  const posture = getPosture(session);
-  const wpm = getWpm(session);
-  const fillers = getFillers(session);
-  const duration = getDuration(session);
+  const confidence = getConfidence(activeSession);
+  const eye = getEyeContact(activeSession);
+  const posture = getPosture(activeSession);
+  const wpm = getWpm(activeSession);
+  const fillers = getFillers(activeSession);
+  const duration = getDuration(activeSession);
   const durationMins = Math.floor(duration / 60);
   const durationSecs = duration % 60;
 
@@ -585,10 +597,10 @@ export default function Report() {
                 Session Performance Analysis
               </div>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                {session.topic || 'General Practice Session'}
+                {activeSession.topic || 'General Practice Session'}
               </h1>
               <p className="text-xs text-muted-foreground">
-                Recorded on {new Date(session.createdAt || new Date()).toLocaleDateString(undefined, { 
+                Recorded on {new Date(activeSession.createdAt || new Date()).toLocaleDateString(undefined, { 
                   weekday: 'long', 
                   year: 'numeric', 
                   month: 'long', 
@@ -639,7 +651,7 @@ export default function Report() {
               Spoken Transcript & Articulation Log
             </div>
             <div className="p-3.5 rounded-lg bg-muted/30 border border-border/40 text-xs text-foreground/90 font-mono leading-relaxed">
-              {session.transcript || 'No continuous spoken audio recorded during this session.'}
+              {activeSession.transcript || 'No continuous spoken audio recorded during this session.'}
             </div>
           </div>
 
@@ -652,8 +664,8 @@ export default function Report() {
 
         {/* Structured AI Coach, Vocabulary Upgrade, and Feedback Sections */}
         <div className="space-y-6 print:hidden">
-          <AICoachSection session={session} />
-          <VocabularyUpgradeSection transcript={session.transcript || ''} />
+          <AICoachSection session={activeSession} />
+          <VocabularyUpgradeSection transcript={activeSession.transcript || ''} />
           {sessionId && <SessionFeedbackCard sessionId={sessionId} />}
         </div>
 

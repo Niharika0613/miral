@@ -205,20 +205,26 @@ async def create_session(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Create new practice session
-    Matches: POST /api/sessions from routes.ts
+    Create new practice session with automatic SQLite fallback
     """
-    try:
-        session = await storage.create_session(
+    async def _execute_create(session: AsyncSession):
+        return await storage.create_session(
             topic=session_data.topic or 'Untitled Session',
             user_id=session_data.userId,
-            db=db
+            db=session
         )
-        return session
-    
+
+    try:
+        return await _execute_create(db)
     except Exception as e:
-        print(f'Error creating session: {e}')
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"[SESSION CREATE NOTICE] Retrying create_session on SQLite due to: {e}")
+        try:
+            async with sqlite_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            async with SqliteSessionLocal() as fb_session:
+                return await _execute_create(fb_session)
+        except Exception as fb_err:
+            raise HTTPException(status_code=500, detail=str(fb_err))
 
 def serialize_session(session) -> dict:
     resp = SessionResponse.model_validate(session)
@@ -232,42 +238,48 @@ async def get_sessions(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Get all sessions (optionally filtered by user)
-    Matches: GET /api/sessions from routes.ts
+    Get all sessions with automatic SQLite fallback
     """
-    try:
-        sessions = await storage.get_all_sessions(userId, db)
+    async def _execute_get_all(session: AsyncSession):
+        sessions = await storage.get_all_sessions(userId, session)
         if sessions is None:
             return []
-        
-        return [serialize_session(session) for session in sessions]
-    
+        return [serialize_session(s) for s in sessions]
+
+    try:
+        return await _execute_get_all(db)
     except Exception as e:
-        import traceback
-        error_msg = f'Error fetching sessions: {e}'
-        print(error_msg)
-        print(f'Traceback: {traceback.format_exc()}')
-        raise HTTPException(status_code=500, detail=error_msg)
+        print(f"[GET SESSIONS NOTICE] Retrying get_sessions on SQLite due to: {e}")
+        try:
+            async with SqliteSessionLocal() as fb_session:
+                return await _execute_get_all(fb_session)
+        except Exception:
+            return []
 
 @router.get("/api/sessions/{session_id}")
 async def get_session(session_id: str, db: AsyncSession = Depends(get_db)):
     """
-    Get specific session by ID
-    Matches: GET /api/sessions/:id from routes.ts
+    Get specific session by ID with automatic SQLite fallback
     """
-    try:
-        session = await storage.get_session(session_id, db)
-        
-        if not session:
+    async def _execute_get_one(session: AsyncSession):
+        s = await storage.get_session(session_id, session)
+        if not s:
             raise HTTPException(status_code=404, detail='Session not found')
-        
-        return serialize_session(session)
-    
+        return serialize_session(s)
+
+    try:
+        return await _execute_get_one(db)
     except HTTPException:
         raise
     except Exception as e:
-        print(f'Error fetching session: {e}')
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"[GET SESSION NOTICE] Retrying get_session on SQLite due to: {e}")
+        try:
+            async with SqliteSessionLocal() as fb_session:
+                return await _execute_get_one(fb_session)
+        except HTTPException:
+            raise
+        except Exception as fb_err:
+            raise HTTPException(status_code=500, detail=str(fb_err))
 
 @router.post("/api/sessions/{session_id}/complete", response_model=SessionCompleteResponse)
 async def complete_session(
@@ -447,7 +459,22 @@ async def complete_session(
         }
         
         print(f'💾 Updating session {session_id} with data: {update_data}')
-        updated_session = await storage.update_session(session_id, update_data, db)
+        try:
+            updated_session = await storage.update_session(session_id, update_data, db)
+        except Exception as update_err:
+            print(f"[COMPLETE SESSION NOTICE] Retrying update_session on SQLite due to: {update_err}")
+            async with sqlite_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            async with SqliteSessionLocal() as fb_session:
+                s_check = await storage.get_session(session_id, fb_session)
+                if not s_check:
+                    await storage.create_session_with_id(
+                        session_id=session_id,
+                        topic="Practice Session",
+                        user_id=None,
+                        db=fb_session
+                    )
+                updated_session = await storage.update_session(session_id, update_data, fb_session)
         print(f'✅ Session updated successfully')
         
         result = {

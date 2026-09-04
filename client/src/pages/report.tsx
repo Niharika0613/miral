@@ -371,8 +371,8 @@ export default function Report() {
 
   useEffect(() => {
     if (sessionId) {
-      const alreadySubmitted = sessionStorage.getItem(`feedback_submitted_${sessionId}`);
-      if (!alreadySubmitted) {
+      const hasSeen = localStorage.getItem('miral_has_seen_feedback_popup');
+      if (!hasSeen) {
         const timer = setTimeout(() => setShowFeedbackModal(true), 2000);
         return () => clearTimeout(timer);
       }
@@ -393,17 +393,23 @@ export default function Report() {
           comment: popupComment.trim() || null,
         }),
       });
-      sessionStorage.setItem(`feedback_submitted_${sessionId}`, 'true');
+      localStorage.setItem('miral_has_seen_feedback_popup', 'true');
       setShowFeedbackModal(false);
       toast({
         title: "Feedback Recorded",
         description: "Thank you for helping us improve MIRAL for your placement drive!",
       });
     } catch {
+      localStorage.setItem('miral_has_seen_feedback_popup', 'true');
       setShowFeedbackModal(false);
     } finally {
       setIsPopupSubmitting(false);
     }
+  };
+
+  const handleDismissModal = () => {
+    localStorage.setItem('miral_has_seen_feedback_popup', 'true');
+    setShowFeedbackModal(false);
   };
 
   const { data: session, isLoading, error } = useQuery<Session>({
@@ -481,7 +487,7 @@ export default function Report() {
               </div>
               <button
                 type="button"
-                onClick={() => setShowFeedbackModal(false)}
+                onClick={handleDismissModal}
                 className="text-muted-foreground hover:text-foreground p-1 rounded transition-colors"
               >
                 <X className="h-4 w-4" />
@@ -533,7 +539,7 @@ export default function Report() {
                 <div className="flex items-center justify-between pt-2">
                   <button
                     type="button"
-                    onClick={() => setShowFeedbackModal(false)}
+                    onClick={handleDismissModal}
                     className="text-xs text-muted-foreground hover:text-foreground font-medium"
                   >
                     Skip for now

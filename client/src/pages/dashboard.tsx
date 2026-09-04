@@ -61,7 +61,27 @@ export default function Dashboard() {
   });
 
   const sessionsList = useMemo(() => {
-    return Array.isArray(sessions) ? sessions : [];
+    const apiList = Array.isArray(sessions) ? sessions : [];
+    let localList: any[] = [];
+    try {
+      const stored = localStorage.getItem('miral_completed_sessions');
+      localList = stored ? JSON.parse(stored) : [];
+      if (!Array.isArray(localList)) localList = [];
+    } catch {
+      localList = [];
+    }
+    
+    // Merge both, deduplicate by session ID, latest first
+    const map = new Map<string, any>();
+    [...apiList, ...localList].forEach((item) => {
+      if (item && item.id && !map.has(item.id)) {
+        map.set(item.id, item);
+      }
+    });
+
+    return Array.from(map.values()).sort(
+      (a, b) => new Date(getCreatedAt(b)).getTime() - new Date(getCreatedAt(a)).getTime()
+    );
   }, [sessions]);
 
   // Selected session IDs for comparison

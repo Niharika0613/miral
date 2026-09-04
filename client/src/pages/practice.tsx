@@ -373,6 +373,15 @@ export default function Practice() {
       };
       sessionStorage.setItem(`session_data_${sessionId}`, JSON.stringify(localBackup));
 
+      try {
+        const storedStr = localStorage.getItem('miral_completed_sessions');
+        const existingList = storedStr ? JSON.parse(storedStr) : [];
+        const filtered = Array.isArray(existingList) ? existingList.filter((s: any) => s && s.id !== sessionId) : [];
+        localStorage.setItem('miral_completed_sessions', JSON.stringify([localBackup, ...filtered]));
+      } catch (cacheErr) {
+        console.warn("Local storage cache notice:", cacheErr);
+      }
+
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
       formData.append('duration', duration.toString());

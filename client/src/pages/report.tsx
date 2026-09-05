@@ -426,13 +426,26 @@ export default function Report() {
     if (!sessionId) return null;
     try {
       const stored = sessionStorage.getItem(`session_data_${sessionId}`);
-      return stored ? JSON.parse(stored) : null;
+      if (stored) return JSON.parse(stored);
+      const allStored = localStorage.getItem('miral_completed_sessions');
+      if (allStored) {
+        const list = JSON.parse(allStored);
+        const match = Array.isArray(list) ? list.find((s: any) => s && s.id === sessionId) : null;
+        if (match) return match;
+      }
+      return null;
     } catch {
       return null;
     }
   }, [sessionId]);
 
-  const activeSession = session || localBackupSession;
+  const activeSession = useMemo(() => {
+    const isDbValid = session && (getConfidence(session) > 0 || getDuration(session) > 0 || getEyeContact(session) > 0);
+    const isLocalValid = localBackupSession && (getConfidence(localBackupSession) > 0 || getDuration(localBackupSession) > 0 || getEyeContact(localBackupSession) > 0);
+    if (isLocalValid && !isDbValid) return localBackupSession;
+    if (isDbValid) return session;
+    return localBackupSession || session;
+  }, [session, localBackupSession]);
 
   if (isLoading && !localBackupSession) {
     return (
@@ -664,7 +677,7 @@ export default function Report() {
           {/* Footer Note */}
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-muted-foreground border-t border-border/40 mt-6 gap-2">
             <span>Powered by MIRAL Multi-Modal AI (3D Facial Vision & Speech Engine)</span>
-            <span className="font-medium text-foreground/80">Speech & Confidence Mastery Platform</span>
+            <span className="font-medium text-foreground/80">AI Communication & Interview Practice Platform</span>
           </div>
         </div>
 

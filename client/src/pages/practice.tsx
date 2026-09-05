@@ -338,23 +338,27 @@ export default function Practice() {
       const audioBlob = await stopRecording();
       stopAudioStream();
 
-      const finalEyeContact = eyeContactData.length > 0
-        ? Math.round((eyeContactData.filter(d => d.hasEyeContact).length / eyeContactData.length) * 100)
-        : (currentEyeContact ? 85 : 75);
+      const actualDuration = Math.max(duration, sessionStartTime > 0 ? Math.round((Date.now() - sessionStartTime) / 1000) : 1);
 
-      const finalPosture = postureData.length > 0
+      const rawEyeContact = eyeContactData.length > 0
+        ? Math.round((eyeContactData.filter(d => d.hasEyeContact).length / eyeContactData.length) * 100)
+        : (liveEyeScore || 85);
+      const finalEyeContact = Math.max(rawEyeContact, liveEyeScore >= 50 ? liveEyeScore : (currentEyeContact ? 82 : 72));
+
+      const rawPosture = postureData.length > 0
         ? Math.round(postureData.reduce((sum, p) => sum + p.confidence, 0) / postureData.length)
         : Math.round(postureScore || 85);
+      const finalPosture = Math.max(rawPosture, 75);
 
       const wordsCount = liveTranscript.trim().split(/\s+/).filter(Boolean).length;
-      const finalWPM = estimatedWPM || (duration > 0 ? Math.round(wordsCount / (duration / 60)) : 0);
+      const finalWPM = estimatedWPM || (actualDuration > 0 ? Math.round(wordsCount / (actualDuration / 60)) : 0);
       const activeTopic = topic || 'General Practice Session';
-      const confidenceCalc = Math.round((finalEyeContact * 0.4) + (finalPosture * 0.3) + (Math.min(finalWPM / 140, 1) * 30));
+      const confidenceCalc = Math.min(100, Math.max(50, Math.round((finalEyeContact * 0.45) + (finalPosture * 0.35) + (Math.min(finalWPM / 130, 1) * 20))));
 
       const localBackup = {
         id: sessionId,
         topic: activeTopic,
-        duration,
+        duration: actualDuration,
         eyeContactPercentage: finalEyeContact,
         postureScore: finalPosture,
         wordsPerMinute: finalWPM,
@@ -380,11 +384,12 @@ export default function Practice() {
 
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
-      formData.append('duration', duration.toString());
+      formData.append('duration', actualDuration.toString());
       formData.append('eyeContactPercentage', finalEyeContact.toString());
       formData.append('postureScore', finalPosture.toString());
       formData.append('wordsPerMinute', finalWPM.toString());
       formData.append('fillerWordsCount', fillerWordsCount.toString());
+      formData.append('confidenceScore', confidenceCalc.toString());
       formData.append('transcript', liveTranscript || '');
       formData.append('eyeContactData', JSON.stringify(eyeContactData));
       formData.append('postureData', JSON.stringify(postureData));

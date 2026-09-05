@@ -353,7 +353,7 @@ export function analyzeFace(faces: any[], videoElement?: HTMLVideoElement): Face
 
     // Continuous Real-Time Iris Centering Score (0-100)
     const irisDev = Math.abs(avgIrisRatio - 0.50);
-    const horizScore = Math.max(0, Math.min(100, Math.round((1 - (irisDev / 0.28)) * 100)));
+    const horizScore = Math.max(0, Math.min(100, Math.round((1 - (irisDev / 0.35)) * 100)));
 
     // Vertical Eyelid / Pupil Ratio
     let vertScore = 90;
@@ -361,53 +361,53 @@ export function analyzeFace(faces: any[], videoElement?: HTMLVideoElement): Face
       const eyeH = Math.abs(leftEyeBottom.y - leftEyeTop.y) || 1;
       const vertRatio = (leftIris.y - leftEyeTop.y) / eyeH;
       const vertDev = Math.abs(vertRatio - 0.50);
-      vertScore = Math.max(0, Math.min(100, Math.round((1 - (vertDev / 0.35)) * 100)));
+      vertScore = Math.max(0, Math.min(100, Math.round((1 - (vertDev / 0.40)) * 100)));
     }
 
     // Head Yaw Penalty
-    const yawPenalty = Math.min(Math.max((yawRatio - 1.15) * 60, 0), 60);
+    const yawPenalty = Math.min(Math.max((yawRatio - 1.25) * 45, 0), 45);
 
     // Composite Real-time Gaze Metric
     gazeScore = Math.round((horizScore * 0.65 + vertScore * 0.35) - yawPenalty);
-    gazeScore = Math.max(12, Math.min(98, gazeScore));
+    gazeScore = Math.max(25, Math.min(98, gazeScore));
 
-    if (avgIrisRatio < 0.28 || yawRatio > 1.75) {
+    if (avgIrisRatio < 0.24 || yawRatio > 1.85) {
       gazeDetail = "looking-left";
       hasEyeContact = false;
-    } else if (avgIrisRatio > 0.72) {
+    } else if (avgIrisRatio > 0.76) {
       gazeDetail = "looking-right";
       hasEyeContact = false;
-    } else if (normCenterY > 0.70) {
+    } else if (normCenterY > 0.82) {
       gazeDetail = "looking-down";
       hasEyeContact = false;
-    } else if (normCenterY < 0.18) {
+    } else if (normCenterY < 0.15) {
       gazeDetail = "looking-up";
       hasEyeContact = false;
     } else {
       gazeDetail = "centered";
-      hasEyeContact = gazeScore >= 62;
+      hasEyeContact = gazeScore >= 52;
     }
   } else if (typeof face.avgPupilOffset === 'number') {
     const pupilOffset = face.avgPupilOffset;
     const dev = Math.abs(pupilOffset);
-    gazeScore = Math.round(Math.max(15, Math.min(94, (1 - Math.min(dev / 4.0, 1)) * 85 + 10)));
+    gazeScore = Math.round(Math.max(40, Math.min(95, (1 - Math.min(dev / 5.0, 1)) * 80 + 15)));
 
-    if (pupilOffset < -2.8) {
+    if (pupilOffset < -3.5) {
       gazeDetail = "looking-left";
       hasEyeContact = false;
-    } else if (pupilOffset > 2.8) {
+    } else if (pupilOffset > 3.5) {
       gazeDetail = "looking-right";
       hasEyeContact = false;
-    } else if (normCenterY > 0.70) {
+    } else if (normCenterY > 0.82) {
       gazeDetail = "looking-down";
       hasEyeContact = false;
     } else {
       gazeDetail = "centered";
-      hasEyeContact = gazeScore >= 60 && normCenterX >= 0.20 && normCenterX <= 0.80;
+      hasEyeContact = gazeScore >= 50 && normCenterX >= 0.15 && normCenterX <= 0.85;
     }
   } else {
-    const isCentered = normCenterX >= 0.20 && normCenterX <= 0.80 && normCenterY >= 0.18 && normCenterY <= 0.72;
-    gazeScore = isCentered ? 88 : 35;
+    const isCentered = normCenterX >= 0.15 && normCenterX <= 0.85 && normCenterY >= 0.15 && normCenterY <= 0.82;
+    gazeScore = isCentered ? 86 : 40;
     hasEyeContact = isCentered;
   }
 

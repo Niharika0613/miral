@@ -214,14 +214,10 @@ export default function Practice() {
           const hasEyeContact = faceAnalysis.hasEyeContact && faceAnalysis.isInFrame;
           setCurrentEyeContact(hasEyeContact);
           
+          // Direct Real-Time Iris & Gaze Tracking
+          const realGaze = faceAnalysis.isInFrame ? (faceAnalysis.gazeScore || 88) : 20;
           setLiveEyeScore((prev) => {
-            if (hasEyeContact) {
-              const target = 92 + Math.floor(Math.random() * 5);
-              return Math.round(prev * 0.85 + target * 0.15);
-            } else {
-              const target = 32 + Math.floor(Math.random() * 8);
-              return Math.round(prev * 0.85 + target * 0.15);
-            }
+            return Math.round(prev * 0.35 + realGaze * 0.65);
           });
 
           setFacePosition(faceAnalysis.position);
@@ -526,303 +522,418 @@ export default function Practice() {
         )}
 
         {/* Video & Real-Time Analytics Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Main Video Stream & Prompter Deck */}
-          <div className="lg:col-span-2 space-y-4">
-            
-            {/* Custom Teleprompter Box */}
-            {customScript && (
-              <div className="p-4 rounded-xl border-2 border-primary/30 bg-card shadow-xs space-y-2">
-                <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-3.5 w-3.5 text-primary" />
-                    <span className="font-bold text-xs uppercase tracking-wider text-foreground">
-                      Live Teleprompter Notes
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center border border-border/60 rounded-md overflow-hidden bg-muted/40">
-                      <button
-                        type="button"
-                        onClick={() => setPrompterFontSize(prev => Math.max(prev - 2, 11))}
-                        className="px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
-                        title="Smaller Font"
-                      >
-                        A-
-                      </button>
-                      <span className="text-[10px] px-1 font-mono text-muted-foreground border-x border-border/40">
-                        {prompterFontSize}px
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setPrompterFontSize(prev => Math.min(prev + 2, 22))}
-                        className="px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
-                        title="Larger Font"
-                      >
-                        A+
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setCustomScript('')}
-                      className="text-muted-foreground hover:text-foreground p-1 rounded"
-                      title="Hide Teleprompter"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-                <div 
-                  className="max-h-36 overflow-y-auto leading-relaxed text-foreground whitespace-pre-line font-medium p-2.5 rounded bg-muted/20 border border-border/20"
-                  style={{ fontSize: `${prompterFontSize}px` }}
-                >
-                  {customScript}
-                </div>
-              </div>
-            )}
+  const hasPrompterOrQuestion = Boolean(customScript || activeQuestion);
 
-            {/* Active Question Bar (if loaded) */}
-            {activeQuestion && (
-              <div className="p-3.5 rounded-xl border border-primary/30 bg-primary/5 space-y-2 text-xs relative">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-0.5 min-w-0 flex-1">
-                    <span className="font-semibold text-primary block text-[11px] uppercase tracking-wider">
-                      Target Prompt
-                    </span>
-                    <p className="text-foreground font-semibold text-xs sm:text-sm leading-snug">
-                      "{activeQuestion.question}"
-                    </p>
-                  </div>
-                  <button 
-                    type="button" 
-                    onClick={() => setActiveQuestion(null)}
-                    className="text-muted-foreground hover:text-foreground p-1 rounded transition-colors"
-                    title="Dismiss prompt"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+  const renderMetricsCard = () => (
+    <Card className="border border-border/60 bg-card shadow-xs">
+      <CardHeader className="pb-3 border-b border-border/40">
+        <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center justify-between">
+          <span>Live Vision Metrics</span>
+          <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+        </CardTitle>
+      </CardHeader>
 
-                {activeQuestion.outline && activeQuestion.outline.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-primary/15">
-                    <span className="text-[10px] font-bold text-primary/80 uppercase">Key Points:</span>
-                    {activeQuestion.outline.map((point, pIdx) => (
-                      <Badge 
-                        key={pIdx} 
-                        variant="outline" 
-                        className="text-[10px] font-medium border-primary/20 bg-background/60 text-foreground py-0.5 px-2"
-                      >
-                        {point}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            <Card className="border border-border/60 bg-card shadow-xs overflow-hidden">
-              <CardContent className="p-2 md:p-3">
-                <div className="relative aspect-video bg-muted rounded-lg overflow-hidden shadow-inner flex items-center justify-center">
-                  {webcamError && (
-                    <div className="p-6 text-center text-xs text-muted-foreground space-y-2">
-                      <p className="font-semibold text-destructive">Camera Access Required</p>
-                      <p>Please check browser permissions and allow webcam access.</p>
-                    </div>
-                  )}
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="w-full h-full object-cover"
-                  />
-
-                  {/* Real-Time Eye Gaze Feedback Banner */}
-                  {showSuggestion && isRecording && (
-                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-in slide-in-from-bottom duration-200">
-                      <div className="bg-foreground/90 text-background text-xs font-semibold px-4 py-2 rounded-full shadow-lg text-center backdrop-blur-sm">
-                        {suggestionMessage}
-                      </div>
-                    </div>
-                  )}
-
-                  {isRecording && (
-                    <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-destructive text-destructive-foreground rounded-full text-xs font-medium shadow-sm">
-                      <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
-                      <span>Recording</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Practice Control Deck */}
-            <Card className="border border-border/60 bg-card shadow-xs">
-              <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                {!isRecording ? (
-                  <div className="flex-1 w-full space-y-1">
-                    <Label htmlFor="topic-input" className="text-xs font-semibold text-foreground">Practice Topic / Question</Label>
-                    <Input
-                      id="topic-input"
-                      placeholder="e.g., Campus Placement HR, System Design, Debate on AI"
-                      value={topic}
-                      onChange={(e) => setTopic(e.target.value)}
-                      className="text-xs h-9"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-4">
-                    <div className="font-mono text-2xl font-bold text-foreground">
-                      {formatTime(duration)}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Active: <span className="font-semibold text-foreground">{topic || 'Practice Session'}</span>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  {!isRecording ? (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs font-semibold gap-1.5"
-                        onClick={() => {
-                          setWarmupTimer(30);
-                          setWarmupPhase('breathing');
-                          setIsWarmupOpen(true);
-                        }}
-                      >
-                        <Wind className="h-3.5 w-3.5 text-primary" />
-                        <span>Warmup (60s)</span>
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        onClick={handleStart}
-                        disabled={!isReady || isModelLoading}
-                        className="text-xs font-semibold gap-1.5 min-w-28"
-                      >
-                        <Video className="h-3.5 w-3.5" />
-                        <span>Start Practice</span>
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRetake}
-                        className="text-xs font-semibold gap-1.5"
-                      >
-                        <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>Re-Take</span>
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={handleStop}
-                        className="text-xs font-semibold gap-1.5 min-w-28"
-                      >
-                        <Square className="h-3.5 w-3.5" />
-                        <span>Complete & Audit</span>
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+      <CardContent className="p-4 space-y-4 text-xs">
+        {/* Eye Engagement */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground font-medium">Eye Gaze Focus</span>
+            <Badge variant={eyePercentage >= 65 ? "default" : "secondary"} className="text-[10px]">
+              {eyePercentage >= 65 ? 'Direct Focus' : 'Looking Away'}
+            </Badge>
           </div>
-
-          {/* Live Metrics Sidebar */}
-          <div className="space-y-4">
-            
-            <Card className="border border-border/60 bg-card shadow-xs">
-              <CardHeader className="pb-3 border-b border-border/40">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center justify-between">
-                  <span>Live Vision Metrics</span>
-                  <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="p-4 space-y-4 text-xs">
-                
-                {/* Eye Engagement */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground font-medium">Eye Gaze Focus</span>
-                    <Badge variant={eyePercentage >= 70 ? "default" : "secondary"} className="text-[10px]">
-                      {eyePercentage >= 70 ? 'Direct Focus' : 'Looking Away'}
-                    </Badge>
-                  </div>
-                  <div className="text-lg font-bold text-foreground">
-                    {eyePercentage}% <span className="text-[11px] font-normal text-muted-foreground">in-frame contact</span>
-                  </div>
-                </div>
-
-                {/* Posture */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground font-medium">Posture Alignment</span>
-                    <Badge variant={postureScore >= 75 ? "default" : "secondary"} className="text-[10px]">
-                      {currentPosture === 'good' ? 'Upright' : currentPosture === 'slouching' ? 'Slouching' : currentPosture === 'leaning' ? 'Leaning' : 'Unknown'}
-                    </Badge>
-                  </div>
-                  <div className="text-lg font-bold text-foreground">
-                    {Math.round(postureScore)}% <span className="text-[11px] font-normal text-muted-foreground">stability</span>
-                  </div>
-                </div>
-
-                {/* Speech Pacing WPM */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground font-medium">Speaking Pace</span>
-                    <Badge variant="outline" className="text-[10px]">
-                      {estimatedWPM >= 125 && estimatedWPM <= 165 ? 'Optimal' : 'Adjusting'}
-                    </Badge>
-                  </div>
-                  <div className="text-lg font-bold text-foreground">
-                    {estimatedWPM} <span className="text-[11px] font-normal text-muted-foreground">WPM</span>
-                  </div>
-                </div>
-
-                {/* Filler Words */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground font-medium">Hesitation Count</span>
-                    <Badge variant="secondary" className="text-[10px]">
-                      {fillerWordsCount} detected
-                    </Badge>
-                  </div>
-                </div>
-
-              </CardContent>
-            </Card>
-
-            {/* Real-time Spoken Transcript Box */}
-            <Card className="border border-border/60 bg-card shadow-xs">
-              <CardHeader className="pb-2 border-b border-border/40">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Live Spoken Transcript
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-3">
-                <div className="h-36 overflow-y-auto font-mono text-[11px] text-foreground/90 leading-relaxed bg-muted/20 p-2.5 rounded border border-border/30">
-                  {liveTranscript || (
-                    <span className="text-muted-foreground italic">
-                      Start speaking into your microphone to view live speech transcription...
-                    </span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
+          <div className="text-lg font-bold text-foreground">
+            {eyePercentage}% <span className="text-[11px] font-normal text-muted-foreground">real-time gaze tracking</span>
           </div>
-
         </div>
+
+        {/* Posture */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground font-medium">Posture Alignment</span>
+            <Badge variant={postureScore >= 75 ? "default" : "secondary"} className="text-[10px]">
+              {currentPosture === 'good' ? 'Upright' : currentPosture === 'slouching' ? 'Slouching' : currentPosture === 'leaning' ? 'Leaning' : 'Calibrating'}
+            </Badge>
+          </div>
+          <div className="text-lg font-bold text-foreground">
+            {Math.round(postureScore)}% <span className="text-[11px] font-normal text-muted-foreground">stability</span>
+          </div>
+        </div>
+
+        {/* Speech Pacing WPM */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground font-medium">Speaking Pace</span>
+            <Badge variant="outline" className="text-[10px]">
+              {estimatedWPM >= 125 && estimatedWPM <= 165 ? 'Optimal' : 'Adjusting'}
+            </Badge>
+          </div>
+          <div className="text-lg font-bold text-foreground">
+            {estimatedWPM} <span className="text-[11px] font-normal text-muted-foreground">WPM</span>
+          </div>
+        </div>
+
+        {/* Filler Words */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground font-medium">Hesitation Count</span>
+            <Badge variant="secondary" className="text-[10px]">
+              {fillerWordsCount} detected
+            </Badge>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderTranscriptCard = () => (
+    <Card className="border border-border/60 bg-card shadow-xs">
+      <CardHeader className="pb-2 border-b border-border/40">
+        <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Live Spoken Transcript
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-3">
+        <div className="h-36 overflow-y-auto font-mono text-[11px] text-foreground/90 leading-relaxed bg-muted/20 p-2.5 rounded border border-border/30">
+          {liveTranscript || (
+            <span className="text-muted-foreground italic">
+              Start speaking into your microphone to view live speech transcription...
+            </span>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderPrompterAndPrompt = () => (
+    <>
+      {/* Custom Teleprompter Box */}
+      {customScript && (
+        <div className="p-4 rounded-xl border-2 border-primary/30 bg-card shadow-xs space-y-2">
+          <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2">
+            <div className="flex items-center gap-2">
+              <FileText className="h-3.5 w-3.5 text-primary" />
+              <span className="font-bold text-xs uppercase tracking-wider text-foreground">
+                Live Teleprompter Notes
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center border border-border/60 rounded-md overflow-hidden bg-muted/40">
+                <button
+                  type="button"
+                  onClick={() => setPrompterFontSize(prev => Math.max(prev - 2, 11))}
+                  className="px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
+                  title="Smaller Font"
+                >
+                  A-
+                </button>
+                <span className="text-[10px] px-1 font-mono text-muted-foreground border-x border-border/40">
+                  {prompterFontSize}px
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPrompterFontSize(prev => Math.min(prev + 2, 22))}
+                  className="px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
+                  title="Larger Font"
+                >
+                  A+
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCustomScript('')}
+                className="text-muted-foreground hover:text-foreground p-1 rounded"
+                title="Hide Teleprompter"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+          <div 
+            className="max-h-36 overflow-y-auto leading-relaxed text-foreground whitespace-pre-line font-medium p-2.5 rounded bg-muted/20 border border-border/20"
+            style={{ fontSize: `${prompterFontSize}px` }}
+          >
+            {customScript}
+          </div>
+        </div>
+      )}
+
+      {/* Active Question Bar */}
+      {activeQuestion && (
+        <div className="p-3.5 rounded-xl border border-primary/30 bg-primary/5 space-y-2 text-xs relative">
+          <div className="flex items-start justify-between gap-2">
+            <div className="space-y-0.5 min-w-0 flex-1">
+              <span className="font-semibold text-primary block text-[11px] uppercase tracking-wider">
+                Target Prompt
+              </span>
+              <p className="text-foreground font-semibold text-xs sm:text-sm leading-snug">
+                "{activeQuestion.question}"
+              </p>
+            </div>
+            <button 
+              type="button" 
+              onClick={() => setActiveQuestion(null)}
+              className="text-muted-foreground hover:text-foreground p-1 rounded transition-colors"
+              title="Dismiss prompt"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          {activeQuestion.outline && activeQuestion.outline.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-primary/15">
+              <span className="text-[10px] font-bold text-primary/80 uppercase">Key Points:</span>
+              {activeQuestion.outline.map((point, pIdx) => (
+                <Badge 
+                  key={pIdx} 
+                  variant="outline" 
+                  className="text-[10px] font-medium border-primary/20 bg-background/60 text-foreground py-0.5 px-2"
+                >
+                  {point}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+
+  const renderVideoAndControls = () => (
+    <>
+      <Card className="border border-border/60 bg-card shadow-xs overflow-hidden">
+        <CardContent className="p-2 md:p-3">
+          <div className="relative aspect-video bg-muted rounded-lg overflow-hidden shadow-inner flex items-center justify-center">
+            {webcamError && (
+              <div className="p-6 text-center text-xs text-muted-foreground space-y-2">
+                <p className="font-semibold text-destructive">Camera Access Required</p>
+                <p>Please check browser permissions and allow webcam access.</p>
+              </div>
+            )}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover"
+            />
+
+            {/* Real-Time Eye Gaze Feedback Banner */}
+            {showSuggestion && isRecording && (
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-in slide-in-from-bottom duration-200">
+                <div className="bg-foreground/90 text-background text-xs font-semibold px-4 py-2 rounded-full shadow-lg text-center backdrop-blur-sm">
+                  {suggestionMessage}
+                </div>
+              </div>
+            )}
+
+            {isRecording && (
+              <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-destructive text-destructive-foreground rounded-full text-xs font-medium shadow-sm">
+                <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                <span>Recording</span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Practice Control Deck */}
+      <Card className="border border-border/60 bg-card shadow-xs">
+        <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          {!isRecording ? (
+            <div className="flex-1 w-full space-y-1">
+              <Label htmlFor="topic-input" className="text-xs font-semibold text-foreground">Practice Topic / Question</Label>
+              <Input
+                id="topic-input"
+                placeholder="e.g., Campus Placement HR, System Design, Debate on AI"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                className="text-xs h-9"
+              />
+            </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <div className="font-mono text-2xl font-bold text-foreground">
+                {formatTime(duration)}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Active: <span className="font-semibold text-foreground">{topic || 'Practice Session'}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {!isRecording ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs font-semibold gap-1.5"
+                  onClick={() => {
+                    setWarmupTimer(30);
+                    setWarmupPhase('breathing');
+                    setIsWarmupOpen(true);
+                  }}
+                >
+                  <Wind className="h-3.5 w-3.5 text-primary" />
+                  <span>Warmup (60s)</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  onClick={handleStart}
+                  disabled={!isReady || isModelLoading}
+                  className="text-xs font-semibold gap-1.5 min-w-28"
+                >
+                  <Video className="h-3.5 w-3.5" />
+                  <span>Start Practice</span>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRetake}
+                  className="text-xs font-semibold gap-1.5"
+                >
+                  <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>Re-Take</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={handleStop}
+                  className="text-xs font-semibold gap-1.5 min-w-28"
+                >
+                  <Square className="h-3.5 w-3.5" />
+                  <span>Complete & Audit</span>
+                </Button>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
+
+  return (
+    <div className="min-h-screen bg-background">
+      
+      {/* 60-Second Micro-Warmup Modal */}
+      {isWarmupOpen && (
+        <div className="fixed inset-0 bg-background/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <Card className="max-w-lg w-full border-2 border-primary/30 shadow-2xl bg-card">
+            <CardHeader className="border-b border-border/40 pb-3 flex flex-row items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Wind className="h-5 w-5 text-primary" />
+                <CardTitle className="text-base font-bold text-foreground">
+                  60-Second Anti-Anxiety Warmup
+                </CardTitle>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setIsWarmupOpen(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </CardHeader>
+            <CardContent className="p-6 text-center space-y-6">
+              
+              {warmupPhase === 'breathing' ? (
+                <div className="space-y-4">
+                  <Badge variant="outline" className="text-xs border-primary/40 text-primary">
+                    Phase 1 of 2: Box Breathing Calibration ({warmupTimer}s)
+                  </Badge>
+                  <div className="py-6 flex flex-col items-center justify-center">
+                    <div className="h-32 w-32 rounded-full border-4 border-primary/40 flex items-center justify-center bg-primary/5 animate-pulse">
+                      <span className="text-xl font-bold text-primary">{breathingStep}</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Follow the pulse: Inhale (4s) → Hold (4s) → Exhale (4s) → Pause (4s). This actively lowers stage cortisol and slows rapid heart rate.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Badge variant="outline" className="text-xs border-green-500/40 text-green-600 font-medium">
+                    Phase 2 of 2: Vocal Articulation Drills ({warmupTimer}s)
+                  </Badge>
+                  <div className="p-4 rounded-xl bg-muted/40 border border-border/40 text-left space-y-2">
+                    <span className="text-xs font-semibold text-foreground block">Repeat aloud clearly 3 times:</span>
+                    <p className="text-sm font-mono text-primary font-bold">1. "Red leather, yellow leather, red leather, yellow leather."</p>
+                    <p className="text-sm font-mono text-foreground font-semibold">2. "Specific statistics and strategic solutions."</p>
+                    <p className="text-sm font-mono text-muted-foreground font-semibold">3. "Unique New York, unique New York."</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Enunciating these phonetic pairs stretches jaw muscles and eliminates speech stutter before speaking.
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Button 
+                  className="w-full text-xs font-semibold"
+                  onClick={() => {
+                    setIsWarmupOpen(false);
+                    handleStart();
+                  }}
+                >
+                  <Play className="h-3.5 w-3.5 mr-1.5" />
+                  <span>I'm Ready — Launch Practice</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Saving Overlay */}
+      {isSaving && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-card border border-border/80 rounded-xl p-8 shadow-2xl flex flex-col items-center gap-3">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <h3 className="text-base font-semibold text-foreground">Analyzing Performance Data</h3>
+            <p className="text-xs text-muted-foreground">Generating comprehensive speech and gaze diagnostics...</p>
+          </div>
+        </div>
+      )}
+
+      <div className="container max-w-7xl mx-auto px-4 py-6 space-y-4">
+        
+        {/* Browser Compatibility Alert Banner */}
+        {!hasSpeechRecognition && (
+          <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200 flex items-center gap-2.5 text-xs">
+            <AlertCircle className="h-4 w-4 shrink-0 text-amber-600" />
+            <span>
+              Your browser does not natively support continuous speech recognition. For optimal real-time transcription and WPM pacing metrics, we recommend opening MIRAL in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, or <strong>Safari</strong>.
+            </span>
+          </div>
+        )}
+
+        {/* Dynamic Responsive Layout: Underneath Video when Prompter/Question is Active */}
+        {hasPrompterOrQuestion ? (
+          <div className="max-w-4xl mx-auto space-y-4">
+            {renderPrompterAndPrompt()}
+            {renderVideoAndControls()}
+            
+            {/* Live Metrics & Spoken Transcript Positioned Directly Below Video */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              {renderMetricsCard()}
+              {renderTranscriptCard()}
+            </div>
+          </div>
+        ) : (
+          /* Standard 3-Column Layout when No Prompter/Question */
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-4">
+              {renderVideoAndControls()}
+            </div>
+
+            <div className="space-y-4">
+              {renderMetricsCard()}
+              {renderTranscriptCard()}
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

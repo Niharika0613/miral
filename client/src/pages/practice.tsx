@@ -817,31 +817,18 @@ export default function Practice() {
           </div>
         )}
 
-        {/* Dynamic Responsive Layout: Underneath Video when Prompter/Question is Active */}
-        {hasPrompterOrQuestion ? (
-          <div className="max-w-4xl mx-auto space-y-4">
+        {/* Persistent Side-by-Side Layout: Video on Left (2 cols), Live Metrics on Right (1 col) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          <div className="lg:col-span-2 space-y-4">
             {renderPrompterAndPrompt()}
             {renderVideoAndControls()}
-            
-            {/* Live Metrics & Spoken Transcript Positioned Directly Below Video */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-              {renderMetricsCard()}
-              {renderTranscriptCard()}
-            </div>
           </div>
-        ) : (
-          /* Standard 3-Column Layout when No Prompter/Question */
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
-              {renderVideoAndControls()}
-            </div>
 
-            <div className="space-y-4">
-              {renderMetricsCard()}
-              {renderTranscriptCard()}
-            </div>
+          <div className="space-y-4 lg:sticky lg:top-6">
+            {renderMetricsCard()}
+            {renderTranscriptCard()}
           </div>
-        )}
+        </div>
 
       </div>
     </div>

@@ -677,7 +677,7 @@ export default function Report() {
           {/* Footer Note */}
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-muted-foreground border-t border-border/40 mt-6 gap-2">
             <span>Powered by MIRAL Multi-Modal AI (3D Facial Vision & Speech Engine)</span>
-            <span className="font-medium text-foreground/80">AI Communication & Interview Practice Platform</span>
+            <span className="font-medium text-foreground/80">AI Public Speaking & Communication Platform</span>
           </div>
         </div>
 

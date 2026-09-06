@@ -166,10 +166,10 @@ export default function Dashboard() {
             <div className="space-y-1.5 max-w-2xl">
               <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary px-3 py-0.5 rounded-full bg-primary/10 border border-primary/20">
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>Multi-Modal AI Mirror for Campus Placements</span>
+                <span>Multi-Modal AI Mirror for Public Speaking & Communication</span>
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-                Master Interview Confidence & Speech Delivery
+                Master Public Speaking & Communication Delivery
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 Objective real-time 3D eye gaze tracking, posture alignment, vocal pacing calibration, and bilingual hesitation control — 100% private in your browser.
@@ -207,7 +207,7 @@ export default function Dashboard() {
             </div>
             <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-0.5 text-xs">
               <span className="font-bold text-foreground block">Custom Teleprompter</span>
-              <p className="text-[11px] text-muted-foreground">Practice your own resume script</p>
+              <p className="text-[11px] text-muted-foreground">Practice your speech or notes</p>
             </div>
             <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-0.5 text-xs">
               <span className="font-bold text-foreground block">100% Client Privacy</span>

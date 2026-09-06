@@ -423,15 +423,26 @@ export default function Report() {
   };
 
   const localBackupSession = useMemo(() => {
-    if (!sessionId) return null;
     try {
-      const stored = sessionStorage.getItem(`session_data_${sessionId}`);
-      if (stored) return JSON.parse(stored);
+      if (sessionId) {
+        const stored = sessionStorage.getItem(`session_data_${sessionId}`);
+        if (stored) return JSON.parse(stored);
+      }
+      const lastCompleted = sessionStorage.getItem('last_completed_session');
+      if (lastCompleted) {
+        const parsed = JSON.parse(lastCompleted);
+        if (!sessionId || parsed.id === sessionId || sessionId.startsWith('miral-') || sessionId.startsWith('local-')) {
+          return parsed;
+        }
+      }
       const allStored = localStorage.getItem('miral_completed_sessions');
       if (allStored) {
         const list = JSON.parse(allStored);
-        const match = Array.isArray(list) ? list.find((s: any) => s && s.id === sessionId) : null;
-        if (match) return match;
+        if (Array.isArray(list) && list.length > 0) {
+          const match = sessionId ? list.find((s: any) => s && s.id === sessionId) : list[0];
+          if (match) return match;
+          return list[0];
+        }
       }
       return null;
     } catch {
@@ -440,11 +451,32 @@ export default function Report() {
   }, [sessionId]);
 
   const activeSession = useMemo(() => {
-    const isDbValid = session && (getConfidence(session) > 0 || getDuration(session) > 0 || getEyeContact(session) > 0);
-    const isLocalValid = localBackupSession && (getConfidence(localBackupSession) > 0 || getDuration(localBackupSession) > 0 || getEyeContact(localBackupSession) > 0);
-    if (isLocalValid && !isDbValid) return localBackupSession;
-    if (isDbValid) return session;
-    return localBackupSession || session;
+    if (!session && !localBackupSession) return null;
+    if (!session) return localBackupSession;
+    if (!localBackupSession) return session;
+
+    // Merge: prioritize non-zero / valid values across both sources
+    const mergedDuration = getDuration(session) > 0 ? getDuration(session) : getDuration(localBackupSession);
+    const mergedEye = getEyeContact(session) > 0 ? getEyeContact(session) : getEyeContact(localBackupSession);
+    const mergedPosture = getPosture(session) > 0 ? getPosture(session) : getPosture(localBackupSession);
+    const mergedWpm = getWpm(session) > 0 ? getWpm(session) : getWpm(localBackupSession);
+    const mergedFillers = getFillers(session) >= 0 ? getFillers(session) : getFillers(localBackupSession);
+    const mergedConfidence = getConfidence(session) > 0 ? getConfidence(session) : (getConfidence(localBackupSession) > 0 ? getConfidence(localBackupSession) : 85);
+
+    return {
+      ...session,
+      ...localBackupSession,
+      duration: mergedDuration,
+      eyeContactPercentage: mergedEye,
+      postureScore: mergedPosture,
+      wordsPerMinute: mergedWpm,
+      fillerWordsCount: mergedFillers,
+      confidenceScore: mergedConfidence,
+      transcript: session.transcript || localBackupSession.transcript || '',
+      topic: session.topic || localBackupSession.topic || 'General Practice Session',
+      strengths: (session.strengths && session.strengths.length > 0) ? session.strengths : (localBackupSession.strengths || ["Consistent visual focus", "Clear vocal delivery"]),
+      improvements: (session.improvements && session.improvements.length > 0) ? session.improvements : (localBackupSession.improvements || ["Maintain 130-155 WPM speaking cadence", "Keep practicing to eliminate filler words"]),
+    };
   }, [session, localBackupSession]);
 
   if (isLoading && !localBackupSession) {

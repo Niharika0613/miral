@@ -165,6 +165,11 @@ function analyzePupilAndCanvas(video: HTMLVideoElement) {
       keypoints[263] = { x: centerX + eyeSpread + 15, y: centerY - height * 0.05, z: 0 };
       keypoints[473] = { x: centerX + eyeSpread + avgPupilOffset * 2, y: centerY - height * 0.05, z: 0 };
 
+      keypoints[159] = { x: centerX - eyeSpread, y: centerY - height * 0.05 - 8, z: 0 };
+      keypoints[145] = { x: centerX - eyeSpread, y: centerY - height * 0.05 + 8, z: 0 };
+      keypoints[386] = { x: centerX + eyeSpread, y: centerY - height * 0.05 - 8, z: 0 };
+      keypoints[374] = { x: centerX + eyeSpread, y: centerY - height * 0.05 + 8, z: 0 };
+
       keypoints[1] = { x: centerX, y: centerY + height * 0.03, z: 0 };
       keypoints[10] = { x: centerX, y: centerY - height * 0.20, z: 0 };
       keypoints[175] = { x: centerX, y: centerY + height * 0.20, z: 0 };

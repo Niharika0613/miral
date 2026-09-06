@@ -295,6 +295,8 @@ export default function Practice() {
     return () => clearInterval(interval);
   }, [isRecording]);
 
+  const sessionIdRef = useRef<string>('');
+
   const handleStart = async () => {
     if (!isReady || isModelLoading) return;
     try {
@@ -309,21 +311,18 @@ export default function Practice() {
       sessionStartTimeRef.current = startTime;
       isRecordingRef.current = true;
 
+      const newSessionId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `miral-${Date.now()}`;
+      sessionIdRef.current = newSessionId;
+      setSessionId(newSessionId);
+
       await startRecording();
       const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
       
       fetch('/api/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: topic || 'General Practice Session', userId }),
-      }).then(async (res) => {
-        if (res.ok) {
-          const data = await res.json();
-          setSessionId(data.id);
-        } else {
-          setSessionId(`local-${Date.now()}`);
-        }
-      }).catch(() => setSessionId(`local-${Date.now()}`));
+        body: JSON.stringify({ id: newSessionId, topic: topic || 'General Practice Session', userId }),
+      }).catch(() => {});
 
       setSessionStartTime(startTime);
       startAudioStream();
@@ -361,13 +360,14 @@ export default function Practice() {
   };
 
   const handleStop = async () => {
-    if (!sessionId) return;
+    const targetSessionId = sessionIdRef.current || sessionId || `miral-${Date.now()}`;
     setIsSaving(true);
     try {
+      isRecordingRef.current = false;
       const audioBlob = await stopRecording();
       stopAudioStream();
 
-      const actualDuration = Math.max(duration, sessionStartTime > 0 ? Math.round((Date.now() - sessionStartTime) / 1000) : 1);
+      const actualDuration = Math.max(duration, sessionStartTimeRef.current > 0 ? Math.round((Date.now() - sessionStartTimeRef.current) / 1000) : (sessionStartTime > 0 ? Math.round((Date.now() - sessionStartTime) / 1000) : 1));
 
       const rawEyeContact = eyeContactData.length > 0
         ? Math.round((eyeContactData.filter(d => d.hasEyeContact).length / eyeContactData.length) * 100)
@@ -385,7 +385,7 @@ export default function Practice() {
       const confidenceCalc = Math.min(100, Math.max(50, Math.round((finalEyeContact * 0.45) + (finalPosture * 0.35) + (Math.min(finalWPM / 130, 1) * 20))));
 
       const localBackup = {
-        id: sessionId,
+        id: targetSessionId,
         topic: activeTopic,
         duration: actualDuration,
         eyeContactPercentage: finalEyeContact,
@@ -400,12 +400,14 @@ export default function Practice() {
         strengths: ["Completed the practice session", finalEyeContact >= 70 ? "Consistent eye gaze engagement" : "Solid vocal delivery"],
         improvements: ["Maintain steady 130-155 WPM conversational pacing", "Keep practicing to eliminate fillers"]
       };
-      sessionStorage.setItem(`session_data_${sessionId}`, JSON.stringify(localBackup));
+
+      sessionStorage.setItem(`session_data_${targetSessionId}`, JSON.stringify(localBackup));
+      sessionStorage.setItem('last_completed_session', JSON.stringify(localBackup));
 
       try {
         const storedStr = localStorage.getItem('miral_completed_sessions');
         const existingList = storedStr ? JSON.parse(storedStr) : [];
-        const filtered = Array.isArray(existingList) ? existingList.filter((s: any) => s && s.id !== sessionId) : [];
+        const filtered = Array.isArray(existingList) ? existingList.filter((s: any) => s && s.id !== targetSessionId) : [];
         localStorage.setItem('miral_completed_sessions', JSON.stringify([localBackup, ...filtered]));
       } catch (cacheErr) {
         console.warn("Local storage cache notice:", cacheErr);
@@ -424,7 +426,7 @@ export default function Practice() {
       formData.append('postureData', JSON.stringify(postureData));
 
       try {
-        await fetch(`/api/sessions/${sessionId}/complete`, {
+        await fetch(`/api/sessions/${targetSessionId}/complete`, {
           method: 'POST',
           body: formData,
         });
@@ -435,20 +437,20 @@ export default function Practice() {
       const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
       await queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/sessions', userId] });
-      await queryClient.invalidateQueries({ queryKey: ['/api/sessions', sessionId] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/sessions', targetSessionId] });
 
       toast({
         title: "Session Saved",
         description: "Your detailed speech & vision performance report is ready.",
       });
-      setLocation(`/report/${sessionId}`);
+      setLocation(`/report/${targetSessionId}`);
     } catch {
       setIsSaving(false);
       toast({
         title: "Session Ready",
         description: "Opening your practice performance report...",
       });
-      setLocation(`/report/${sessionId}`);
+      setLocation(`/report/${targetSessionId}`);
     }
   };
 

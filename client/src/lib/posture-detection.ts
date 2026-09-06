@@ -1,4 +1,4 @@
-﻿// client/src/lib/posture-detection.ts
+// client/src/lib/posture-detection.ts
 import { detectFaces } from "./face-detection";
 
 export interface PostureAnalysis {
@@ -86,22 +86,22 @@ export async function analyzePosture(videoElement: HTMLVideoElement, existingFac
   const dy = rightEye.y - leftEye.y;
   const dx = Math.abs(rightEye.x - leftEye.x) || 1;
   const rollDegrees = Math.abs(Math.atan2(dy, dx) * (180 / Math.PI));
-  const isLateralTilted = rollDegrees > 5.5;
+  const isLateralTilted = rollDegrees > 11.0;
 
   // 2. Vertical Sinking / Slouch in Frame
-  const isSlouchedDown = normCenterY > 0.60;
-  const isTooHigh = normCenterY < 0.22;
+  const isSlouchedDown = normCenterY > 0.82;
+  const isTooHigh = normCenterY < 0.15;
 
   // 3. Head Pitch & Chin Elevation
   const faceHeight = Math.abs((forehead?.y || (eyeCenterY - 40)) - (chin?.y || (eyeCenterY + 50))) || 90;
   const noseToChin = Math.abs((chin?.y || (eyeCenterY + 50)) - noseTip.y) / faceHeight;
-  const isChinDown = noseToChin < 0.32 || normCenterY > 0.58;
+  const isChinDown = noseToChin < 0.20 && normCenterY > 0.78;
 
   // 4. Horizontal Centering Symmetry
   const leftDist = Math.abs(noseTip.x - (leftCheek?.x || (leftEye.x - 25)));
   const rightDist = Math.abs((rightCheek?.x || (rightEye.x + 25)) - noseTip.x);
   const yawRatio = Math.max(leftDist, rightDist) / (Math.min(leftDist, rightDist) || 1);
-  const isLeaningSide = yawRatio > 1.6 || Math.abs(normCenterX - 0.5) > 0.22;
+  const isLeaningSide = yawRatio > 1.95 || Math.abs(normCenterX - 0.5) > 0.32;
 
   let posture: PostureAnalysis["posture"] = "good";
   let confidence = 88;
@@ -109,19 +109,19 @@ export async function analyzePosture(videoElement: HTMLVideoElement, existingFac
 
   if (isSlouchedDown || isChinDown) {
     posture = "slouching";
-    confidence = Math.max(35, Math.round(55 - (normCenterY - 0.58) * 100));
+    confidence = Math.max(55, Math.round(75 - (normCenterY - 0.78) * 60));
     improvements.push("Elevate chin and straighten spine");
   } else if (isLateralTilted || isLeaningSide) {
     posture = "leaning";
-    confidence = Math.max(40, Math.round(62 - (rollDegrees - 5) * 4));
+    confidence = Math.max(58, Math.round(75 - (rollDegrees - 10) * 3));
     improvements.push("Level your head and center your shoulders");
   } else if (isTooHigh) {
-    confidence = 72;
+    confidence = 78;
     improvements.push("Step back slightly for optimal framing");
   } else {
     // Dynamic score based on micro-alignment
-    const alignmentBonus = Math.max(0, 8 - Math.round(rollDegrees * 1.2));
-    confidence = Math.min(94, 84 + alignmentBonus);
+    const alignmentBonus = Math.max(0, 6 - Math.round(rollDegrees * 0.5));
+    confidence = Math.min(95, 88 + alignmentBonus);
     improvements.push("Upright and centered posture maintained");
   }
 

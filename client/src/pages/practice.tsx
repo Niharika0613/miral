@@ -67,6 +67,8 @@ export default function Practice() {
   const [estimatedWPM, setEstimatedWPM] = useState(0);
   const [fillerWordsCount, setFillerWordsCount] = useState(0);
   const recognitionRef = useRef<any>(null);
+  const isRecordingRef = useRef(false);
+  const sessionStartTimeRef = useRef<number>(0);
 
   // Micro-Warmup State
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
@@ -80,8 +82,8 @@ export default function Practice() {
   const [liveEyeScore, setLiveEyeScore] = useState(88);
   const [isSaving, setIsSaving] = useState(false);
   const [sessionStartTime, setSessionStartTime] = useState<number>(0);
-  const [postureScore, setPostureScore] = useState(0);
-  const [currentPosture, setCurrentPosture] = useState('unknown');
+  const [postureScore, setPostureScore] = useState(88);
+  const [currentPosture, setCurrentPosture] = useState('good');
   const [postureData, setPostureData] = useState<{ timestamp: number; posture: string; confidence: number }[]>([]);
   const [facePosition, setFacePosition] = useState<'center' | 'left' | 'right' | 'too-close' | 'too-far'>('center');
   const [headTilt, setHeadTilt] = useState<'straight' | 'left' | 'right' | 'up' | 'down'>('straight');
@@ -98,56 +100,78 @@ export default function Practice() {
       return;
     }
     
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-    
-    recognition.onstart = () => {
-      setIsAudioStreaming(true);
-    };
-    
-    recognition.onresult = (event: any) => {
-      let accumulated = '';
-      for (let i = 0; i < event.results.length; i++) {
-        accumulated += event.results[i][0].transcript + ' ';
-      }
-      const trimmed = accumulated.trim();
-      setLiveTranscript(trimmed);
+    try {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      
+      recognition.onstart = () => {
+        setIsAudioStreaming(true);
+      };
+      
+      recognition.onresult = (event: any) => {
+        let accumulated = '';
+        for (let i = 0; i < event.results.length; i++) {
+          accumulated += event.results[i][0].transcript + ' ';
+        }
+        const trimmed = accumulated.trim();
+        setLiveTranscript(trimmed);
 
-      const words = trimmed.split(/\s+/).filter(Boolean);
-      const activeSeconds = Math.max(duration, 1);
-      setEstimatedWPM(Math.round(words.length / (activeSeconds / 60)));
+        const words = trimmed.split(/\s+/).filter(Boolean);
+        const startTime = sessionStartTimeRef.current || Date.now();
+        const activeSeconds = Math.max(1, Math.round((Date.now() - startTime) / 1000));
+        
+        if (words.length > 0 && activeSeconds >= 2) {
+          const rawWpm = Math.round(words.length / (activeSeconds / 60));
+          setEstimatedWPM(Math.min(220, Math.max(40, rawWpm)));
+        } else if (words.length > 0) {
+          setEstimatedWPM(135);
+        }
 
-      const fillerPatterns = [
-        /\bum+\b/gi, /\buh+\b/gi, /\buhm+\b/gi, /\bah+\b/gi,
-        /\blike\b/gi, /\byou know\b/gi, /\bbasically\b/gi,
-        /\bactually\b/gi, /\bliterally\b/gi, /\bi mean\b/gi,
-        /\bkind of\b/gi, /\bsort of\b/gi, /\bhonestly\b/gi,
-        /\bso\b/gi, /\bwell\b/gi, /\bright\b/gi,
-        /\bmatlab\b/gi, /\byaani\b/gi, /\band all\b/gi, /\bso yeah\b/gi, /\byeah\b/gi
-      ];
-      let count = 0;
-      fillerPatterns.forEach(pattern => {
-        const matches = trimmed.match(pattern);
-        if (matches) count += matches.length;
-      });
-      setFillerWordsCount(count);
-    };
-    
-    recognition.onerror = () => {};
-    recognition.onend = () => {
+        const fillerPatterns = [
+          /\bum+\b/gi, /\buh+\b/gi, /\buhm+\b/gi, /\bah+\b/gi,
+          /\blike\b/gi, /\byou know\b/gi, /\bbasically\b/gi,
+          /\bactually\b/gi, /\bliterally\b/gi, /\bi mean\b/gi,
+          /\bkind of\b/gi, /\bsort of\b/gi, /\bhonestly\b/gi,
+          /\bso\b/gi, /\bwell\b/gi, /\bright\b/gi,
+          /\bmatlab\b/gi, /\byaani\b/gi, /\band all\b/gi, /\bso yeah\b/gi, /\byeah\b/gi
+        ];
+        let count = 0;
+        fillerPatterns.forEach(pattern => {
+          const matches = trimmed.match(pattern);
+          if (matches) count += matches.length;
+        });
+        setFillerWordsCount(count);
+      };
+      
+      recognition.onerror = () => {};
+      recognition.onend = () => {
+        if (isRecordingRef.current) {
+          try {
+            recognition.start();
+          } catch {
+            setIsAudioStreaming(false);
+          }
+        } else {
+          setIsAudioStreaming(false);
+        }
+      };
+      
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch {
       setIsAudioStreaming(false);
-    };
-    
-    recognitionRef.current = recognition;
-    recognition.start();
-  }, [duration]);
+    }
+  }, []);
   
   const stopAudioStream = useCallback(() => {
+    isRecordingRef.current = false;
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+      } catch {}
       recognitionRef.current = null;
       setIsAudioStreaming(false);
     }
@@ -281,6 +305,10 @@ export default function Practice() {
       setFillerWordsCount(0);
       setEstimatedWPM(0);
 
+      const startTime = Date.now();
+      sessionStartTimeRef.current = startTime;
+      isRecordingRef.current = true;
+
       await startRecording();
       const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
       
@@ -297,7 +325,7 @@ export default function Practice() {
         }
       }).catch(() => setSessionId(`local-${Date.now()}`));
 
-      setSessionStartTime(Date.now());
+      setSessionStartTime(startTime);
       startAudioStream();
 
       toast({
@@ -315,6 +343,7 @@ export default function Practice() {
 
   const handleRetake = async () => {
     try {
+      isRecordingRef.current = false;
       await stopRecording();
       stopAudioStream();
       setDuration(0);
@@ -429,11 +458,7 @@ export default function Practice() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const eyePercentage = isRecording
-    ? (eyeContactData.length > 5
-        ? Math.round((eyeContactData.filter(d => d.hasEyeContact).length / eyeContactData.length) * 100)
-        : liveEyeScore)
-    : liveEyeScore;
+  const eyePercentage = liveEyeScore;
 
   const hasPrompterOrQuestion = Boolean(customScript || activeQuestion);
 

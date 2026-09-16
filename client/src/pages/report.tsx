@@ -96,7 +96,7 @@ function AICoachSection({ session }: AICoachSectionProps) {
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             <CardTitle className="text-base font-semibold text-foreground">
-              AI Speech & Communication Coach Diagnostics
+              MIRAL Speech & Vision Diagnostics
             </CardTitle>
           </div>
           <Badge variant="outline" className="text-xs border-primary/30 text-primary">

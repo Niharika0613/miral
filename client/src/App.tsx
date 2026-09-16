@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/lib/theme-provider";
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
 import { useEffect, useState } from "react";
+import Home from "@/pages/home";
 import Practice from "@/pages/practice";
 import Dashboard from "@/pages/dashboard";
 import Report from "@/pages/report";
@@ -26,7 +27,7 @@ import { getCurrentUser } from "@/utils/auth";
 function AppRouter() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
+      <Route path="/" component={Home} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/practice" component={Practice} />
       <Route path="/scenarios" component={Scenarios} />

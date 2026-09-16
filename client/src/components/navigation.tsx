@@ -37,14 +37,14 @@ export function Navigation() {
         
         {/* Brand & Nav */}
         <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <MiralLogo width={132} height={34} />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location === item.path || (location === '/' && item.path === '/dashboard');
+              const isActive = location === item.path;
               return (
                 <Link key={item.path} href={item.path}>
                   <Button

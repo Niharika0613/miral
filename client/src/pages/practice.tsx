@@ -465,59 +465,59 @@ export default function Practice() {
   const hasPrompterOrQuestion = Boolean(customScript || activeQuestion);
 
   const renderMetricsCard = () => (
-    <Card className="border border-border/60 bg-card shadow-xs">
-      <CardHeader className="pb-3 border-b border-border/40">
-        <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center justify-between">
+    <Card className="border border-white/[0.08] bg-white/[0.04] backdrop-blur-xl shadow-[0_0_30px_rgba(99,102,241,0.08)] rounded-2xl overflow-hidden card-gradient-top">
+      <CardHeader className="pb-3 border-b border-white/[0.06] bg-white/[0.02]">
+        <CardTitle className="text-xs font-bold uppercase tracking-wider text-white flex items-center justify-between">
           <span>Live Vision Metrics</span>
-          <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
         </CardTitle>
       </CardHeader>
 
       <CardContent className="p-4 space-y-4 text-xs">
         {/* Eye Engagement */}
-        <div className="space-y-1">
+        <div className="space-y-1 p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground font-medium">Eye Gaze Focus</span>
-            <Badge variant={eyePercentage >= 65 ? "default" : "secondary"} className="text-[10px]">
+            <span className="text-slate-400 font-medium">Eye Gaze Focus</span>
+            <Badge variant="outline" className={`text-[10px] ${eyePercentage >= 65 ? 'border-cyan-500/40 text-cyan-300 bg-cyan-500/10' : 'border-amber-500/40 text-amber-300 bg-amber-500/10'}`}>
               {eyePercentage >= 65 ? 'Direct Focus' : 'Looking Away'}
             </Badge>
           </div>
-          <div className="text-lg font-bold text-foreground">
-            {eyePercentage}% <span className="text-[11px] font-normal text-muted-foreground">real-time gaze tracking</span>
+          <div className="text-lg font-bold text-cyan-400">
+            {eyePercentage}% <span className="text-[11px] font-normal text-slate-400">real-time gaze</span>
           </div>
         </div>
 
         {/* Posture */}
-        <div className="space-y-1">
+        <div className="space-y-1 p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground font-medium">Posture Alignment</span>
-            <Badge variant={postureScore >= 75 ? "default" : "secondary"} className="text-[10px]">
+            <span className="text-slate-400 font-medium">Posture Alignment</span>
+            <Badge variant="outline" className={`text-[10px] ${postureScore >= 75 ? 'border-indigo-500/40 text-indigo-300 bg-indigo-500/10' : 'border-amber-500/40 text-amber-300 bg-amber-500/10'}`}>
               {currentPosture === 'good' ? 'Upright' : currentPosture === 'slouching' ? 'Slouching' : currentPosture === 'leaning' ? 'Leaning' : 'Calibrating'}
             </Badge>
           </div>
-          <div className="text-lg font-bold text-foreground">
-            {Math.round(postureScore)}% <span className="text-[11px] font-normal text-muted-foreground">stability</span>
+          <div className="text-lg font-bold text-indigo-400">
+            {Math.round(postureScore)}% <span className="text-[11px] font-normal text-slate-400">stability</span>
           </div>
         </div>
 
         {/* Speech Pacing WPM */}
-        <div className="space-y-1">
+        <div className="space-y-1 p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground font-medium">Speaking Pace</span>
-            <Badge variant="outline" className="text-[10px]">
+            <span className="text-slate-400 font-medium">Speaking Pace</span>
+            <Badge variant="outline" className={`text-[10px] ${estimatedWPM >= 125 && estimatedWPM <= 165 ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-white/10 text-slate-400'}`}>
               {estimatedWPM >= 125 && estimatedWPM <= 165 ? 'Optimal' : 'Adjusting'}
             </Badge>
           </div>
-          <div className="text-lg font-bold text-foreground">
-            {estimatedWPM} <span className="text-[11px] font-normal text-muted-foreground">WPM</span>
+          <div className="text-lg font-bold text-emerald-400">
+            {estimatedWPM} <span className="text-[11px] font-normal text-slate-400">WPM</span>
           </div>
         </div>
 
         {/* Filler Words */}
-        <div className="space-y-1">
+        <div className="space-y-1 p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground font-medium">Hesitation Count</span>
-            <Badge variant="secondary" className="text-[10px]">
+            <span className="text-slate-400 font-medium">Hesitation Count</span>
+            <Badge variant="outline" className="text-[10px] border-violet-500/40 text-violet-300 bg-violet-500/10">
               {fillerWordsCount} detected
             </Badge>
           </div>
@@ -527,16 +527,16 @@ export default function Practice() {
   );
 
   const renderTranscriptCard = () => (
-    <Card className="border border-border/60 bg-card shadow-xs">
-      <CardHeader className="pb-2 border-b border-border/40">
-        <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+    <Card className="border border-white/[0.08] bg-white/[0.04] backdrop-blur-xl shadow-[0_0_30px_rgba(99,102,241,0.08)] rounded-2xl overflow-hidden card-gradient-top">
+      <CardHeader className="pb-2 border-b border-white/[0.06] bg-white/[0.02]">
+        <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">
           Live Spoken Transcript
         </CardTitle>
       </CardHeader>
       <CardContent className="p-3">
-        <div className="h-36 overflow-y-auto font-mono text-[11px] text-foreground/90 leading-relaxed bg-muted/20 p-2.5 rounded border border-border/30">
+        <div className="h-36 overflow-y-auto font-mono text-[11px] text-slate-200 leading-relaxed bg-black/30 p-2.5 rounded-xl border border-white/[0.06]">
           {liveTranscript || (
-            <span className="text-muted-foreground italic">
+            <span className="text-slate-500 italic">
               Start speaking into your microphone to view live speech transcription...
             </span>
           )}
@@ -549,31 +549,31 @@ export default function Practice() {
     <>
       {/* Custom Teleprompter Box */}
       {customScript && (
-        <div className="p-4 rounded-xl border-2 border-primary/30 bg-card shadow-xs space-y-2">
-          <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2">
+        <div className="p-4 rounded-2xl border border-indigo-500/30 bg-white/[0.04] backdrop-blur-xl shadow-[0_0_40px_rgba(99,102,241,0.1)] space-y-2 card-gradient-top">
+          <div className="flex items-center justify-between gap-2 border-b border-white/[0.08] pb-2">
             <div className="flex items-center gap-2">
-              <FileText className="h-3.5 w-3.5 text-primary" />
-              <span className="font-bold text-xs uppercase tracking-wider text-foreground">
+              <FileText className="h-3.5 w-3.5 text-indigo-400" />
+              <span className="font-bold text-xs uppercase tracking-wider text-white">
                 Live Teleprompter Notes
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex items-center border border-border/60 rounded-md overflow-hidden bg-muted/40">
+              <div className="flex items-center border border-white/10 rounded-lg overflow-hidden bg-white/[0.04]">
                 <button
                   type="button"
                   onClick={() => setPrompterFontSize(prev => Math.max(prev - 2, 11))}
-                  className="px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
+                  className="px-2 py-0.5 text-[10px] font-bold text-slate-400 hover:text-white hover:bg-white/[0.08]"
                   title="Smaller Font"
                 >
                   A-
                 </button>
-                <span className="text-[10px] px-1 font-mono text-muted-foreground border-x border-border/40">
+                <span className="text-[10px] px-1.5 font-mono text-slate-400 border-x border-white/10">
                   {prompterFontSize}px
                 </span>
                 <button
                   type="button"
                   onClick={() => setPrompterFontSize(prev => Math.min(prev + 2, 22))}
-                  className="px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
+                  className="px-2 py-0.5 text-[10px] font-bold text-slate-400 hover:text-white hover:bg-white/[0.08]"
                   title="Larger Font"
                 >
                   A+
@@ -582,7 +582,7 @@ export default function Practice() {
               <button
                 type="button"
                 onClick={() => setCustomScript('')}
-                className="text-muted-foreground hover:text-foreground p-1 rounded"
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/[0.06]"
                 title="Hide Teleprompter"
               >
                 <X className="h-3.5 w-3.5" />
@@ -590,7 +590,7 @@ export default function Practice() {
             </div>
           </div>
           <div 
-            className="max-h-36 overflow-y-auto leading-relaxed text-foreground whitespace-pre-line font-medium p-2.5 rounded bg-muted/20 border border-border/20"
+            className="max-h-36 overflow-y-auto leading-relaxed text-slate-200 whitespace-pre-line font-medium p-3 rounded-xl bg-black/30 border border-white/[0.06]"
             style={{ fontSize: `${prompterFontSize}px` }}
           >
             {customScript}
@@ -600,20 +600,20 @@ export default function Practice() {
 
       {/* Active Question Bar */}
       {activeQuestion && (
-        <div className="p-3.5 rounded-xl border border-primary/30 bg-primary/5 space-y-2 text-xs relative">
+        <div className="p-4 rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-500/10 via-violet-500/5 to-cyan-500/5 backdrop-blur-xl space-y-2 text-xs relative shadow-[0_0_30px_rgba(99,102,241,0.08)]">
           <div className="flex items-start justify-between gap-2">
-            <div className="space-y-0.5 min-w-0 flex-1">
-              <span className="font-semibold text-primary block text-[11px] uppercase tracking-wider">
+            <div className="space-y-1 min-w-0 flex-1">
+              <span className="font-semibold text-indigo-400 block text-[11px] uppercase tracking-wider font-mono">
                 Target Prompt
               </span>
-              <p className="text-foreground font-semibold text-xs sm:text-sm leading-snug">
+              <p className="text-white font-semibold text-xs sm:text-sm leading-snug">
                 "{activeQuestion.question}"
               </p>
             </div>
             <button 
               type="button" 
               onClick={() => setActiveQuestion(null)}
-              className="text-muted-foreground hover:text-foreground p-1 rounded transition-colors"
+              className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/[0.06] transition-colors"
               title="Dismiss prompt"
             >
               <X className="h-3.5 w-3.5" />
@@ -621,13 +621,13 @@ export default function Practice() {
           </div>
 
           {activeQuestion.outline && activeQuestion.outline.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-primary/15">
-              <span className="text-[10px] font-bold text-primary/80 uppercase">Key Points:</span>
+            <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-white/[0.08]">
+              <span className="text-[10px] font-bold text-indigo-300 uppercase font-mono">Key Points:</span>
               {activeQuestion.outline.map((point, pIdx) => (
                 <Badge 
                   key={pIdx} 
                   variant="outline" 
-                  className="text-[10px] font-medium border-primary/20 bg-background/60 text-foreground py-0.5 px-2"
+                  className="text-[10px] font-medium border-indigo-500/30 bg-indigo-500/10 text-indigo-200 py-0.5 px-2"
                 >
                   {point}
                 </Badge>
@@ -641,12 +641,12 @@ export default function Practice() {
 
   const renderVideoAndControls = () => (
     <>
-      <Card className="border border-border/60 bg-card shadow-xs overflow-hidden">
+      <Card className="border border-white/[0.08] bg-white/[0.04] backdrop-blur-xl shadow-[0_0_40px_rgba(99,102,241,0.1)] rounded-2xl overflow-hidden card-gradient-top">
         <CardContent className="p-2 md:p-3">
-          <div className="relative aspect-video bg-muted rounded-lg overflow-hidden shadow-inner flex items-center justify-center">
+          <div className="relative aspect-video bg-[#090b10] rounded-xl overflow-hidden shadow-inner flex items-center justify-center border border-white/[0.06]">
             {webcamError && (
-              <div className="p-6 text-center text-xs text-muted-foreground space-y-2">
-                <p className="font-semibold text-destructive">Camera Access Required</p>
+              <div className="p-6 text-center text-xs text-slate-400 space-y-2">
+                <p className="font-semibold text-red-400">Camera Access Required</p>
                 <p>Please check browser permissions and allow webcam access.</p>
               </div>
             )}
@@ -655,20 +655,20 @@ export default function Practice() {
               autoPlay
               playsInline
               muted
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transform -scale-x-100"
             />
 
             {/* Real-Time Eye Gaze Feedback Banner */}
             {showSuggestion && isRecording && (
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-in slide-in-from-bottom duration-200">
-                <div className="bg-foreground/90 text-background text-xs font-semibold px-4 py-2 rounded-full shadow-lg text-center backdrop-blur-sm">
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-in slide-in-from-bottom duration-200 z-20">
+                <div className="bg-[#05060A]/90 text-white border border-indigo-500/40 text-xs font-semibold px-4 py-2 rounded-full shadow-[0_0_20px_rgba(99,102,241,0.4)] text-center backdrop-blur-md">
                   {suggestionMessage}
                 </div>
               </div>
             )}
 
             {isRecording && (
-              <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-destructive text-destructive-foreground rounded-full text-xs font-medium shadow-sm">
+              <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-red-600/90 text-white rounded-full text-xs font-medium shadow-[0_0_15px_rgba(239,68,68,0.5)] z-20">
                 <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
                 <span>Recording</span>
               </div>
@@ -678,26 +678,26 @@ export default function Practice() {
       </Card>
 
       {/* Practice Control Deck */}
-      <Card className="border border-border/60 bg-card shadow-xs">
+      <Card className="border border-white/[0.08] bg-white/[0.04] backdrop-blur-xl shadow-sm rounded-2xl">
         <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           {!isRecording ? (
             <div className="flex-1 w-full space-y-1">
-              <Label htmlFor="topic-input" className="text-xs font-semibold text-foreground">Practice Topic / Question</Label>
+              <Label htmlFor="topic-input" className="text-xs font-semibold text-slate-300">Practice Topic / Question</Label>
               <Input
                 id="topic-input"
                 placeholder="e.g., Campus Placement HR, System Design, Debate on AI"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="text-xs h-9"
+                className="text-xs h-9 bg-white/[0.06] border border-white/[0.1] text-white placeholder:text-slate-500 focus:border-indigo-500/50"
               />
             </div>
           ) : (
             <div className="flex items-center gap-4">
-              <div className="font-mono text-2xl font-bold text-foreground">
+              <div className="font-mono text-2xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
                 {formatTime(duration)}
               </div>
-              <div className="text-xs text-muted-foreground">
-                Active: <span className="font-semibold text-foreground">{topic || 'Practice Session'}</span>
+              <div className="text-xs text-slate-400">
+                Active: <span className="font-semibold text-white">{topic || 'Practice Session'}</span>
               </div>
             </div>
           )}
@@ -708,14 +708,14 @@ export default function Practice() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-xs font-semibold gap-1.5"
+                  className="text-xs font-semibold gap-1.5 border-white/15 bg-white/[0.03] hover:bg-white/[0.08] text-slate-200"
                   onClick={() => {
                     setWarmupTimer(30);
                     setWarmupPhase('breathing');
                     setIsWarmupOpen(true);
                   }}
                 >
-                  <Wind className="h-3.5 w-3.5 text-primary" />
+                  <Wind className="h-3.5 w-3.5 text-indigo-400" />
                   <span>Warmup (60s)</span>
                 </Button>
 
@@ -723,7 +723,7 @@ export default function Practice() {
                   size="sm"
                   onClick={handleStart}
                   disabled={!isReady || isModelLoading}
-                  className="text-xs font-semibold gap-1.5 min-w-28"
+                  className="text-xs font-semibold gap-1.5 min-w-28 bg-gradient-to-r from-indigo-500 to-violet-600 text-white hover:opacity-90 hover:shadow-[0_8px_30px_rgba(99,102,241,0.4)] border-0"
                 >
                   <Video className="h-3.5 w-3.5" />
                   <span>Start Practice</span>
@@ -735,9 +735,9 @@ export default function Practice() {
                   variant="outline"
                   size="sm"
                   onClick={handleRetake}
-                  className="text-xs font-semibold gap-1.5"
+                  className="text-xs font-semibold gap-1.5 border-white/15 bg-white/[0.03] hover:bg-white/[0.08] text-slate-200"
                 >
-                  <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
+                  <RotateCcw className="h-3.5 w-3.5 text-slate-400" />
                   <span>Re-Take</span>
                 </Button>
 
@@ -745,10 +745,10 @@ export default function Practice() {
                   size="sm"
                   variant="destructive"
                   onClick={handleStop}
-                  className="text-xs font-semibold gap-1.5 min-w-28"
+                  className="text-xs font-semibold gap-1.5 min-w-28 bg-red-600 hover:bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] border-0"
                 >
                   <Square className="h-3.5 w-3.5" />
-                  <span>Complete & Audit</span>
+                  <span>Complete &amp; Audit</span>
                 </Button>
               </>
             )}
@@ -759,20 +759,26 @@ export default function Practice() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#05060A] text-slate-100 relative overflow-x-hidden">
+      {/* Aurora Ambient Background */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="aurora-blob-1 absolute top-[-100px] left-[-80px] w-[500px] h-[500px] rounded-full bg-indigo-600/15 blur-[120px]" />
+        <div className="aurora-blob-2 absolute top-[40%] right-[-120px] w-[450px] h-[450px] rounded-full bg-violet-600/10 blur-[120px]" />
+        <div className="aurora-blob-3 absolute bottom-[-100px] left-[30%] w-[450px] h-[450px] rounded-full bg-cyan-500/10 blur-[100px]" />
+      </div>
       
       {/* 60-Second Micro-Warmup Modal */}
       {isWarmupOpen && (
-        <div className="fixed inset-0 bg-background/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <Card className="max-w-lg w-full border-2 border-primary/30 shadow-2xl bg-card">
-            <CardHeader className="border-b border-border/40 pb-3 flex flex-row items-center justify-between">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <Card className="max-w-lg w-full border border-indigo-500/30 shadow-[0_0_60px_rgba(99,102,241,0.25)] bg-[#090b10] backdrop-blur-2xl rounded-2xl overflow-hidden card-gradient-top animate-in zoom-in-95 duration-200">
+            <CardHeader className="border-b border-white/[0.08] pb-3 flex flex-row items-center justify-between bg-white/[0.02]">
               <div className="flex items-center gap-2">
-                <Wind className="h-5 w-5 text-primary" />
-                <CardTitle className="text-base font-bold text-foreground">
+                <Wind className="h-5 w-5 text-indigo-400" />
+                <CardTitle className="text-base font-bold text-white">
                   60-Second Anti-Anxiety Warmup
                 </CardTitle>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setIsWarmupOpen(false)}>
+              <Button variant="ghost" size="sm" onClick={() => setIsWarmupOpen(false)} className="text-slate-400 hover:text-white hover:bg-white/[0.06]">
                 <X className="h-4 w-4" />
               </Button>
             </CardHeader>
@@ -780,30 +786,30 @@ export default function Practice() {
               
               {warmupPhase === 'breathing' ? (
                 <div className="space-y-4">
-                  <Badge variant="outline" className="text-xs border-primary/40 text-primary">
+                  <Badge variant="outline" className="text-xs border-indigo-500/40 text-indigo-300 bg-indigo-500/10">
                     Phase 1 of 2: Box Breathing Calibration ({warmupTimer}s)
                   </Badge>
                   <div className="py-6 flex flex-col items-center justify-center">
-                    <div className="h-32 w-32 rounded-full border-4 border-primary/40 flex items-center justify-center bg-primary/5 animate-pulse">
-                      <span className="text-xl font-bold text-primary">{breathingStep}</span>
+                    <div className="h-32 w-32 rounded-full border-4 border-indigo-500/40 flex items-center justify-center bg-indigo-500/10 shadow-[0_0_30px_rgba(99,102,241,0.3)] animate-pulse">
+                      <span className="text-xl font-bold text-white">{breathingStep}</span>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-slate-400">
                     Follow the pulse: Inhale (4s) → Hold (4s) → Exhale (4s) → Pause (4s). This actively lowers stage cortisol and slows rapid heart rate.
                   </p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <Badge variant="outline" className="text-xs border-green-500/40 text-green-600 font-medium">
+                  <Badge variant="outline" className="text-xs border-emerald-500/40 text-emerald-300 bg-emerald-500/10 font-medium">
                     Phase 2 of 2: Vocal Articulation Drills ({warmupTimer}s)
                   </Badge>
-                  <div className="p-4 rounded-xl bg-muted/40 border border-border/40 text-left space-y-2">
-                    <span className="text-xs font-semibold text-foreground block">Repeat aloud clearly 3 times:</span>
-                    <p className="text-sm font-mono text-primary font-bold">1. "Red leather, yellow leather, red leather, yellow leather."</p>
-                    <p className="text-sm font-mono text-foreground font-semibold">2. "Specific statistics and strategic solutions."</p>
-                    <p className="text-sm font-mono text-muted-foreground font-semibold">3. "Unique New York, unique New York."</p>
+                  <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] text-left space-y-2">
+                    <span className="text-xs font-semibold text-white block">Repeat aloud clearly 3 times:</span>
+                    <p className="text-sm font-mono text-cyan-400 font-bold">1. "Red leather, yellow leather, red leather, yellow leather."</p>
+                    <p className="text-sm font-mono text-white font-semibold">2. "Specific statistics and strategic solutions."</p>
+                    <p className="text-sm font-mono text-slate-400 font-semibold">3. "Unique New York, unique New York."</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-slate-400">
                     Enunciating these phonetic pairs stretches jaw muscles and eliminates speech stutter before speaking.
                   </p>
                 </div>
@@ -811,13 +817,13 @@ export default function Practice() {
 
               <div className="flex gap-2">
                 <Button 
-                  className="w-full text-xs font-semibold"
+                  className="w-full text-xs font-semibold h-10 bg-gradient-to-r from-indigo-500 to-violet-600 text-white hover:opacity-90 hover:shadow-[0_8px_30px_rgba(99,102,241,0.4)] border-0"
                   onClick={() => {
                     setIsWarmupOpen(false);
                     handleStart();
                   }}
                 >
-                  <Play className="h-3.5 w-3.5 mr-1.5" />
+                  <Play className="h-3.5 w-3.5 mr-1.5 fill-current" />
                   <span>I'm Ready — Launch Practice</span>
                 </Button>
               </div>
@@ -828,21 +834,21 @@ export default function Practice() {
 
       {/* Saving Overlay */}
       {isSaving && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-card border border-border/80 rounded-xl p-8 shadow-2xl flex flex-col items-center gap-3">
-            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            <h3 className="text-base font-semibold text-foreground">Analyzing Performance Data</h3>
-            <p className="text-xs text-muted-foreground">Generating comprehensive speech and gaze diagnostics...</p>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center">
+          <div className="bg-[#090b10] border border-indigo-500/40 rounded-2xl p-8 shadow-[0_0_80px_rgba(99,102,241,0.3)] flex flex-col items-center gap-3">
+            <Loader2 className="h-10 w-10 animate-spin text-indigo-400" />
+            <h3 className="text-base font-semibold text-white">Analyzing Performance Data</h3>
+            <p className="text-xs text-slate-400">Generating comprehensive speech and gaze diagnostics...</p>
           </div>
         </div>
       )}
 
-      <div className="container max-w-7xl mx-auto px-4 py-6 space-y-4">
+      <div className="relative z-10 container max-w-7xl mx-auto px-4 py-6 space-y-4">
         
         {/* Browser Compatibility Alert Banner */}
         {!hasSpeechRecognition && (
-          <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200 flex items-center gap-2.5 text-xs">
-            <AlertCircle className="h-4 w-4 shrink-0 text-amber-600" />
+          <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-200 flex items-center gap-2.5 text-xs">
+            <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
             <span>
               Your browser does not natively support continuous speech recognition. For optimal real-time transcription and WPM pacing metrics, we recommend opening MIRAL in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, or <strong>Safari</strong>.
             </span>

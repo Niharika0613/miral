@@ -79,64 +79,66 @@ function AICoachSection({ session }: AICoachSectionProps) {
         title: "Articulation & Hesitation Control",
         text: fillers === 0
           ? `Zero filler words detected. Articulation was disciplined, concise, and clean.`
-          : `Detected ${fillers} filler phrase(s). Practice replacing hesitation sounds ("um", "like", "matlab") with a calm, silent breath.`,
-        status: fillers <= 1 ? "Crisp Fluency" : "Hesitation Noted",
+          : fillers <= 3
+          ? `${fillers} filler words detected. Natural conversational flow, but try replacing quick filler syllables with calm, deliberate pauses.`
+          : `${fillers} filler words detected. Take a silent 1-second breath when gathering thoughts instead of bridging gaps with filler sounds.`,
+        status: fillers <= 1 ? "Crisp Clarity" : "Filler Reduction Needed",
       },
       strategy: {
-        title: "Delivery Strategy & Impact Tip",
-        text: `For speeches and presentations on "${topic}", structure points using the Rule of Three (Point 1 -> Point 2 -> Point 3) and close with a definitive call-to-action or summary.`,
-        status: "Core Delivery Technique",
+        title: "Structure & Impact Strategy",
+        text: `For questions like "${topic}", open with a 15-second key takeaway, support with 2 concrete project metrics or evidence points, and conclude with the broader positive outcome.`,
+        status: "Action Strategy",
       }
     };
-  }, [topic, eye, posture, wpm, fillers]);
+  }, [eye, posture, wpm, fillers, topic]);
 
   return (
-    <Card className="border border-border/60 shadow-xs bg-card">
-      <CardHeader className="border-b border-border/40 pb-4">
+    <Card className="border border-white/[0.08] shadow-[0_0_30px_rgba(99,102,241,0.06)] bg-white/[0.03] backdrop-blur-xl rounded-2xl overflow-hidden card-gradient-top">
+      <CardHeader className="border-b border-white/[0.06] pb-3 bg-white/[0.02]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <CardTitle className="text-base font-semibold text-foreground">
-              MIRAL Speech & Vision Diagnostics
+            <Sparkles className="h-4 w-4 text-indigo-400" />
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-white">
+              MIRAL Speech &amp; Vision Diagnostics
             </CardTitle>
           </div>
-          <Badge variant="outline" className="text-xs border-primary/30 text-primary">
-            Automated Speech & Vision Audit
+          <Badge variant="outline" className="text-xs border-indigo-500/30 text-indigo-300 bg-indigo-500/10">
+            Automated Speech &amp; Vision Audit
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         
-        <div className="p-4 rounded-lg bg-muted/30 border border-border/40 space-y-1.5">
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1.5 hover:border-indigo-500/30 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-foreground">{insights.presence.title}</span>
-            <Badge variant="secondary" className="text-[10px]">{insights.presence.status}</Badge>
+            <span className="text-xs font-semibold text-white">{insights.presence.title}</span>
+            <Badge variant="outline" className="text-[10px] border-emerald-500/30 text-emerald-400 bg-emerald-500/10">{insights.presence.status}</Badge>
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">{insights.presence.text}</p>
+          <p className="text-xs text-slate-400 leading-relaxed">{insights.presence.text}</p>
         </div>
 
-        <div className="p-4 rounded-lg bg-muted/30 border border-border/40 space-y-1.5">
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1.5 hover:border-indigo-500/30 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-foreground">{insights.delivery.title}</span>
-            <Badge variant="secondary" className="text-[10px]">{insights.delivery.status}</Badge>
+            <span className="text-xs font-semibold text-white">{insights.delivery.title}</span>
+            <Badge variant="outline" className="text-[10px] border-cyan-500/30 text-cyan-400 bg-cyan-500/10">{insights.delivery.status}</Badge>
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">{insights.delivery.text}</p>
+          <p className="text-xs text-slate-400 leading-relaxed">{insights.delivery.text}</p>
         </div>
 
-        <div className="p-4 rounded-lg bg-muted/30 border border-border/40 space-y-1.5">
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1.5 hover:border-indigo-500/30 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-foreground">{insights.clarity.title}</span>
-            <Badge variant="secondary" className="text-[10px]">{insights.clarity.status}</Badge>
+            <span className="text-xs font-semibold text-white">{insights.clarity.title}</span>
+            <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-300 bg-indigo-500/10">{insights.clarity.status}</Badge>
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">{insights.clarity.text}</p>
+          <p className="text-xs text-slate-400 leading-relaxed">{insights.clarity.text}</p>
         </div>
 
-        <div className="p-4 rounded-lg bg-muted/30 border border-border/40 space-y-1.5">
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1.5 hover:border-indigo-500/30 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-foreground">{insights.strategy.title}</span>
-            <Badge variant="outline" className="text-[10px] text-primary border-primary/30">Delivery Technique</Badge>
+            <span className="text-xs font-semibold text-white">{insights.strategy.title}</span>
+            <Badge variant="outline" className="text-[10px] text-violet-300 border-violet-500/30 bg-violet-500/10">Delivery Technique</Badge>
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">{insights.strategy.text}</p>
+          <p className="text-xs text-slate-400 leading-relaxed">{insights.strategy.text}</p>
         </div>
 
       </CardContent>
@@ -202,35 +204,35 @@ function VocabularyUpgradeSection({ transcript }: { transcript: string }) {
   }, [transcript]);
 
   return (
-    <Card className="border border-border/60 shadow-xs bg-card">
-      <CardHeader className="border-b border-border/40 pb-3">
+    <Card className="border border-white/[0.08] shadow-[0_0_30px_rgba(99,102,241,0.06)] bg-white/[0.03] backdrop-blur-xl rounded-2xl overflow-hidden card-gradient-top">
+      <CardHeader className="border-b border-white/[0.06] pb-3 bg-white/[0.02]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-primary" />
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground">
-              Executive Vocabulary & Phrasing Upgrades (ESL Bridge)
+            <BookOpen className="h-4 w-4 text-indigo-400" />
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-white">
+              Executive Vocabulary &amp; Phrasing Upgrades (ESL Bridge)
             </CardTitle>
           </div>
-          <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
+          <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-300 bg-indigo-500/10">
             Vocabulary Polishing
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         {upgrades.map((item, idx) => (
-          <div key={idx} className="p-3.5 rounded-lg bg-muted/20 border border-border/40 text-xs space-y-2">
+          <div key={idx} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs space-y-2 hover:border-indigo-500/30 transition-all">
             <div className="space-y-1">
-              <div className="flex items-center justify-between text-[10px] text-muted-foreground uppercase font-semibold">
+              <div className="flex items-center justify-between text-[10px] text-slate-400 uppercase font-semibold font-mono">
                 <span>Informal / Colloquial</span>
                 <span>Executive Upgrade</span>
               </div>
-              <div className="flex items-center justify-between p-2 rounded bg-muted/40 font-mono text-xs gap-2">
-                <span className="text-muted-foreground line-through truncate max-w-[45%]">{item.from}</span>
-                <ArrowRight className="h-3.5 w-3.5 text-primary shrink-0" />
-                <span className="text-primary font-bold text-right truncate max-w-[50%]">{item.to}</span>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] font-mono text-xs gap-2">
+                <span className="text-slate-400 line-through truncate max-w-[45%]">{item.from}</span>
+                <ArrowRight className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+                <span className="text-cyan-400 font-bold text-right truncate max-w-[50%]">{item.to}</span>
               </div>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed pt-0.5">{item.explanation}</p>
+            <p className="text-[11px] text-slate-400 leading-relaxed pt-0.5">{item.explanation}</p>
           </div>
         ))}
       </CardContent>
@@ -276,29 +278,29 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
 
   if (isSubmitted) {
     return (
-      <Card className="border border-green-500/30 bg-green-500/5 shadow-xs">
-        <CardContent className="p-4 flex items-center justify-between gap-3 text-xs text-foreground">
+      <Card className="border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-xl shadow-xs rounded-2xl">
+        <CardContent className="p-4 flex items-center justify-between gap-3 text-xs text-white">
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+            <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
             <span>Feedback submitted successfully. Thank you for helping us improve MIRAL!</span>
           </div>
-          <span className="font-semibold text-primary">Keep practicing & shining! ✨</span>
+          <span className="font-semibold text-indigo-400">Keep practicing &amp; shining! ✨</span>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="border border-border/60 shadow-xs bg-card">
-      <CardHeader className="border-b border-border/40 pb-3">
+    <Card className="border border-white/[0.08] shadow-[0_0_30px_rgba(99,102,241,0.06)] bg-white/[0.03] backdrop-blur-xl rounded-2xl overflow-hidden card-gradient-top">
+      <CardHeader className="border-b border-white/[0.06] pb-3 bg-white/[0.02]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-primary" />
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground">
+            <MessageSquare className="h-4 w-4 text-indigo-400" />
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-white">
               Pilot Experience Feedback
             </CardTitle>
           </div>
-          <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/60">
+          <Badge variant="outline" className="text-[10px] text-slate-400 border-white/10 bg-white/[0.02]">
             Quick 10s Rating
           </Badge>
         </div>
@@ -306,17 +308,17 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
       <CardContent className="p-4">
         <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span className="font-semibold text-foreground">How helpful was this practice session?</span>
+            <span className="font-semibold text-white">How helpful was this practice session?</span>
             <div className="flex items-center gap-1.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   type="button"
                   onClick={() => setRating(star)}
-                  className={`h-7 w-7 rounded border text-xs font-bold transition-all ${
+                  className={`h-7 w-7 rounded-lg border text-xs font-bold transition-all ${
                     rating >= star
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground'
+                      ? 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.5)]'
+                      : 'bg-white/[0.04] text-slate-400 border-white/10 hover:text-white'
                   }`}
                 >
                   {star}★
@@ -330,9 +332,9 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
               type="checkbox"
               checked={hadIssue}
               onChange={(e) => setHadIssue(e.target.checked)}
-              className="rounded border-input text-primary focus:ring-primary h-3.5 w-3.5"
+              className="rounded border-white/20 bg-white/[0.06] text-indigo-500 focus:ring-indigo-500 h-3.5 w-3.5"
             />
-            <span className="text-muted-foreground text-xs">Did anything lag, freeze, or feel inaccurate?</span>
+            <span className="text-slate-400 text-xs">Did anything lag, freeze, or feel inaccurate?</span>
           </label>
 
           <div className="space-y-1">
@@ -340,7 +342,7 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
               placeholder="Optional: What would make your next attempt even better?"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="text-xs h-8"
+              className="text-xs h-8 bg-white/[0.06] border border-white/[0.1] text-white placeholder:text-slate-500 focus:border-indigo-500/50"
             />
           </div>
 
@@ -349,7 +351,7 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
               type="submit"
               size="sm"
               disabled={isSubmitting}
-              className="text-xs font-semibold h-8 px-4 gap-1.5"
+              className="text-xs font-semibold h-8 px-4 gap-1.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white hover:opacity-90 hover:shadow-[0_8px_30px_rgba(99,102,241,0.4)] border-0"
             >
               {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               <span>Submit Feedback</span>
@@ -524,23 +526,29 @@ export default function Report() {
     : "Developing Delivery — Continued Practice Recommended";
 
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div className="min-h-screen bg-[#05060A] text-slate-100 pb-16 relative overflow-x-hidden">
+      {/* Aurora Ambient Background */}
+      <div className="pointer-events-none fixed inset-0 z-[-10] overflow-hidden">
+        <div className="aurora-blob-1 absolute top-[-100px] left-[-80px] w-[500px] h-[500px] rounded-full bg-indigo-600/20 blur-[120px]" />
+        <div className="aurora-blob-2 absolute top-[40%] right-[-120px] w-[450px] h-[450px] rounded-full bg-violet-600/15 blur-[120px]" />
+        <div className="aurora-blob-3 absolute bottom-[-100px] left-[25%] w-[450px] h-[450px] rounded-full bg-cyan-500/10 blur-[100px]" />
+      </div>
 
       {/* 10-Second Pilot Feedback Modal */}
       {showFeedbackModal && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <Card className="max-w-md w-full border-2 border-primary/30 shadow-2xl bg-card overflow-hidden">
-            <CardHeader className="border-b border-border/40 pb-3 flex flex-row items-center justify-between bg-primary/5">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <Card className="max-w-md w-full border border-indigo-500/30 shadow-[0_0_60px_rgba(99,102,241,0.25)] bg-[#090b10] backdrop-blur-2xl rounded-2xl overflow-hidden card-gradient-top">
+            <CardHeader className="border-b border-white/[0.08] pb-3 flex flex-row items-center justify-between bg-white/[0.02]">
               <div className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-primary" />
-                <CardTitle className="text-sm font-bold text-foreground">
+                <MessageSquare className="h-4 w-4 text-indigo-400" />
+                <CardTitle className="text-sm font-bold text-white">
                   How was this session?
                 </CardTitle>
               </div>
               <button
                 type="button"
                 onClick={handleDismissModal}
-                className="text-muted-foreground hover:text-foreground p-1 rounded transition-colors"
+                className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -548,7 +556,7 @@ export default function Report() {
             <CardContent className="p-5">
               <form onSubmit={handlePopupSubmit} className="space-y-4 text-xs">
                 <div className="space-y-2">
-                  <span className="font-semibold text-foreground block">
+                  <span className="font-semibold text-white block">
                     Rate this practice attempt (10s quick feedback):
                   </span>
                   <div className="flex items-center justify-between gap-1.5 pt-1">
@@ -559,8 +567,8 @@ export default function Report() {
                         onClick={() => setPopupRating(star)}
                         className={`flex-1 py-2 rounded-lg border text-sm font-bold transition-all ${
                           popupRating >= star
-                            ? 'bg-primary text-primary-foreground border-primary shadow-xs'
-                            : 'bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground'
+                            ? 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white border-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.5)]'
+                            : 'bg-white/[0.04] text-slate-400 border-white/10 hover:text-white'
                         }`}
                       >
                         {star}★
@@ -574,9 +582,9 @@ export default function Report() {
                     type="checkbox"
                     checked={popupHadIssue}
                     onChange={(e) => setPopupHadIssue(e.target.checked)}
-                    className="rounded border-input text-primary focus:ring-primary h-3.5 w-3.5"
+                    className="rounded border-white/20 bg-white/[0.06] text-indigo-500 focus:ring-indigo-500 h-3.5 w-3.5"
                   />
-                  <span className="text-muted-foreground text-xs">Did anything lag, freeze, or feel inaccurate?</span>
+                  <span className="text-slate-400 text-xs">Did anything lag, freeze, or feel inaccurate?</span>
                 </label>
 
                 <div className="space-y-1">
@@ -584,7 +592,7 @@ export default function Report() {
                     placeholder="Optional: What would make your next attempt even better?"
                     value={popupComment}
                     onChange={(e) => setPopupComment(e.target.value)}
-                    className="text-xs h-9"
+                    className="text-xs h-9 bg-white/[0.06] border border-white/[0.1] text-white placeholder:text-slate-500 focus:border-indigo-500/50"
                   />
                 </div>
 
@@ -592,7 +600,7 @@ export default function Report() {
                   <button
                     type="button"
                     onClick={handleDismissModal}
-                    className="text-xs text-muted-foreground hover:text-foreground font-medium"
+                    className="text-xs text-slate-400 hover:text-white font-medium"
                   >
                     Skip for now
                   </button>
@@ -600,10 +608,10 @@ export default function Report() {
                     type="submit"
                     size="sm"
                     disabled={isPopupSubmitting}
-                    className="text-xs font-semibold h-8 px-5 gap-1.5"
+                    className="text-xs font-semibold h-8 px-5 gap-1.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white hover:opacity-90 hover:shadow-[0_8px_30px_rgba(99,102,241,0.4)] border-0"
                   >
                     {isPopupSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    <span>Submit & View Report</span>
+                    <span>Submit &amp; View Report</span>
                   </Button>
                 </div>
               </form>
@@ -619,7 +627,7 @@ export default function Report() {
           <Button 
             variant="ghost" 
             size="sm" 
-            className="gap-2 text-xs text-muted-foreground hover:text-foreground"
+            className="gap-2 text-xs text-slate-400 hover:text-white hover:bg-white/[0.04]"
             onClick={() => setLocation('/dashboard')}
           >
             <ArrowLeft className="h-4 w-4" />
@@ -630,7 +638,7 @@ export default function Report() {
             <Button 
               variant="outline" 
               size="sm" 
-              className="gap-2 text-xs font-semibold"
+              className="gap-2 text-xs font-semibold border-white/15 bg-white/[0.03] hover:bg-white/[0.08] text-slate-200"
               onClick={handlePrintSummary}
             >
               <Printer className="h-3.5 w-3.5" />
@@ -638,7 +646,7 @@ export default function Report() {
             </Button>
             <Button 
               size="sm" 
-              className="gap-2 text-xs font-semibold"
+              className="gap-2 text-xs font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white hover:opacity-90 hover:shadow-[0_8px_30px_rgba(99,102,241,0.4)] border-0"
               onClick={() => setLocation('/scenarios')}
             >
               <span>Practice Next Session</span>
@@ -647,17 +655,17 @@ export default function Report() {
         </div>
 
         {/* Executive Speech Performance Summary Card */}
-        <div className="border border-border/60 rounded-xl bg-card p-6 md:p-8 shadow-xs relative overflow-hidden print:border-black print:shadow-none">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-border/50 pb-6">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-primary text-xs font-bold uppercase tracking-wider">
+        <div className="border border-white/[0.08] rounded-2xl bg-white/[0.04] backdrop-blur-xl p-6 md:p-8 shadow-[0_0_40px_rgba(99,102,241,0.08)] relative overflow-hidden card-gradient-top print:border-black print:shadow-none">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-white/[0.08] pb-6">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider">
                 <Activity className="h-4 w-4" />
                 Session Performance Analysis
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
                 {activeSession.topic || 'General Practice Session'}
               </h1>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-slate-400">
                 Recorded on {new Date(activeSession.createdAt || new Date()).toLocaleDateString(undefined, { 
                   weekday: 'long', 
                   year: 'numeric', 
@@ -668,55 +676,55 @@ export default function Report() {
             </div>
 
             <div className="text-left md:text-right">
-              <span className="text-[11px] text-muted-foreground uppercase block font-medium">Readiness Level</span>
-              <Badge variant="outline" className="text-xs border-primary/40 text-primary font-medium mt-1">
+              <span className="text-[11px] text-slate-500 uppercase block font-medium">Readiness Level</span>
+              <Badge variant="outline" className="text-xs border-indigo-500/40 text-indigo-300 bg-indigo-500/10 font-medium mt-1">
                 {performanceTier}
               </Badge>
             </div>
           </div>
 
           {/* Primary Speech & Vision Metric Pillars */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-6 border-b border-border/50">
-            <div className="p-3.5 rounded-lg bg-muted/40 border border-border/40 space-y-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">Overall Score</span>
-              <span className="text-2xl font-bold text-primary">{confidence} <span className="text-xs font-normal text-muted-foreground">/ 100</span></span>
-              <span className="text-[10px] text-muted-foreground block">Composite Confidence</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-6 border-b border-white/[0.08]">
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block font-mono">Overall Score</span>
+              <span className="text-2xl font-bold text-indigo-400">{confidence} <span className="text-xs font-normal text-slate-500">/ 100</span></span>
+              <span className="text-[10px] text-slate-500 block">Composite Confidence</span>
             </div>
 
-            <div className="p-3.5 rounded-lg bg-muted/40 border border-border/40 space-y-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">Visual Engagement</span>
-              <span className="text-2xl font-bold text-foreground">{eye}%</span>
-              <span className="text-[10px] text-muted-foreground block">{eye >= 75 ? 'Direct Focus' : 'Gaze Shift Noted'}</span>
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block font-mono">Visual Engagement</span>
+              <span className="text-2xl font-bold text-cyan-400">{eye}%</span>
+              <span className="text-[10px] text-slate-500 block">{eye >= 75 ? 'Direct Focus' : 'Gaze Shift Noted'}</span>
             </div>
 
-            <div className="p-3.5 rounded-lg bg-muted/40 border border-border/40 space-y-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">Posture Stability</span>
-              <span className="text-2xl font-bold text-foreground">{posture}%</span>
-              <span className="text-[10px] text-muted-foreground block">{posture >= 75 ? 'Upright & Centered' : 'Adjustment Suggested'}</span>
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block font-mono">Posture Stability</span>
+              <span className="text-2xl font-bold text-violet-400">{posture}%</span>
+              <span className="text-[10px] text-slate-500 block">{posture >= 75 ? 'Upright & Centered' : 'Adjustment Suggested'}</span>
             </div>
 
-            <div className="p-3.5 rounded-lg bg-muted/40 border border-border/40 space-y-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">Cadence & Fillers</span>
-              <span className="text-2xl font-bold text-foreground">{wpm} <span className="text-xs font-normal text-muted-foreground">WPM</span></span>
-              <span className="text-[10px] text-muted-foreground block">{fillers === 0 ? 'Zero Fillers' : `${fillers} Fillers Counted`}</span>
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block font-mono">Cadence &amp; Fillers</span>
+              <span className="text-2xl font-bold text-emerald-400">{wpm} <span className="text-xs font-normal text-slate-500">WPM</span></span>
+              <span className="text-[10px] text-slate-500 block">{fillers === 0 ? 'Zero Fillers' : `${fillers} Fillers Counted`}</span>
             </div>
           </div>
 
           {/* Transcript & Articulation Section */}
           <div className="pt-6 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-foreground">
-              <FileText className="h-3.5 w-3.5 text-primary" />
-              Spoken Transcript & Articulation Log
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white">
+              <FileText className="h-3.5 w-3.5 text-indigo-400" />
+              Spoken Transcript &amp; Articulation Log
             </div>
-            <div className="p-3.5 rounded-lg bg-muted/30 border border-border/40 text-xs text-foreground/90 font-mono leading-relaxed">
+            <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs text-slate-300 font-mono leading-relaxed">
               {activeSession.transcript || 'No continuous spoken audio recorded during this session.'}
             </div>
           </div>
 
           {/* Footer Note */}
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-muted-foreground border-t border-border/40 mt-6 gap-2">
-            <span>Powered by MIRAL Multi-Modal AI (3D Facial Vision & Speech Engine)</span>
-            <span className="font-medium text-foreground/80">AI Public Speaking & Communication Platform</span>
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 border-t border-white/[0.08] mt-6 gap-2">
+            <span>Powered by MIRAL Multi-Modal AI (3D Facial Vision &amp; Speech Engine)</span>
+            <span className="font-medium text-slate-400">AI Public Speaking &amp; Communication Platform</span>
           </div>
         </div>
 
@@ -736,33 +744,33 @@ export default function Report() {
 
       {/* Professional Feedback Confirmation Popup Modal */}
       {showFeedbackSuccessModal && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <Card className="max-w-md w-full border-2 border-primary/30 shadow-2xl bg-card animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full border border-indigo-500/30 shadow-[0_0_60px_rgba(99,102,241,0.25)] bg-[#090b10] backdrop-blur-2xl rounded-2xl animate-in zoom-in-95 duration-200 card-gradient-top">
             <CardHeader className="text-center pb-2">
-              <div className="mx-auto h-14 w-14 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mb-2">
-                <CheckCircle2 className="h-7 w-7 text-emerald-600" />
+              <div className="mx-auto h-14 w-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-2 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                <CheckCircle2 className="h-7 w-7 text-emerald-400" />
               </div>
-              <CardTitle className="text-lg font-bold text-foreground">
+              <CardTitle className="text-lg font-bold text-white">
                 Thank You for Your Valuable Feedback!
               </CardTitle>
-              <CardDescription className="text-xs text-muted-foreground leading-relaxed pt-1">
+              <CardDescription className="text-xs text-slate-400 leading-relaxed pt-1">
                 We truly appreciate your insights. Our engineering team will review your notes to make MIRAL even more responsive for your upcoming interviews and presentations.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 pt-2 text-center space-y-4">
-              <div className="p-3 rounded-xl bg-muted/40 border border-border/40 text-xs font-medium text-foreground">
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs font-medium text-slate-200">
                 Keep practicing, stay confident, and keep shining! ✨
               </div>
               <div className="flex gap-2.5">
                 <Button
                   variant="outline"
-                  className="flex-1 text-xs font-semibold"
+                  className="flex-1 text-xs font-semibold border-white/15 bg-white/[0.03] hover:bg-white/[0.08] text-slate-200"
                   onClick={() => setShowFeedbackSuccessModal(false)}
                 >
                   Close
                 </Button>
                 <Link href="/practice" className="flex-1">
-                  <Button className="w-full text-xs font-semibold gap-1.5 shadow-sm">
+                  <Button className="w-full text-xs font-semibold gap-1.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white hover:opacity-90 hover:shadow-[0_8px_30px_rgba(99,102,241,0.4)] border-0">
                     <Play className="h-3.5 w-3.5 fill-current" />
                     <span>Keep Practicing</span>
                   </Button>

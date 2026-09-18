@@ -32,7 +32,7 @@ export function Navigation() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#05060A]/80 backdrop-blur-xl">
       <div className="container max-w-7xl mx-auto flex h-14 items-center justify-between px-4 sm:px-6">
         
         {/* Brand & Nav */}
@@ -48,11 +48,15 @@ export function Navigation() {
               return (
                 <Link key={item.path} href={item.path}>
                   <Button
-                    variant={isActive ? "secondary" : "ghost"}
+                    variant="ghost"
                     size="sm"
-                    className={`gap-1.5 text-xs font-medium h-8 ${isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`gap-1.5 text-xs font-medium h-8 rounded-lg transition-all ${
+                      isActive 
+                        ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.2)]' 
+                        : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                    }`}
                   >
-                    <Icon className="h-3.5 w-3.5" />
+                    <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-indigo-400' : ''}`} />
                     <span>{item.label}</span>
                   </Button>
                 </Link>
@@ -66,8 +70,8 @@ export function Navigation() {
           {user ? (
             <div className="flex items-center gap-2">
               <Link href="/profile">
-                <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 text-foreground font-medium">
-                  <User className="h-3.5 w-3.5 text-primary" />
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 text-white font-medium hover:bg-white/[0.06] rounded-lg">
+                  <User className="h-3.5 w-3.5 text-indigo-400" />
                   <span className="hidden sm:inline">{user.name}</span>
                 </Button>
               </Link>
@@ -75,7 +79,7 @@ export function Navigation() {
                 variant="ghost" 
                 size="sm" 
                 onClick={handleLogout}
-                className="h-8 px-2 text-muted-foreground hover:text-destructive"
+                className="h-8 px-2 text-slate-400 hover:text-red-400 hover:bg-white/[0.06] rounded-lg"
                 title="Sign Out"
               >
                 <LogOut className="h-3.5 w-3.5" />
@@ -83,7 +87,7 @@ export function Navigation() {
             </div>
           ) : (
             <Link href="/login">
-              <Button size="sm" variant="default" className="text-xs h-8 font-semibold gap-1.5">
+              <Button size="sm" className="text-xs h-8 font-semibold gap-1.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white hover:opacity-90 hover:shadow-[0_8px_30px_rgba(99,102,241,0.4)] border-0 rounded-lg">
                 <LogIn className="h-3.5 w-3.5" />
                 <span>Sign In</span>
               </Button>
@@ -96,7 +100,7 @@ export function Navigation() {
           <Button
             variant="ghost"
             size="sm"
-            className="lg:hidden h-8 w-8 p-0"
+            className="lg:hidden h-8 w-8 p-0 text-slate-400 hover:text-white hover:bg-white/[0.06]"
             onClick={() => setIsMobileOpen(!isMobileOpen)}
             aria-label="Toggle Navigation Menu"
           >
@@ -108,7 +112,7 @@ export function Navigation() {
 
       {/* Mobile Drawer (Visible on screens < lg) */}
       {isMobileOpen && (
-        <div className="lg:hidden border-b border-border/60 bg-card p-4 space-y-2 animate-in slide-in-from-top-2 duration-150 shadow-md">
+        <div className="lg:hidden border-b border-white/[0.08] bg-[#090b10]/95 backdrop-blur-2xl p-4 space-y-2 animate-in slide-in-from-top-2 duration-150 shadow-2xl">
           <div className="grid grid-cols-2 gap-2 text-xs">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -117,13 +121,13 @@ export function Navigation() {
                 <Link key={item.path} href={item.path}>
                   <div
                     onClick={() => setIsMobileOpen(false)}
-                    className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all ${
-                      isActive 
-                        ? 'bg-primary/10 border-primary/30 text-primary font-semibold' 
-                        : 'bg-muted/30 border-border/40 text-muted-foreground hover:text-foreground'
+                    className={`flex items-center gap-2 p-2.5 rounded-xl border transition-all ${
+                      isActive
+                        ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300 font-semibold shadow-[0_0_15px_rgba(99,102,241,0.2)]'
+                        : 'bg-white/[0.03] border-white/[0.06] text-slate-300 hover:text-white hover:bg-white/[0.06]'
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className={`h-4 w-4 ${isActive ? 'text-indigo-400' : 'text-slate-400'}`} />
                     <span>{item.label}</span>
                   </div>
                 </Link>
@@ -131,10 +135,10 @@ export function Navigation() {
             })}
           </div>
 
-          <div className="pt-2 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground">
-            <Link href="/privacy" onClick={() => setIsMobileOpen(false)} className="hover:underline">Privacy Policy</Link>
-            <Link href="/terms" onClick={() => setIsMobileOpen(false)} className="hover:underline">Terms of Service</Link>
-            <Link href="/contact" onClick={() => setIsMobileOpen(false)} className="hover:underline">Campus Pilot</Link>
+          <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between text-[11px] text-slate-400">
+            <Link href="/privacy" onClick={() => setIsMobileOpen(false)} className="hover:underline hover:text-white">Privacy Policy</Link>
+            <Link href="/terms" onClick={() => setIsMobileOpen(false)} className="hover:underline hover:text-white">Terms of Service</Link>
+            <Link href="/contact" onClick={() => setIsMobileOpen(false)} className="hover:underline hover:text-white">Campus Pilot</Link>
           </div>
         </div>
       )}

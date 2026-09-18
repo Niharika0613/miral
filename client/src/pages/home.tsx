@@ -215,7 +215,7 @@ export default function Home() {
 
               {/* Subtitle */}
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
-                Stop practicing in front of a mute mirror. MIRAL tracks your <strong className="text-white font-semibold">eye contact</strong>, <strong className="text-white font-semibold">posture</strong>, <strong className="text-white font-semibold">speaking speed (WPM)</strong>, and <strong className="text-white font-semibold">filler words</strong> with real-time AI — completely private in your browser.
+                The only AI mirror giving you private, real-time feedback on <strong className="text-white font-semibold">both how you sound and how you look</strong> while answering — tracking your eye contact, posture, speaking cadence (WPM), and Hinglish filler words 100% in your browser.
               </p>
 
               {/* Action Buttons */}

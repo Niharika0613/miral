@@ -75,7 +75,7 @@ export default function Pricing() {
               </Badge>
               <CardTitle className="text-xl font-bold text-foreground">Free Candidate</CardTitle>
               <CardDescription className="text-xs text-muted-foreground">
-                For students practicing foundational communication & interview skills independently.
+                Instant real-time speech & vision feedback for individual practice.
               </CardDescription>
               <div className="pt-4 flex items-baseline gap-1">
                 <span className="text-3xl font-bold text-foreground">₹0</span>
@@ -91,7 +91,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>3D iris eye contact & head pose tracking</span>
+                  <span>Real-time 3D iris eye gaze & head pose tracking</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
@@ -99,15 +99,15 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>Standard post-session diagnostic report</span>
+                  <span>Single-session diagnostic score & feedback report</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>Access to 5 curated placement scenario tracks</span>
+                  <span>Access to all 6 curated placement scenario tracks</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>100% private in-browser WebAssembly (No video uploaded)</span>
+                  <span>100% private in-browser WebAssembly (Zero video uploads)</span>
                 </li>
               </ul>
 
@@ -123,7 +123,7 @@ export default function Pricing() {
           <Card className="border-2 border-primary shadow-lg bg-card relative flex flex-col justify-between">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
               <Badge className="bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider py-0.5 px-3">
-                Most Popular for Placements
+                Covers Full Placement Season
               </Badge>
             </div>
 
@@ -133,11 +133,11 @@ export default function Pricing() {
               </Badge>
               <CardTitle className="text-xl font-bold text-foreground">Pro Placement Pass</CardTitle>
               <CardDescription className="text-xs text-muted-foreground">
-                Advanced AI interview intelligence, STAR-method rubric scoring, and custom JD mock drills.
+                Unlimited practice, historical progress trajectory, and verified placement certificates.
               </CardDescription>
               <div className="pt-4 flex items-baseline gap-1.5">
                 <span className="text-3xl font-bold text-primary">₹199</span>
-                <span className="text-xs text-muted-foreground">/ month or ₹499 one-time</span>
+                <span className="text-xs text-muted-foreground">/ month or <strong>₹499 Season Pass</strong> (6 Months)</span>
               </div>
             </CardHeader>
 
@@ -145,31 +145,31 @@ export default function Pricing() {
               <ul className="space-y-3 text-xs text-foreground">
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span className="font-semibold">Unlimited real-time practice sessions</span>
+                  <span className="font-semibold">Unlimited real-time practice sessions (Zero session caps)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span className="font-semibold">STAR-Method Answer Structure Scorer</span>
+                  <span className="font-semibold">Comparative Session Analytics (Baseline vs Current trajectory)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span><strong>Conciseness & Monologue Radar</strong> (Flags answers &gt; 2.5m)</span>
+                  <span><strong>Indian Placement Rubric Packs</strong> (TCS, Infosys, SDE Viva, Consulting)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span><strong>AI Job Description to Mock Generator</strong> (Paste any JD)</span>
+                  <span><strong>Hinglish & Bilingual Hesitation Audit</strong> (Flags <em>matlab</em>, <em>like</em>, <em>you know</em>)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>Smart Speed Teleprompter (Adjustable 130-150 WPM pacing)</span>
+                  <span>Smart Speed Teleprompter (Adjustable 130-155 WPM pacing)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>Boardroom & ESL Vocabulary Upgrades</span>
+                  <span>Detailed Executive Vocabulary Upgrades (ESL Bridge)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span><strong>Verified Placement Readiness Certificate (PDF)</strong> with QR</span>
+                  <span><strong>Verified Placement Readiness Certificate (PDF)</strong> with QR Code</span>
                 </li>
               </ul>
 
@@ -186,14 +186,14 @@ export default function Pricing() {
           <Card className="border border-border/60 shadow-xs bg-card flex flex-col justify-between">
             <CardHeader className="pb-4 border-b border-border/30">
               <Badge variant="outline" className="w-fit text-[10px] font-semibold border-border/70 text-muted-foreground mb-2">
-                Institutional SaaS
+                Plug-and-Play Module
               </Badge>
               <CardTitle className="text-xl font-bold text-foreground">University & TPO</CardTitle>
               <CardDescription className="text-xs text-muted-foreground">
-                For engineering colleges, MBA institutes, and Training & Placement cells conducting mass mock drives.
+                AI delivery coaching module that plugs into your existing placement workflow.
               </CardDescription>
               <div className="pt-4 flex items-baseline gap-1">
-                <span className="text-2xl sm:text-3xl font-bold text-foreground">₹15K – ₹50K</span>
+                <span className="text-2xl sm:text-3xl font-bold text-foreground">₹15K – ₹49K</span>
                 <span className="text-xs text-muted-foreground">/ semester</span>
               </div>
             </CardHeader>
@@ -202,31 +202,31 @@ export default function Pricing() {
               <ul className="space-y-3 text-xs text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-600 shrink-0" />
-                  <span className="text-foreground font-semibold">Batch Placement Readiness Index (PRI) for 1,000+ candidates</span>
+                  <span className="text-foreground font-semibold">Plug-and-Play Delivery Module (Complements existing placement software)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-600 shrink-0" />
-                  <span className="text-foreground font-semibold">Automated Mass Mock Screening (0 faculty workload)</span>
+                  <span className="text-foreground font-semibold">Batch Placement Readiness Index (PRI) for 1,000+ students</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-600 shrink-0" />
-                  <span><strong>Weakness Clustering Heatmap</strong> (Targeted student interventions)</span>
+                  <span><strong>Weakness Clustering Heatmap</strong> (Identify pacing and eye contact gaps)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-600 shrink-0" />
-                  <span><strong>Company-Specific Rubrics</strong> (TCS, Infosys, Deloitte, Amazon)</span>
+                  <span><strong>Zero IT Infrastructure & GPU Costs</strong> (Runs 100% on lab PCs)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-600 shrink-0" />
-                  <span>LMS / ERP & CSV Roster Sync (CSE, IT, ECE, MBA)</span>
+                  <span>CSV & Webhook Data Export for your college LMS / TPO portal</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-600 shrink-0" />
-                  <span>Custom institutional branding & white-label reports</span>
+                  <span>NAAC / NIRF Soft-Skills Training Evidence & Compliance Data</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-600 shrink-0" />
-                  <span>Dedicated TPO Placement Portal & Priority SLA Support</span>
+                  <span>Custom institutional branding & white-label report exports</span>
                 </li>
               </ul>
 
@@ -248,7 +248,7 @@ export default function Pricing() {
               Compare Features Across Tiers
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Designed to take candidates from campus basics to recruiter-ready confidence.
+              Clear capabilities from foundational candidate practice to institutional cohort readiness.
             </p>
           </div>
 
@@ -283,19 +283,19 @@ export default function Pricing() {
                     <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
                   </tr>
                   <tr>
-                    <td className="p-4 font-medium text-foreground">STAR-Method Answer Structure Breakdown</td>
+                    <td className="p-4 font-medium text-foreground">6 Standard Placement Scenario Tracks</td>
+                    <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
+                    <td className="p-4 text-center text-primary bg-primary/5"><Check className="h-4 w-4 mx-auto" /></td>
+                    <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-medium text-foreground">Comparative Session Analytics (Baseline vs Current)</td>
                     <td className="p-4 text-center text-muted-foreground/40">—</td>
                     <td className="p-4 text-center text-primary bg-primary/5"><Check className="h-4 w-4 mx-auto" /></td>
                     <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
                   </tr>
                   <tr>
-                    <td className="p-4 font-medium text-foreground">Conciseness & Monologue Radar (&gt;2.5m alerts)</td>
-                    <td className="p-4 text-center text-muted-foreground/40">—</td>
-                    <td className="p-4 text-center text-primary bg-primary/5"><Check className="h-4 w-4 mx-auto" /></td>
-                    <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-medium text-foreground">Job Description to Mock Question Generator</td>
+                    <td className="p-4 font-medium text-foreground">Indian Corporate Rubric Packs (TCS, Infosys, Amazon)</td>
                     <td className="p-4 text-center text-muted-foreground/40">—</td>
                     <td className="p-4 text-center text-primary bg-primary/5"><Check className="h-4 w-4 mx-auto" /></td>
                     <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
@@ -313,13 +313,19 @@ export default function Pricing() {
                     <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
                   </tr>
                   <tr>
-                    <td className="p-4 font-medium text-foreground">Mass Mock Screening & Weakness Clustering</td>
+                    <td className="p-4 font-medium text-foreground">Weakness Clustering Heatmap for Batches</td>
                     <td className="p-4 text-center text-muted-foreground/40">—</td>
                     <td className="p-4 text-center text-muted-foreground/40">—</td>
                     <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
                   </tr>
                   <tr>
-                    <td className="p-4 font-medium text-foreground">LMS / ERP & CSV Roster Sync</td>
+                    <td className="p-4 font-medium text-foreground">CSV Roster & Placement Portal Data Export</td>
+                    <td className="p-4 text-center text-muted-foreground/40">—</td>
+                    <td className="p-4 text-center text-muted-foreground/40">—</td>
+                    <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-medium text-foreground">NAAC / NIRF Soft-Skills Compliance Data</td>
                     <td className="p-4 text-center text-muted-foreground/40">—</td>
                     <td className="p-4 text-center text-muted-foreground/40">—</td>
                     <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
@@ -346,8 +352,8 @@ export default function Pricing() {
               <p>Webcam video never leaves the student browser. Zero raw recordings stored on cloud servers.</p>
             </div>
             <div className="p-4 rounded-xl bg-card border border-border/40 space-y-1.5">
-              <span className="font-bold text-foreground block">Actionable TPO Placement Analytics</span>
-              <p>TPOs get instant visibility into which students are ready for Day-1 recruiters and which need remedial coaching.</p>
+              <span className="font-bold text-foreground block">Plug-and-Play Delivery Module</span>
+              <p>TPOs get instant non-verbal intelligence that plugs into existing placement drives without displacing current LMS/ERP tools.</p>
             </div>
           </div>
         </div>

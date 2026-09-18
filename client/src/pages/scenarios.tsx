@@ -226,7 +226,7 @@ export default function Scenarios() {
       description: "Launching practice room with your custom speech script...",
     });
 
-    setLocation(`/practice?topic=${encodeURIComponent(topicTitle)}`);
+    setLocation('/practice');
   };
 
   const handleLaunchQuestion = (scenario: Scenario, q: PracticeQuestion) => {
@@ -237,7 +237,7 @@ export default function Scenarios() {
     }));
     sessionStorage.removeItem('practiceScript');
 
-    setLocation(`/practice?topic=${encodeURIComponent(scenario.title)}`);
+    setLocation('/practice');
   };
 
   const setScriptTemplate = (templateType: 'intro' | 'star' | 'pitch') => {

@@ -237,7 +237,7 @@ function VocabularyUpgradeSection({ transcript }: { transcript: string }) {
   );
 }
 
-function SessionFeedbackCard({ sessionId }: { sessionId: string }) {
+function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: string; onFeedbackSubmitted?: () => void }) {
   const { toast } = useToast();
   const [rating, setRating] = useState(5);
   const [hadIssue, setHadIssue] = useState(false);
@@ -259,15 +259,15 @@ function SessionFeedbackCard({ sessionId }: { sessionId: string }) {
           comment: comment.trim() || null,
         }),
       });
-      if (response.ok) {
-        setIsSubmitted(true);
-        toast({
-          title: "Feedback Recorded",
-          description: "Thank you for helping us improve MIRAL for your placement drive!",
-        });
-      }
+      setIsSubmitted(true);
+      if (onFeedbackSubmitted) onFeedbackSubmitted();
+      toast({
+        title: "Feedback Recorded",
+        description: "Thank you for helping us improve MIRAL for your placement drive!",
+      });
     } catch {
       setIsSubmitted(true);
+      if (onFeedbackSubmitted) onFeedbackSubmitted();
     } finally {
       setIsSubmitting(false);
     }
@@ -276,9 +276,12 @@ function SessionFeedbackCard({ sessionId }: { sessionId: string }) {
   if (isSubmitted) {
     return (
       <Card className="border border-green-500/30 bg-green-500/5 shadow-xs">
-        <CardContent className="p-4 flex items-center gap-3 text-xs text-foreground">
-          <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-          <span>Feedback submitted successfully. Thank you for helping us improve MIRAL!</span>
+        <CardContent className="p-4 flex items-center justify-between gap-3 text-xs text-foreground">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+            <span>Feedback submitted successfully. Thank you for helping us improve MIRAL!</span>
+          </div>
+          <span className="font-semibold text-primary">Keep practicing & shining! ✨</span>
         </CardContent>
       </Card>
     );
@@ -364,6 +367,7 @@ export default function Report() {
   const { toast } = useToast();
 
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showFeedbackSuccessModal, setShowFeedbackSuccessModal] = useState(false);
   const [popupRating, setPopupRating] = useState(5);
   const [popupHadIssue, setPopupHadIssue] = useState(false);
   const [popupComment, setPopupComment] = useState('');
@@ -395,13 +399,15 @@ export default function Report() {
       });
       localStorage.setItem('miral_has_seen_feedback_popup', 'true');
       setShowFeedbackModal(false);
+      setShowFeedbackSuccessModal(true);
       toast({
         title: "Feedback Recorded",
-        description: "Thank you for helping us improve MIRAL for your placement drive!",
+        description: "Thank you for helping us improve MIRAL!",
       });
     } catch {
       localStorage.setItem('miral_has_seen_feedback_popup', 'true');
       setShowFeedbackModal(false);
+      setShowFeedbackSuccessModal(true);
     } finally {
       setIsPopupSubmitting(false);
     }
@@ -713,14 +719,58 @@ export default function Report() {
           </div>
         </div>
 
-        {/* Structured AI Coach, Vocabulary Upgrade, and Feedback Sections */}
+        {/* Structured Diagnostics, Vocabulary Upgrade, and Feedback Sections */}
         <div className="space-y-6 print:hidden">
           <AICoachSection session={activeSession} />
           <VocabularyUpgradeSection transcript={activeSession.transcript || ''} />
-          {sessionId && <SessionFeedbackCard sessionId={sessionId} />}
+          {sessionId && (
+            <SessionFeedbackCard 
+              sessionId={sessionId} 
+              onFeedbackSubmitted={() => setShowFeedbackSuccessModal(true)} 
+            />
+          )}
         </div>
 
       </div>
+
+      {/* Professional Feedback Confirmation Popup Modal */}
+      {showFeedbackSuccessModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full border-2 border-primary/30 shadow-2xl bg-card animate-in zoom-in-95 duration-200">
+            <CardHeader className="text-center pb-2">
+              <div className="mx-auto h-14 w-14 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mb-2">
+                <CheckCircle2 className="h-7 w-7 text-emerald-600" />
+              </div>
+              <CardTitle className="text-lg font-bold text-foreground">
+                Thank You for Your Valuable Feedback!
+              </CardTitle>
+              <CardDescription className="text-xs text-muted-foreground leading-relaxed pt-1">
+                We truly appreciate your insights. Our engineering team will review your notes to make MIRAL even more responsive for your upcoming interviews and presentations.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 pt-2 text-center space-y-4">
+              <div className="p-3 rounded-xl bg-muted/40 border border-border/40 text-xs font-medium text-foreground">
+                Keep practicing, stay confident, and keep shining! ✨
+              </div>
+              <div className="flex gap-2.5">
+                <Button
+                  variant="outline"
+                  className="flex-1 text-xs font-semibold"
+                  onClick={() => setShowFeedbackSuccessModal(false)}
+                >
+                  Close
+                </Button>
+                <Link href="/practice" className="flex-1">
+                  <Button className="w-full text-xs font-semibold gap-1.5 shadow-sm">
+                    <Play className="h-3.5 w-3.5 fill-current" />
+                    <span>Keep Practicing</span>
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

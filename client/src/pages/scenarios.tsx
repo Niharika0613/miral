@@ -29,7 +29,7 @@ export interface PracticeQuestion {
 export interface Scenario {
   id: string;
   title: string;
-  category: 'placement' | 'gd' | 'tech' | 'pitch' | 'debate';
+  category: 'placement' | 'gd' | 'tech' | 'pitch' | 'debate' | 'team';
   description: string;
   icon: any;
   difficulty: 'Foundation' | 'Intermediate' | 'Advanced';
@@ -147,6 +147,27 @@ export const PRACTICE_SCENARIOS: Scenario[] = [
         outline: ['Who you are & core superpower', 'What problems you solve', 'Definitive call to action']
       }
     ]
+  },
+  {
+    id: 'team-presentation',
+    title: 'Team Presentation & Leadership Meetings',
+    category: 'team',
+    description: 'Practice clear structured storytelling, sprint demos, pausing before key metrics, and keeping stakeholders aligned.',
+    icon: Users,
+    difficulty: 'Intermediate',
+    duration: '5-10 min',
+    questions: [
+      {
+        id: 'team-weekly-update',
+        question: 'Present your weekly sprint or team update clearly while keeping stakeholders aligned on roadmaps.',
+        outline: ['Key milestones achieved', 'Blockers & risks identified', 'Clear next week deliverables']
+      },
+      {
+        id: 'team-feature-proposal',
+        question: 'Pitch a new product feature or refactoring proposal to your engineering manager and product lead.',
+        outline: ['User problem & business impact', 'Technical proposal & scope', 'Resource estimation & rollout plan']
+      }
+    ]
   }
 ];
 
@@ -181,6 +202,8 @@ export default function Scenarios() {
     };
 
     handleHashScroll();
+    window.addEventListener('hashchange', handleHashScroll);
+    return () => window.removeEventListener('hashchange', handleHashScroll);
   }, []);
 
   const handleLaunchCustom = () => {

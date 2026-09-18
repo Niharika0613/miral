@@ -44,6 +44,9 @@ export function Footer() {
               <li>
                 <Link href="/scenarios#executive-pitch" className="hover:text-primary transition-colors">Executive Keynote Pitch</Link>
               </li>
+              <li>
+                <Link href="/scenarios#team-presentation" className="hover:text-primary transition-colors">Team Meetings & Presentations</Link>
+              </li>
             </ul>
           </div>
 

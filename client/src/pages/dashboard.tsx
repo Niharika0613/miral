@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Session } from '@shared/schema';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { getCurrentUser } from '@/utils/auth';
 
 // Safe metric extraction helper supporting both camelCase and snake_case API serialization
 const getConfidence = (s: any): number => Math.round(s?.confidenceScore ?? s?.confidence_score ?? 0);
@@ -35,7 +36,8 @@ const getCreatedAt = (s: any): string => s?.createdAt ?? s?.created_at ?? new Da
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
-  const userId = sessionStorage.getItem('userId');
+  const user = getCurrentUser();
+  const userId = sessionStorage.getItem('userId') || user?.id;
   
   const { data: sessions, isLoading } = useQuery<Session[]>({
     queryKey: ['/api/sessions', userId],
@@ -185,13 +187,24 @@ export default function Dashboard() {
                 <span>Start Practice Studio</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Button>
-              <Button 
-                variant="outline"
-                className="w-full sm:w-auto font-semibold text-xs gap-2 h-9 px-4 border-border/70"
-                onClick={() => setLocation('/login')}
-              >
-                <span>Candidate Sign In</span>
-              </Button>
+              {user ? (
+                <Button 
+                  variant="outline"
+                  className="w-full sm:w-auto font-semibold text-xs gap-2 h-9 px-4 border-border/70"
+                  onClick={() => setLocation('/scenarios')}
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                  <span>Explore Scenarios</span>
+                </Button>
+              ) : (
+                <Button 
+                  variant="outline"
+                  className="w-full sm:w-auto font-semibold text-xs gap-2 h-9 px-4 border-border/70"
+                  onClick={() => setLocation('/login')}
+                >
+                  <span>Candidate Sign In</span>
+                </Button>
+              )}
             </div>
           </div>
 

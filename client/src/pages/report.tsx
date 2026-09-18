@@ -54,39 +54,80 @@ function AICoachSection({ session }: AICoachSectionProps) {
   const fillers = getFillers(session);
 
   const insights = useMemo(() => {
+    // 1. Visual presence insight
+    let presenceText = "";
+    let presenceStatus = "";
+    if (eye >= 80 && posture >= 80) {
+      presenceText = `Exceptional visual engagement on "${topic}". Maintaining ${eye}% camera gaze with upright posture (${posture}%) projects composure, authority, and authenticity.`;
+      presenceStatus = "Strong Composure";
+    } else if (eye < 55 && posture < 60) {
+      presenceText = `Your visual engagement was ${eye}% and posture was ${posture}%. During practice, your gaze frequently dropped and posture slouched. Elevate your laptop to eye level and look directly at the webcam lens.`;
+      presenceStatus = "Gaze & Posture Focus";
+    } else if (eye < 65) {
+      presenceText = `Holding eye contact forward towards your audience was at ${eye}%. In interviews and speeches, holding direct lens gaze establishes immediate trust and rapport.`;
+      presenceStatus = "Gaze Focus Needed";
+    } else {
+      presenceText = `Good energy on "${topic}". Keep your spine erect and shoulders square (${posture}%) to reinforce non-verbal conviction throughout long explanations.`;
+      presenceStatus = "Posture Alignment";
+    }
+
+    // 2. Vocal cadence insight
+    let deliveryText = "";
+    let deliveryStatus = "";
+    if (wpm === 0) {
+      deliveryText = `No continuous vocal pace recorded (0 WPM). Ensure your microphone is enabled and speak with audible, clear volume during your practice.`;
+      deliveryStatus = "Microphone Check";
+    } else if (wpm >= 125 && wpm <= 165) {
+      deliveryText = `Optimal speaking cadence measured at ${wpm} WPM. This rate allows listeners to comfortably absorb ideas and complex arguments without fatigue.`;
+      deliveryStatus = "Optimal Rhythm";
+    } else if (wpm > 0 && wpm < 125) {
+      deliveryText = `Speaking rhythm was measured at ${wpm} WPM (deliberate / slow). Aim for 130–155 WPM in placement drives and debates by minimizing pauses between sentences.`;
+      deliveryStatus = "Pacing Boost Needed";
+    } else {
+      deliveryText = `You spoke rapidly at ${wpm} WPM. High energy is great, but use deliberate 1-second pauses before key takeaways so critical numbers and points sink in.`;
+      deliveryStatus = "Pacing Control";
+    }
+
+    // 3. Articulation & fillers
+    let clarityText = "";
+    let clarityStatus = "";
+    if (fillers === 0) {
+      clarityText = `Zero filler words detected. Articulation was disciplined, concise, and clean.`;
+      clarityStatus = "Crisp Articulation";
+    } else if (fillers <= 2) {
+      clarityText = `Very clean delivery with only ${fillers} filler phrase(s) noted. Keep breathing calmly before answering complex questions.`;
+      clarityStatus = "Good Fluency";
+    } else {
+      clarityText = `Detected ${fillers} filler phrase(s) ("um", "like", "basically", "matlab"). Practice replacing reflexive sounds with a silent 1-second pause while thinking.`;
+      clarityStatus = "Hesitation Noted";
+    }
+
+    // 4. Topic-Specific Strategic delivery tip
+    let strategyText = "";
+    let strategyStatus = "Core Delivery Technique";
+    const lowerTopic = topic.toLowerCase();
+    if (lowerTopic.includes('hr') || lowerTopic.includes('placement') || lowerTopic.includes('interview')) {
+      strategyText = `For campus HR drives: Structure behavioral answers using STAR (Situation -> Task -> Action -> Measurable Result) to prove concrete competencies.`;
+      strategyStatus = "STAR Methodology";
+    } else if (lowerTopic.includes('tech') || lowerTopic.includes('defense') || lowerTopic.includes('viva') || lowerTopic.includes('project')) {
+      strategyText = `For technical defenses: Walk from high-level architecture down to database trade-offs, explain bottlenecks resolved, and quantify latency/scalability.`;
+      strategyStatus = "System Architecture Tip";
+    } else if (lowerTopic.includes('gd') || lowerTopic.includes('discussion') || lowerTopic.includes('debate')) {
+      strategyText = `For GDs & Debates: Open with a balanced framing statement, cite 1 real-world industry example, and invite others or synthesize the discussion.`;
+      strategyStatus = "Turn-Taking & Framing";
+    } else if (lowerTopic.includes('pitch')) {
+      strategyText = `For 60s pitches: Hook the listener in the first 10s with the core problem, highlight your unique unfair advantage, and finish with a strong call-to-action.`;
+      strategyStatus = "Elevator Hook & CTA";
+    } else {
+      strategyText = `For speeches and presentations: Structure key arguments using the Rule of Three (Point 1 -> Point 2 -> Point 3) and close with a definitive summary.`;
+      strategyStatus = "Rule of Three";
+    }
+
     return {
-      presence: {
-        title: "Visual Connection & Non-Verbal Presence",
-        text: eye >= 75 && posture >= 75
-          ? `Exceptional visual engagement on "${topic}". Maintaining ${eye}% camera/audience gaze with stable posture (${posture}%) projects composure and authenticity.`
-          : eye < 75
-          ? `Good physical presence on "${topic}". Focus on holding eye contact forward towards your audience (${eye}%). Looking directly ahead establishes immediate authority and rapport.`
-          : `Good energy on "${topic}". Keep your spine erect and shoulders square (${posture}%) to reinforce non-verbal conviction.`,
-        status: eye >= 75 && posture >= 75 ? "Strong Composure" : "Gaze Focus Needed",
-      },
-      delivery: {
-        title: "Vocal Pacing & Cadence",
-        text: wpm >= 125 && wpm <= 165
-          ? `Optimal speaking cadence at ${wpm} WPM. This rate allows listeners to comfortably absorb ideas and complex arguments without cognitive fatigue.`
-          : wpm > 0 && wpm < 125
-          ? `Speaking rhythm was measured at ${wpm} WPM. In public speaking, debates, and presentations, aim for 130–155 WPM with expressive vocal inflection.`
-          : wpm > 165
-          ? `You spoke rapidly at ${wpm} WPM. Use deliberate 1-second pauses before key takeaways to let critical arguments sink in.`
-          : `Maintain continuous, confident speech flow to build momentum in your delivery.`,
-        status: wpm >= 125 && wpm <= 165 ? "Optimal Rhythm" : "Pacing Adjustment",
-      },
-      clarity: {
-        title: "Articulation & Hesitation Control",
-        text: fillers === 0
-          ? `Zero filler words detected. Articulation was disciplined, concise, and clean.`
-          : `Detected ${fillers} filler phrase(s). Practice replacing hesitation sounds ("um", "like", "matlab") with a calm, silent breath.`,
-        status: fillers <= 1 ? "Crisp Fluency" : "Hesitation Noted",
-      },
-      strategy: {
-        title: "Delivery Strategy & Impact Tip",
-        text: `For speeches and presentations on "${topic}", structure points using the Rule of Three (Point 1 -> Point 2 -> Point 3) and close with a definitive call-to-action or summary.`,
-        status: "Core Delivery Technique",
-      }
+      presence: { title: "Visual Connection & Non-Verbal Presence", text: presenceText, status: presenceStatus },
+      delivery: { title: "Vocal Pacing & Cadence", text: deliveryText, status: deliveryStatus },
+      clarity: { title: "Articulation & Hesitation Control", text: clarityText, status: clarityStatus },
+      strategy: { title: "Delivery Strategy & Impact Tip", text: strategyText, status: strategyStatus },
     };
   }, [topic, eye, posture, wpm, fillers]);
 
@@ -134,7 +175,7 @@ function AICoachSection({ session }: AICoachSectionProps) {
         <div className="p-4 rounded-lg bg-muted/30 border border-border/40 space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-foreground">{insights.strategy.title}</span>
-            <Badge variant="outline" className="text-[10px] text-primary border-primary/30">Delivery Technique</Badge>
+            <Badge variant="outline" className="text-[10px] text-primary border-primary/30">{insights.strategy.status}</Badge>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">{insights.strategy.text}</p>
         </div>
@@ -144,61 +185,94 @@ function AICoachSection({ session }: AICoachSectionProps) {
   );
 }
 
-function VocabularyUpgradeSection({ transcript }: { transcript: string }) {
-  const upgrades = useMemo(() => {
-    const list: { from: string; to: string; explanation: string }[] = [];
+function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; topic?: string }) {
+  const { upgrades, hasDetectedWords } = useMemo(() => {
+    const list: { from: string; to: string; explanation: string; isDetected: boolean }[] = [];
     const text = (transcript || '').toLowerCase();
 
     const vocabularyBank = [
       {
-        pattern: /\b(did work|worked on|worked in|worked)\b/i,
+        pattern: /\b(did work|worked on|worked in|worked|did coding|coded|did work)\b/i,
         from: "worked on / did work",
         to: "architected / spearheaded / implemented",
-        explanation: "Conveys direct ownership and technical leadership rather than passive participation."
+        explanation: "Conveys direct engineering ownership rather than passive participation."
       },
       {
-        pattern: /\b(big problem|huge problem|hard thing|trouble)\b/i,
+        pattern: /\b(big problem|huge problem|hard thing|trouble|difficult)\b/i,
         from: "big problem / hard thing",
         to: "critical operational bottleneck",
         explanation: "Frames challenges as objective engineering problems with professional composure."
       },
       {
-        pattern: /\b(very good|really good|nice|great work)\b/i,
+        pattern: /\b(very good|really good|nice|great work|good job)\b/i,
         from: "very good / great",
-        to: "high-throughput / substantial ROI",
+        to: "high-throughput / highly impactful",
         explanation: "Quantifies results with measurable business impact."
       },
       {
-        pattern: /\b(told them|told my team|said to them)\b/i,
-        from: "told them",
+        pattern: /\b(told them|told my team|said to them|talked to them)\b/i,
+        from: "told them / said",
         to: "aligned cross-functional stakeholders",
         explanation: "Demonstrates managerial empathy and executive communication."
       },
       {
-        pattern: /\b(made it fast|very fast|speed up)\b/i,
+        pattern: /\b(made it fast|very fast|speed up|faster)\b/i,
         from: "made it fast / speed up",
         to: "optimized algorithmic latency",
         explanation: "Highlights exact technical depth and performance metrics."
       },
       {
-        pattern: /\b(i think that|i feel that|maybe)\b/i,
+        pattern: /\b(i think that|i feel that|maybe|i guess)\b/i,
         from: "I think that / maybe",
-        to: "Empirical metrics demonstrate that",
+        to: "Empirical data indicates that",
         explanation: "Eliminates hesitant fillers and projects assertive conviction."
+      },
+      {
+        pattern: /\b(trying to|tried to|wanted to)\b/i,
+        from: "trying to / wanted to",
+        to: "initiated / drove the roadmap to",
+        explanation: "Replaces tentative effort with proactive leadership."
+      },
+      {
+        pattern: /\b(fixed the bug|fixed the issue|solved it)\b/i,
+        from: "fixed the bug / solved it",
+        to: "diagnosed root-cause & deployed remediation",
+        explanation: "Describes the complete diagnostic and resolution lifecycle."
+      },
+      {
+        pattern: /\b(lots of|a lot of|many things)\b/i,
+        from: "lots of / a lot of",
+        to: "a comprehensive suite of / substantial volume of",
+        explanation: "Elevates informal quantity to formal vocabulary."
+      },
+      {
+        pattern: /\b(help them|helped people|helped users)\b/i,
+        from: "helped users",
+        to: "empowered end-users / streamlined workflows",
+        explanation: "Frames user impact through direct product value."
       }
     ];
 
+    let foundCount = 0;
     vocabularyBank.forEach(item => {
-      if (item.pattern.test(text) || list.length < 4) {
-        list.push({
-          from: item.from,
-          to: item.to,
-          explanation: item.explanation
-        });
+      if (item.pattern.test(text)) {
+        list.push({ ...item, isDetected: true });
+        foundCount++;
       }
     });
 
-    return list.slice(0, 4);
+    const isDetected = foundCount > 0;
+
+    // If fewer than 4 matched from actual speech, add situational upgrades
+    if (list.length < 4) {
+      vocabularyBank.forEach(item => {
+        if (!list.some(existing => existing.from === item.from) && list.length < 4) {
+          list.push({ ...item, isDetected: false });
+        }
+      });
+    }
+
+    return { upgrades: list.slice(0, 4), hasDetectedWords: isDetected };
   }, [transcript]);
 
   return (
@@ -212,7 +286,7 @@ function VocabularyUpgradeSection({ transcript }: { transcript: string }) {
             </CardTitle>
           </div>
           <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
-            Vocabulary Polishing
+            {hasDetectedWords ? "Matched to Your Speech" : "Scenario Recommended"}
           </Badge>
         </div>
       </CardHeader>
@@ -221,7 +295,12 @@ function VocabularyUpgradeSection({ transcript }: { transcript: string }) {
           <div key={idx} className="p-3.5 rounded-lg bg-muted/20 border border-border/40 text-xs space-y-2">
             <div className="space-y-1">
               <div className="flex items-center justify-between text-[10px] text-muted-foreground uppercase font-semibold">
-                <span>Informal / Colloquial</span>
+                <span className="flex items-center gap-1.5">
+                  <span>Informal / Spoken</span>
+                  {item.isDetected && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" title="Detected in your speech" />
+                  )}
+                </span>
                 <span>Executive Upgrade</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded bg-muted/40 font-mono text-xs gap-2">
@@ -723,7 +802,7 @@ export default function Report() {
         {/* Structured Diagnostics, Vocabulary Upgrade, and Feedback Sections */}
         <div className="space-y-6 print:hidden">
           <AICoachSection session={activeSession} />
-          <VocabularyUpgradeSection transcript={activeSession.transcript || ''} />
+          <VocabularyUpgradeSection transcript={activeSession.transcript || ''} topic={activeSession.topic} />
           {sessionId && (
             <SessionFeedbackCard 
               sessionId={sessionId} 

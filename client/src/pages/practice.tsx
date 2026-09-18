@@ -130,16 +130,15 @@ export default function Practice() {
           setEstimatedWPM(135);
         }
 
-        const fillerPatterns = [
-          /\bum+\b/gi, /\buh+\b/gi, /\buhm+\b/gi, /\bah+\b/gi,
-          /\blike\b/gi, /\byou know\b/gi, /\bbasically\b/gi,
-          /\bactually\b/gi, /\bliterally\b/gi, /\bi mean\b/gi,
-          /\bkind of\b/gi, /\bsort of\b/gi, /\bhonestly\b/gi,
-          /\bso\b/gi, /\bwell\b/gi, /\bright\b/gi,
-          /\bmatlab\b/gi, /\byaani\b/gi, /\band all\b/gi, /\bso yeah\b/gi, /\byeah\b/gi
+        const fillerRules = [
+          /\b(um+|uh+|uhm+|er+|ah+|ahm+)\b/gi,
+          /\b(you know|i mean|kind of|sort of|at the end of the day)\b/gi,
+          /\b(basically|actually|literally|essentially)\b/gi,
+          /\b(matlab|yaani|aur kya|and all that)\b/gi,
+          /\b(like)\b/gi
         ];
         let count = 0;
-        fillerPatterns.forEach(pattern => {
+        fillerRules.forEach(pattern => {
           const matches = trimmed.match(pattern);
           if (matches) count += matches.length;
         });
@@ -239,9 +238,9 @@ export default function Practice() {
           setCurrentEyeContact(hasEyeContact);
           
           // Direct Real-Time Iris & Gaze Tracking
-          const realGaze = faceAnalysis.isInFrame ? (faceAnalysis.gazeScore || 88) : 20;
+          const realGaze = faceAnalysis.isInFrame ? (faceAnalysis.gazeScore || 0) : 0;
           setLiveEyeScore((prev) => {
-            return Math.round(prev * 0.35 + realGaze * 0.65);
+            return Math.round(prev * 0.30 + realGaze * 0.70);
           });
 
           setFacePosition(faceAnalysis.position);
@@ -371,18 +370,23 @@ export default function Practice() {
 
       const rawEyeContact = eyeContactData.length > 0
         ? Math.round((eyeContactData.filter(d => d.hasEyeContact).length / eyeContactData.length) * 100)
-        : (liveEyeScore || 85);
-      const finalEyeContact = Math.max(rawEyeContact, liveEyeScore >= 50 ? liveEyeScore : (currentEyeContact ? 82 : 72));
+        : (currentEyeContact ? (liveEyeScore || 75) : (liveEyeScore || 25));
+      const finalEyeContact = Math.max(0, Math.min(100, rawEyeContact));
 
       const rawPosture = postureData.length > 0
         ? Math.round(postureData.reduce((sum, p) => sum + p.confidence, 0) / postureData.length)
-        : Math.round(postureScore || 85);
-      const finalPosture = Math.max(rawPosture, 75);
+        : Math.round(postureScore || 70);
+      const finalPosture = Math.max(0, Math.min(100, rawPosture));
 
       const wordsCount = liveTranscript.trim().split(/\s+/).filter(Boolean).length;
-      const finalWPM = estimatedWPM || (actualDuration > 0 ? Math.round(wordsCount / (actualDuration / 60)) : 0);
+      const finalWPM = actualDuration > 0 && wordsCount > 0 ? Math.round(wordsCount / (actualDuration / 60)) : (estimatedWPM || 0);
       const activeTopic = topic || 'General Practice Session';
-      const confidenceCalc = Math.min(100, Math.max(50, Math.round((finalEyeContact * 0.45) + (finalPosture * 0.35) + (Math.min(finalWPM / 130, 1) * 20))));
+      
+      const pacingFactor = finalWPM >= 120 && finalWPM <= 165 ? 100 : (finalWPM > 0 ? Math.max(20, 100 - Math.abs(finalWPM - 140) * 1.5) : 30);
+      const fillerPenalty = Math.min(25, fillerWordsCount * 4);
+      const vocalScore = Math.max(10, Math.round(pacingFactor - fillerPenalty));
+      
+      const confidenceCalc = Math.min(100, Math.max(10, Math.round((finalEyeContact * 0.40) + (finalPosture * 0.35) + (vocalScore * 0.25))));
 
       const localBackup = {
         id: targetSessionId,

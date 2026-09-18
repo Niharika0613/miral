@@ -281,9 +281,14 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BookOpen className="h-4 w-4 text-primary" />
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground">
-              Executive Vocabulary & Phrasing Upgrades (ESL Bridge)
-            </CardTitle>
+            <div>
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground">
+                Executive Vocabulary & Phrasing Upgrades
+              </CardTitle>
+              <span className="text-[10px] text-muted-foreground block">
+                English as a Second Language (ESL) — Upgrades informal phrases to executive boardroom English
+              </span>
+            </div>
           </div>
           <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
             {hasDetectedWords ? "Matched to Your Speech" : "Scenario Recommended"}

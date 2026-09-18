@@ -248,8 +248,8 @@ export default function Practice() {
           setIsInFrame(faceAnalysis.isInFrame);
 
           if (isRecording) {
-            setEyeContactData((prev) => [...prev.slice(-120), { timestamp: Date.now(), hasEyeContact }]);
-            setPostureData((prev) => [...prev.slice(-120), { timestamp: Date.now(), posture: posture.posture, confidence: posture.confidence }]);
+            setEyeContactData((prev) => [...prev.slice(-180), { timestamp: Date.now(), gazeScore: Math.round(realGaze), hasEyeContact }]);
+            setPostureData((prev) => [...prev.slice(-180), { timestamp: Date.now(), posture: posture.posture, confidence: posture.confidence }]);
           }
 
           setCurrentPosture(posture.posture);
@@ -369,8 +369,8 @@ export default function Practice() {
       const actualDuration = Math.max(duration, sessionStartTimeRef.current > 0 ? Math.round((Date.now() - sessionStartTimeRef.current) / 1000) : (sessionStartTime > 0 ? Math.round((Date.now() - sessionStartTime) / 1000) : 1));
 
       const rawEyeContact = eyeContactData.length > 0
-        ? Math.round((eyeContactData.filter(d => d.hasEyeContact).length / eyeContactData.length) * 100)
-        : (currentEyeContact ? (liveEyeScore || 75) : (liveEyeScore || 25));
+        ? Math.round(eyeContactData.reduce((sum, d: any) => sum + (d.gazeScore ?? (d.hasEyeContact ? 85 : 25)), 0) / eyeContactData.length)
+        : (liveEyeScore || (currentEyeContact ? 80 : 30));
       const finalEyeContact = Math.max(0, Math.min(100, rawEyeContact));
 
       const rawPosture = postureData.length > 0
@@ -551,22 +551,25 @@ export default function Practice() {
 
   const renderPrompterAndPrompt = () => (
     <>
-      {/* Custom Teleprompter Box */}
+      {/* Custom Teleprompter Box - Compact Studio Bar */}
       {customScript && (
-        <div className="p-4 rounded-xl border-2 border-primary/30 bg-card shadow-xs space-y-2">
-          <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-2">
-            <div className="flex items-center gap-2">
+        <div className="p-3 rounded-xl border border-primary/40 bg-card shadow-xs space-y-1.5 animate-in fade-in duration-200">
+          <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-1.5">
+            <div className="flex items-center gap-1.5">
               <FileText className="h-3.5 w-3.5 text-primary" />
-              <span className="font-bold text-xs uppercase tracking-wider text-foreground">
+              <span className="font-bold text-[11px] uppercase tracking-wider text-foreground">
                 Live Teleprompter Notes
               </span>
+              <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                (Read naturally into the webcam lens)
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center border border-border/60 rounded-md overflow-hidden bg-muted/40">
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-center border border-border/60 rounded-md overflow-hidden bg-muted/40 h-6">
                 <button
                   type="button"
-                  onClick={() => setPrompterFontSize(prev => Math.max(prev - 2, 11))}
-                  className="px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
+                  onClick={() => setPrompterFontSize(prev => Math.max(prev - 1, 11))}
+                  className="px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
                   title="Smaller Font"
                 >
                   A-
@@ -576,8 +579,8 @@ export default function Practice() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setPrompterFontSize(prev => Math.min(prev + 2, 22))}
-                  className="px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
+                  onClick={() => setPrompterFontSize(prev => Math.min(prev + 1, 20))}
+                  className="px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted"
                   title="Larger Font"
                 >
                   A+
@@ -594,7 +597,7 @@ export default function Practice() {
             </div>
           </div>
           <div 
-            className="max-h-36 overflow-y-auto leading-relaxed text-foreground whitespace-pre-line font-medium p-2.5 rounded bg-muted/20 border border-border/20"
+            className="max-h-24 overflow-y-auto leading-relaxed text-foreground whitespace-pre-line font-medium p-2 rounded bg-muted/30 border border-border/30 select-text"
             style={{ fontSize: `${prompterFontSize}px` }}
           >
             {customScript}
@@ -604,11 +607,11 @@ export default function Practice() {
 
       {/* Active Question Bar */}
       {activeQuestion && (
-        <div className="p-3.5 rounded-xl border border-primary/30 bg-primary/5 space-y-2 text-xs relative">
+        <div className="p-3 rounded-xl border border-primary/30 bg-primary/5 space-y-1.5 text-xs relative animate-in fade-in duration-200">
           <div className="flex items-start justify-between gap-2">
             <div className="space-y-0.5 min-w-0 flex-1">
-              <span className="font-semibold text-primary block text-[11px] uppercase tracking-wider">
-                Target Prompt
+              <span className="font-semibold text-primary block text-[10px] uppercase tracking-wider">
+                Target Scenario Prompt
               </span>
               <p className="text-foreground font-semibold text-xs sm:text-sm leading-snug">
                 "{activeQuestion.question}"
@@ -644,10 +647,11 @@ export default function Practice() {
   );
 
   const renderVideoAndControls = () => (
-    <>
+    <div className="space-y-3">
+      {/* Responsive Studio Camera Feed */}
       <Card className="border border-border/60 bg-card shadow-xs overflow-hidden">
-        <CardContent className="p-2 md:p-3">
-          <div className="relative aspect-video bg-muted rounded-lg overflow-hidden shadow-inner flex items-center justify-center">
+        <CardContent className="p-2">
+          <div className="relative aspect-video max-h-[50vh] sm:max-h-[55vh] w-full bg-black/95 rounded-lg overflow-hidden shadow-inner flex items-center justify-center">
             {webcamError && (
               <div className="p-6 text-center text-xs text-muted-foreground space-y-2">
                 <p className="font-semibold text-destructive">Camera Access Required</p>
@@ -659,20 +663,20 @@ export default function Practice() {
               autoPlay
               playsInline
               muted
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
 
             {/* Real-Time Eye Gaze Feedback Banner */}
             {showSuggestion && isRecording && (
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-in slide-in-from-bottom duration-200">
-                <div className="bg-foreground/90 text-background text-xs font-semibold px-4 py-2 rounded-full shadow-lg text-center backdrop-blur-sm">
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-in slide-in-from-bottom duration-200 z-10">
+                <div className="bg-foreground/90 text-background text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg text-center backdrop-blur-sm">
                   {suggestionMessage}
                 </div>
               </div>
             )}
 
             {isRecording && (
-              <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-destructive text-destructive-foreground rounded-full text-xs font-medium shadow-sm">
+              <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 bg-destructive text-destructive-foreground rounded-full text-[11px] font-medium shadow-sm z-10">
                 <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
                 <span>Recording</span>
               </div>
@@ -683,7 +687,7 @@ export default function Practice() {
 
       {/* Practice Control Deck */}
       <Card className="border border-border/60 bg-card shadow-xs">
-        <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           {!isRecording ? (
             <div className="flex-1 w-full space-y-1">
               <Label htmlFor="topic-input" className="text-xs font-semibold text-foreground">Practice Topic / Question</Label>
@@ -692,27 +696,27 @@ export default function Practice() {
                 placeholder="e.g., Campus Placement HR, System Design, Debate on AI"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="text-xs h-9"
+                className="text-xs h-8 sm:h-9"
               />
             </div>
           ) : (
-            <div className="flex items-center gap-4">
-              <div className="font-mono text-2xl font-bold text-foreground">
+            <div className="flex items-center gap-3">
+              <div className="font-mono text-xl sm:text-2xl font-bold text-foreground">
                 {formatTime(duration)}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground truncate max-w-xs">
                 Active: <span className="font-semibold text-foreground">{topic || 'Practice Session'}</span>
               </div>
             </div>
           )}
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
             {!isRecording ? (
               <>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-xs font-semibold gap-1.5"
+                  className="text-xs font-semibold gap-1.5 h-8 sm:h-9 flex-1 sm:flex-none"
                   onClick={() => {
                     setWarmupTimer(30);
                     setWarmupPhase('breathing');
@@ -727,7 +731,7 @@ export default function Practice() {
                   size="sm"
                   onClick={handleStart}
                   disabled={!isReady || isModelLoading}
-                  className="text-xs font-semibold gap-1.5 min-w-28"
+                  className="text-xs font-semibold gap-1.5 min-w-28 h-8 sm:h-9 flex-1 sm:flex-none"
                 >
                   <Video className="h-3.5 w-3.5" />
                   <span>Start Practice</span>
@@ -739,7 +743,7 @@ export default function Practice() {
                   variant="outline"
                   size="sm"
                   onClick={handleRetake}
-                  className="text-xs font-semibold gap-1.5"
+                  className="text-xs font-semibold gap-1.5 h-8 sm:h-9 flex-1 sm:flex-none"
                 >
                   <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
                   <span>Re-Take</span>
@@ -749,7 +753,7 @@ export default function Practice() {
                   size="sm"
                   variant="destructive"
                   onClick={handleStop}
-                  className="text-xs font-semibold gap-1.5 min-w-28"
+                  className="text-xs font-semibold gap-1.5 min-w-28 h-8 sm:h-9 flex-1 sm:flex-none"
                 >
                   <Square className="h-3.5 w-3.5" />
                   <span>Complete & Audit</span>
@@ -759,7 +763,7 @@ export default function Practice() {
           </div>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 
   return (
@@ -841,7 +845,7 @@ export default function Practice() {
         </div>
       )}
 
-      <div className="container max-w-7xl mx-auto px-4 py-6 space-y-4">
+      <div className="container max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-3">
         
         {/* Browser Compatibility Alert Banner */}
         {!hasSpeechRecognition && (
@@ -853,14 +857,14 @@ export default function Practice() {
           </div>
         )}
 
-        {/* Persistent Side-by-Side Layout: Video on Left (2 cols), Live Metrics on Right (1 col) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          <div className="lg:col-span-2 space-y-4">
+        {/* Studio Side-by-Side Grid: Video + Controls on Left, Sticky HUD on Right */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
+          <div className="lg:col-span-8 space-y-3">
             {renderPrompterAndPrompt()}
             {renderVideoAndControls()}
           </div>
 
-          <div className="space-y-4 lg:sticky lg:top-6">
+          <div className="lg:col-span-4 space-y-3 lg:sticky lg:top-16">
             {renderMetricsCard()}
             {renderTranscriptCard()}
           </div>

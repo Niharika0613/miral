@@ -79,7 +79,7 @@ export default function Pricing() {
               </CardDescription>
               <div className="pt-4 flex items-baseline gap-1">
                 <span className="text-3xl font-bold text-foreground">₹0</span>
-                <span className="text-xs text-muted-foreground">/ free forever</span>
+                <span className="text-xs text-muted-foreground">/ 3 sessions per week</span>
               </div>
             </CardHeader>
 
@@ -165,7 +165,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>Detailed Executive Vocabulary Upgrades (ESL Bridge)</span>
+                  <span>Corporate English & Vocabulary Upgrades (English as a Second Language / ESL Bridge)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />

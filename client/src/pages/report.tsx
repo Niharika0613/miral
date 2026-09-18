@@ -1,7 +1,7 @@
 // client/src/pages/report.tsx
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useRoute, useLocation } from 'wouter';
+import { useRoute, useLocation, Link } from 'wouter';
 import { 
   ArrowLeft, 
   Eye, 
@@ -23,7 +23,8 @@ import {
   BookOpen,
   ArrowRight,
   Star,
-  X
+  X,
+  Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';

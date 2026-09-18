@@ -30,19 +30,19 @@ export function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Practice Tracks</h4>
             <ul className="space-y-2 text-xs text-muted-foreground">
               <li>
-                <Link href="/scenarios" className="hover:text-primary transition-colors">Campus Placement HR</Link>
+                <Link href="/scenarios#campus-placement-hr" className="hover:text-primary transition-colors">Campus Placement HR</Link>
               </li>
               <li>
-                <Link href="/scenarios" className="hover:text-primary transition-colors">Aviation & Cabin Crew GD</Link>
+                <Link href="/scenarios#group-discussion-gd" className="hover:text-primary transition-colors">Group Discussion (GD)</Link>
               </li>
               <li>
-                <Link href="/scenarios" className="hover:text-primary transition-colors">Technical SDE Walkthrough</Link>
+                <Link href="/scenarios#technical-project-defense" className="hover:text-primary transition-colors">Technical SDE Walkthrough</Link>
               </li>
               <li>
-                <Link href="/scenarios" className="hover:text-primary transition-colors">Debate & Public Speaking</Link>
+                <Link href="/scenarios#debate-public-speaking" className="hover:text-primary transition-colors">Debate & Public Speaking</Link>
               </li>
               <li>
-                <Link href="/scenarios" className="hover:text-primary transition-colors">Executive Keynote Pitch</Link>
+                <Link href="/scenarios#executive-pitch" className="hover:text-primary transition-colors">Executive Keynote Pitch</Link>
               </li>
             </ul>
           </div>

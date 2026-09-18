@@ -1,5 +1,5 @@
-﻿// client/src/pages/scenarios.tsx
-import { useState } from 'react';
+// client/src/pages/scenarios.tsx
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,8 @@ import {
   FileText,
   Play,
   RotateCcw,
-  CheckCircle2
+  CheckCircle2,
+  Mic
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -28,7 +29,7 @@ export interface PracticeQuestion {
 export interface Scenario {
   id: string;
   title: string;
-  category: 'placement' | 'gd' | 'tech' | 'pitch';
+  category: 'placement' | 'gd' | 'tech' | 'pitch' | 'debate';
   description: string;
   icon: any;
   difficulty: 'Foundation' | 'Intermediate' | 'Advanced';
@@ -111,6 +112,27 @@ export const PRACTICE_SCENARIOS: Scenario[] = [
     ]
   },
   {
+    id: 'debate-public-speaking',
+    title: 'Debate & Public Speaking',
+    category: 'debate',
+    description: 'Master persuasive speech structuring, rebuttals, and confident body language without filler words.',
+    icon: Mic,
+    difficulty: 'Intermediate',
+    duration: '5-10 min',
+    questions: [
+      {
+        id: 'debate-motion',
+        question: 'Motion: Is rapid technological disruption making formal college degrees obsolete?',
+        outline: ['Define terms & context', 'Present 2 strong supporting arguments', 'Conclude with high-impact summary']
+      },
+      {
+        id: 'debate-rebuttal',
+        question: 'Deliver a structured 90-second rebuttal against an opposing argument calmly and convincingly.',
+        outline: ['Acknowledge counterpoint respectfully', 'Highlight factual or logical fallacy', 'Re-anchor core thesis']
+      }
+    ]
+  },
+  {
     id: 'executive-pitch',
     title: '60-Second Pitch & Self-Marketing',
     category: 'pitch',
@@ -135,6 +157,31 @@ export default function Scenarios() {
   // Custom Script State
   const [customTopic, setCustomTopic] = useState('');
   const [customScript, setCustomScript] = useState('');
+
+  // Auto-scroll to track if specified in URL hash or search params
+  useEffect(() => {
+    const handleHashScroll = () => {
+      const hash = window.location.hash.replace('#', '');
+      const searchParams = new URLSearchParams(window.location.search);
+      const trackParam = searchParams.get('track');
+      const targetId = hash || trackParam;
+
+      if (targetId) {
+        setTimeout(() => {
+          const el = document.getElementById(targetId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('ring-2', 'ring-primary', 'transition-all');
+            setTimeout(() => {
+              el.classList.remove('ring-2', 'ring-primary');
+            }, 2500);
+          }
+        }, 150);
+      }
+    };
+
+    handleHashScroll();
+  }, []);
 
   const handleLaunchCustom = () => {
     if (!customScript.trim() && !customTopic.trim()) {
@@ -325,7 +372,11 @@ I'm looking to join a fast-moving team where I can take ownership of critical fe
             {PRACTICE_SCENARIOS.map((scenario) => {
               const Icon = scenario.icon;
               return (
-                <Card key={scenario.id} className="border border-border/60 shadow-xs bg-card hover:border-primary/40 transition-all flex flex-col justify-between">
+                <Card 
+                  key={scenario.id} 
+                  id={scenario.id}
+                  className="border border-border/60 shadow-xs bg-card hover:border-primary/40 transition-all flex flex-col justify-between scroll-mt-24"
+                >
                   <CardHeader className="pb-3 border-b border-border/30">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5">

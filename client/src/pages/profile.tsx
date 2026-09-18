@@ -227,10 +227,10 @@ export default function Profile() {
 
                   <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
                     <Badge variant="outline" className="text-[10px] border-primary/30 text-primary font-semibold">
-                      Public Speaking Mastery
+                      Placement & Interview Prep
                     </Badge>
                     <span>•</span>
-                    <span>Active Member</span>
+                    <span>Active Candidate</span>
                   </div>
                 </div>
               </div>

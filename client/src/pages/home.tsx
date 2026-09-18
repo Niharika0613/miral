@@ -197,72 +197,31 @@ export default function Home() {
               className="lg:col-span-6 space-y-5 text-left"
             >
               
-              {/* Neon Product Badge */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-indigo-500/40 bg-indigo-500/10 text-indigo-300 text-xs font-semibold backdrop-blur-xl shadow-[0_0_20px_rgba(99,102,241,0.15)]"
-              >
-                <span className="flex h-2 w-2 rounded-full bg-indigo-400 pulse-ring" />
-                <span>AI-Powered Speech Mirror · Real-Time Vision Intelligence</span>
-              </motion.div>
+              {/* Clean Product Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-semibold backdrop-blur-xl shadow-xs">
+                <span className="flex h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
+                <span>AI Practice Mirror • Real-Time Speech & Vision Intelligence</span>
+              </div>
 
-              {/* Main Headline — staggered word reveal */}
+              {/* Main Headline */}
               <div className="space-y-2">
-                <motion.h1
-                  className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-[1.1]"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  Speak with{' '}
-                  <motion.span
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.55, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                    className="gradient-text"
-                  >
-                    Unshakeable
-                  </motion.span>{' '}
-                  <motion.span
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.55, delay: 0.34, ease: [0.16, 1, 0.3, 1] }}
-                    className="gradient-text"
-                  >
-                    Confidence.
-                  </motion.span>
-                </motion.h1>
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-xl sm:text-2xl font-bold gradient-text-warm"
-                >
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-[1.12]">
+                  Speak with <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-blue-400 bg-clip-text text-transparent">Unshakeable Confidence.</span>
+                </h1>
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-300 via-violet-300 to-blue-300 bg-clip-text text-transparent">
                   Powered by Real-Time Vision & Voice AI.
-                </motion.p>
+                </p>
               </div>
 
               {/* Subtitle */}
-              <motion.p
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.55 }}
-                className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl"
-              >
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
                 Stop practicing in front of a mute mirror. MIRAL tracks your <strong className="text-white font-semibold">eye contact</strong>, <strong className="text-white font-semibold">posture</strong>, <strong className="text-white font-semibold">speaking speed (WPM)</strong>, and <strong className="text-white font-semibold">filler words</strong> with real-time AI — completely private in your browser.
-              </motion.p>
+              </p>
 
               {/* Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.65 }}
-                className="flex flex-col sm:flex-row items-center gap-3 pt-1"
-              >
+              <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
                 <Link href="/practice">
-                  <Button size="lg" className="w-full sm:w-auto text-xs font-bold h-11 px-7 gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-[0_8px_30px_rgba(99,102,241,0.35)] hover:opacity-90 hover:shadow-[0_12px_40px_rgba(99,102,241,0.5)] hover:-translate-y-0.5 transition-all border-0">
+                  <Button size="lg" className="w-full sm:w-auto text-xs font-semibold h-11 px-6 gap-2 bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/25 transition-all">
                     <Play className="h-3.5 w-3.5 fill-current" />
                     <span>Launch Free Practice Session</span>
                   </Button>
@@ -272,7 +231,7 @@ export default function Home() {
                   size="lg" 
                   variant="outline" 
                   onClick={toggleLiveCamera}
-                  className="w-full sm:w-auto text-xs font-semibold h-11 px-5 gap-2 border-white/15 bg-white/[0.03] hover:bg-white/[0.08] text-slate-200 backdrop-blur-sm"
+                  className="w-full sm:w-auto text-xs font-semibold h-11 px-5 gap-2 border-white/15 bg-white/[0.03] hover:bg-white/[0.08] text-slate-200"
                 >
                   <Camera className="h-3.5 w-3.5 text-indigo-400" />
                   <span>{isCameraActive ? "Stop Webcam Preview" : "Test Live Webcam"}</span>
@@ -293,15 +252,10 @@ export default function Home() {
                     </Button>
                   </Link>
                 )}
-              </motion.div>
+              </div>
 
               {/* Trust Indicators */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.75 }}
-                className="pt-3 flex flex-wrap items-center gap-5 text-xs text-slate-400 border-t border-white/[0.08]"
-              >
+              <div className="pt-3 flex flex-wrap items-center gap-5 text-xs text-slate-400 border-t border-white/[0.08]">
                 <div className="flex items-center gap-1.5">
                   <ShieldCheck className="h-4 w-4 text-emerald-400" />
                   <span className="text-slate-200 font-medium">100% In-Browser Privacy</span>
@@ -311,22 +265,18 @@ export default function Home() {
                   <Zap className="h-4 w-4 text-amber-400" />
                   <span className="text-slate-200 font-medium">Instant Live Feedback</span>
                 </div>
-              </motion.div>
+              </div>
 
             </motion.div>
 
             {/* Right Column: Hero Live Simulator Card */}
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              initial={{ opacity: 0, scale: 0.96, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.6, delay: 0.15 }}
               className="lg:col-span-6 relative"
             >
-              {/* Floating glow behind card */}
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-violet-500/10 to-cyan-500/10 rounded-3xl blur-2xl -z-10 scale-95" />
-              
-              <div className="rounded-2xl border border-white/[0.12] bg-white/[0.04] backdrop-blur-2xl p-4 sm:p-5 shadow-[0_0_60px_rgba(99,102,241,0.2),0_20px_60px_rgba(0,0,0,0.5)] relative overflow-hidden card-gradient-top">
-
+              <div className="rounded-2xl border border-white/[0.12] bg-white/[0.04] backdrop-blur-2xl p-4 sm:p-5 shadow-[0_0_50px_-12px_rgba(79,70,229,0.3)] relative overflow-hidden">
                 
                 {/* Simulator Window Header */}
                 <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">

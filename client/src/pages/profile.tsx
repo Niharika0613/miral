@@ -159,53 +159,41 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-[#05060A] text-slate-100 py-10 relative overflow-x-hidden">
-      {/* Aurora Ambient Background */}
-      <div className="pointer-events-none fixed inset-0 z-[-10] overflow-hidden">
-        <div className="aurora-blob-1 absolute top-[-100px] left-[-80px] w-[500px] h-[500px] rounded-full bg-indigo-600/15 blur-[120px]" />
-        <div className="aurora-blob-2 absolute top-[40%] right-[-120px] w-[450px] h-[450px] rounded-full bg-violet-600/10 blur-[120px]" />
-        <div className="aurora-blob-3 absolute bottom-[-100px] left-[30%] w-[450px] h-[450px] rounded-full bg-cyan-500/10 blur-[100px]" />
-      </div>
-
-      <div className="container max-w-5xl mx-auto px-4 sm:px-6 space-y-8">
+    <div className="min-h-screen bg-background">
+      <div className="container max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-6">
         
         {/* Navigation & Header */}
         <div className="flex items-center justify-between">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="gap-2 text-xs text-slate-400 hover:text-white hover:bg-white/[0.04] rounded-lg"
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 text-xs font-semibold"
             onClick={() => setLocation('/dashboard')}
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Dashboard</span>
+            <span>Back to Dashboard</span>
           </Button>
 
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" onClick={handleExport} className="text-xs h-8 gap-1.5 border-white/10 text-slate-300 bg-white/[0.02] hover:bg-white/[0.05] rounded-lg">
+            <Button size="sm" variant="outline" onClick={handleExport} className="text-xs h-8 gap-1.5">
               <Download className="h-3.5 w-3.5" />
               <span>Export History</span>
             </Button>
 
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={logout}
-              className="gap-2 text-xs text-slate-400 hover:text-red-400 hover:bg-white/[0.04] rounded-lg"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Sign Out</span>
+            <Button size="sm" variant="destructive" onClick={logout} className="text-xs h-8 gap-1.5">
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Logout</span>
             </Button>
           </div>
         </div>
 
         {/* User Identity Banner */}
-        <Card className="border border-white/[0.08] bg-white/[0.04] backdrop-blur-xl shadow-[0_0_40px_rgba(99,102,241,0.1)] rounded-2xl overflow-hidden card-gradient-top">
+        <Card className="border border-border/80 bg-card shadow-xs">
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               
               <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-2xl bg-indigo-500/15 border-2 border-indigo-500/40 flex items-center justify-center text-indigo-300 text-2xl font-extrabold shadow-[0_0_25px_rgba(99,102,241,0.3)]">
+                <div className="h-16 w-16 rounded-2xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center text-primary text-2xl font-extrabold shadow-inner">
                   {(currentUser?.name || 'U').charAt(0).toUpperCase()}
                 </div>
 
@@ -215,21 +203,21 @@ export default function Profile() {
                       <Input
                         value={editedName}
                         onChange={(e) => setEditedName(e.target.value)}
-                        className="h-8 text-sm font-semibold max-w-[200px] bg-white/[0.06] border border-white/[0.12] text-white focus:border-indigo-500/60"
+                        className="h-8 text-sm font-semibold max-w-[200px]"
                         placeholder="Enter your name"
                       />
-                      <Button size="sm" onClick={handleSaveName} className="h-8 px-2.5 text-xs bg-gradient-to-r from-indigo-500 to-violet-600 text-white">
+                      <Button size="sm" onClick={handleSaveName} className="h-8 px-2.5 text-xs">
                         <Check className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <h1 className="text-xl sm:text-2xl font-bold text-white">
+                      <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                         {currentUser?.name || 'Candidate'}
                       </h1>
                       <button 
                         onClick={() => setIsEditingName(true)}
-                        className="text-slate-400 hover:text-white transition-colors p-1"
+                        className="text-muted-foreground hover:text-foreground transition-colors p-1"
                         title="Edit Name"
                       >
                         <Edit2 className="h-3.5 w-3.5" />
@@ -237,18 +225,18 @@ export default function Profile() {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-2 flex-wrap text-xs text-slate-400">
-                    <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-300 bg-indigo-500/10 font-semibold">
-                      Placement &amp; Interview Prep
+                  <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+                    <Badge variant="outline" className="text-[10px] border-primary/30 text-primary font-semibold">
+                      Placement & Interview Prep
                     </Badge>
                     <span>•</span>
-                    <span className="text-slate-400">Active Candidate</span>
+                    <span>Active Candidate</span>
                   </div>
                 </div>
               </div>
 
               <Link href="/practice">
-                <Button className="text-xs font-semibold h-10 px-5 gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white hover:opacity-90 hover:shadow-[0_8px_30px_rgba(99,102,241,0.4)] border-0 rounded-xl">
+                <Button className="text-xs font-semibold h-10 px-5 gap-2 shadow-sm">
                   <Video className="h-4 w-4" />
                   <span>Start New Practice</span>
                 </Button>
@@ -260,109 +248,109 @@ export default function Profile() {
 
         {/* Primary Performance Telemetry */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl rounded-2xl p-4 space-y-1 hover:border-indigo-500/30 transition-all">
-            <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+          <Card className="border border-border/60 bg-card shadow-xs p-4 space-y-1">
+            <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
               <span>Total Sessions</span>
-              <Video className="h-4 w-4 text-indigo-400" />
+              <Video className="h-4 w-4 text-primary" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-white tabular-nums">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-foreground tabular-nums">
               {stats.totalSessions}
             </div>
-            <p className="text-[11px] text-slate-500">Completed practice audits</p>
+            <p className="text-[11px] text-muted-foreground">Completed practice audits</p>
           </Card>
 
-          <Card className="border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl rounded-2xl p-4 space-y-1 hover:border-emerald-500/30 transition-all">
-            <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+          <Card className="border border-border/60 bg-card shadow-xs p-4 space-y-1">
+            <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
               <span>Avg Confidence</span>
-              <Award className="h-4 w-4 text-emerald-400" />
+              <Award className="h-4 w-4 text-emerald-600" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-emerald-400 tabular-nums">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-emerald-600 tabular-nums">
               {stats.avgScore > 0 ? `${stats.avgScore}%` : '0%'}
             </div>
-            <p className="text-[11px] text-slate-500">Overall performance index</p>
+            <p className="text-[11px] text-muted-foreground">Overall performance index</p>
           </Card>
 
-          <Card className="border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl rounded-2xl p-4 space-y-1 hover:border-cyan-500/30 transition-all">
-            <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+          <Card className="border border-border/60 bg-card shadow-xs p-4 space-y-1">
+            <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
               <span>Practice Time</span>
-              <Clock className="h-4 w-4 text-cyan-400" />
+              <Clock className="h-4 w-4 text-blue-600" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-cyan-400 tabular-nums">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-blue-600 tabular-nums">
               {stats.totalTimeMinutes}m
             </div>
-            <p className="text-[11px] text-slate-500">Active speaking minutes</p>
+            <p className="text-[11px] text-muted-foreground">Active speaking minutes</p>
           </Card>
 
-          <Card className="border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl rounded-2xl p-4 space-y-1 hover:border-amber-500/30 transition-all">
-            <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+          <Card className="border border-border/60 bg-card shadow-xs p-4 space-y-1">
+            <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
               <span>Highest Score</span>
-              <TrendingUp className="h-4 w-4 text-amber-400" />
+              <TrendingUp className="h-4 w-4 text-amber-500" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono text-amber-400 tabular-nums">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-amber-500 tabular-nums">
               {stats.bestScore > 0 ? `${stats.bestScore}%` : '0%'}
             </div>
-            <p className="text-[11px] text-slate-500">Personal best session</p>
+            <p className="text-[11px] text-muted-foreground">Personal best session</p>
           </Card>
         </div>
 
         {/* Secondary Metric Breakdown */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl rounded-2xl p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <Card className="border border-border/60 bg-card shadow-xs p-4 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600">
               <Eye className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[11px] text-slate-400 block font-medium">Average Eye Focus</span>
-              <span className="text-lg font-bold font-mono text-white tabular-nums">{stats.avgEyeContact > 0 ? `${stats.avgEyeContact}%` : '88%'}</span>
+              <span className="text-[11px] text-muted-foreground block font-medium">Average Eye Focus</span>
+              <span className="text-lg font-bold font-mono text-foreground tabular-nums">{stats.avgEyeContact > 0 ? `${stats.avgEyeContact}%` : '88%'}</span>
             </div>
           </Card>
 
-          <Card className="border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl rounded-2xl p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+          <Card className="border border-border/60 bg-card shadow-xs p-4 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600">
               <Volume2 className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[11px] text-slate-400 block font-medium">Average Speaking Pace</span>
-              <span className="text-lg font-bold font-mono text-white tabular-nums">{stats.avgWpm > 0 ? `${stats.avgWpm} WPM` : '138 WPM'}</span>
+              <span className="text-[11px] text-muted-foreground block font-medium">Average Speaking Pace</span>
+              <span className="text-lg font-bold font-mono text-foreground tabular-nums">{stats.avgWpm > 0 ? `${stats.avgWpm} WPM` : '138 WPM'}</span>
             </div>
           </Card>
 
-          <Card className="border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl rounded-2xl p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
+          <Card className="border border-border/60 bg-card shadow-xs p-4 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-600">
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[11px] text-slate-400 block font-medium">Total Fillers Tracked</span>
-              <span className="text-lg font-bold font-mono text-white tabular-nums">{stats.totalFillers} detected</span>
+              <span className="text-[11px] text-muted-foreground block font-medium">Total Fillers Tracked</span>
+              <span className="text-lg font-bold font-mono text-foreground tabular-nums">{stats.totalFillers} detected</span>
             </div>
           </Card>
         </div>
 
         {/* Recent Practice History */}
-        <Card className="border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl rounded-2xl shadow-sm overflow-hidden card-gradient-top">
-          <CardHeader className="pb-3 border-b border-white/[0.06] bg-white/[0.02] flex flex-row items-center justify-between">
+        <Card className="border border-border/60 bg-card shadow-xs">
+          <CardHeader className="pb-3 border-b border-border/40 flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-sm font-bold uppercase tracking-wider text-white">
-                Your Practice History &amp; Diagnostics
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">
+                Your Practice History & Diagnostics
               </CardTitle>
-              <CardDescription className="text-xs text-slate-400 mt-0.5">
+              <CardDescription className="text-xs text-muted-foreground mt-0.5">
                 Review detailed reports and speech metrics from all completed sessions.
               </CardDescription>
             </div>
-            <Badge variant="outline" className="text-xs border-white/10 text-slate-400 bg-white/[0.02]">
+            <Badge variant="outline" className="text-xs">
               {mergedSessions.length} Total
             </Badge>
           </CardHeader>
           <CardContent className="p-4">
             {mergedSessions.length === 0 ? (
               <div className="text-center py-10 space-y-3">
-                <Video className="h-10 w-10 text-slate-600 mx-auto" />
-                <h3 className="text-sm font-semibold text-white">No practice sessions recorded yet</h3>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                <Video className="h-10 w-10 text-muted-foreground/50 mx-auto" />
+                <h3 className="text-sm font-semibold text-foreground">No practice sessions recorded yet</h3>
+                <p className="text-xs text-muted-foreground max-w-sm mx-auto">
                   Launch your first practice session to get real-time vision and acoustic metrics.
                 </p>
                 <Link href="/practice">
-                  <Button size="sm" className="text-xs font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white hover:opacity-90">
+                  <Button size="sm" className="text-xs font-semibold">
                     Launch Practice Now
                   </Button>
                 </Link>
@@ -384,36 +372,36 @@ export default function Profile() {
                   return (
                     <div 
                       key={s.id || idx}
-                      className="p-3.5 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-indigo-500/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                      className="p-3.5 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-white text-sm">
+                          <span className="font-semibold text-foreground text-sm">
                             {s.topic || 'General Practice Session'}
                           </span>
-                          <Badge variant="outline" className="text-[10px] border-white/10 text-slate-400 bg-white/[0.02]">
+                          <Badge variant="secondary" className="text-[10px]">
                             {dur > 0 ? `${dur}s` : 'Quick Attempt'}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-3 text-slate-400 text-[11px]">
+                        <div className="flex items-center gap-3 text-muted-foreground text-[11px]">
                           <span>{dateStr}</span>
                           <span>•</span>
-                          <span>Eye Focus: <strong className="text-cyan-400">{eye > 0 ? `${eye}%` : '90%'}</strong></span>
+                          <span>Eye Focus: <strong className="text-foreground">{eye > 0 ? `${eye}%` : '90%'}</strong></span>
                           <span>•</span>
-                          <span>Pace: <strong className="text-emerald-400">{wpm > 0 ? `${wpm} WPM` : '138 WPM'}</strong></span>
+                          <span>Pace: <strong className="text-foreground">{wpm > 0 ? `${wpm} WPM` : '138 WPM'}</strong></span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3 justify-between sm:justify-end">
                         <div className="text-right">
-                          <span className="text-[10px] text-slate-500 block font-medium font-mono">Confidence</span>
-                          <span className="text-base font-bold font-mono text-indigo-400 tabular-nums">
+                          <span className="text-[10px] text-muted-foreground block font-medium">Confidence</span>
+                          <span className="text-base font-bold font-mono text-emerald-600 tabular-nums">
                             {conf > 0 ? `${conf}%` : '85%'}
                           </span>
                         </div>
 
                         <Link href={`/report/${s.id}`}>
-                          <Button size="sm" variant="outline" className="text-xs h-8 gap-1 border-indigo-500/30 text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20">
+                          <Button size="sm" variant="outline" className="text-xs h-8 gap-1 border-primary/30 text-primary hover:bg-primary/10">
                             <span>View Report</span>
                             <ArrowRight className="h-3.5 w-3.5" />
                           </Button>

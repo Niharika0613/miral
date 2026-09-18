@@ -79,7 +79,7 @@ export default function Pricing() {
               </CardDescription>
               <div className="pt-4 flex items-baseline gap-1">
                 <span className="text-3xl font-bold text-foreground">₹0</span>
-                <span className="text-xs text-muted-foreground">/ 3 sessions per week</span>
+                <span className="text-xs text-muted-foreground">/ free</span>
               </div>
             </CardHeader>
 

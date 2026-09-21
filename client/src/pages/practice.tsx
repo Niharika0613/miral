@@ -227,7 +227,7 @@ export default function Practice() {
     let lastTime = 0;
 
     async function processFrame(timestamp: number) {
-      if (timestamp - lastTime > 250 && videoRef.current && isReady && !isModelLoading) {
+      if (timestamp - lastTime > 200 && videoRef.current && isReady && !isModelLoading) {
         lastTime = timestamp;
         try {
           const faces = await detectFaces(videoRef.current);
@@ -240,7 +240,8 @@ export default function Practice() {
           // Direct Real-Time Iris & Gaze Tracking
           const realGaze = faceAnalysis.isInFrame ? (faceAnalysis.gazeScore || 0) : 0;
           setLiveEyeScore((prev) => {
-            return Math.round(prev * 0.30 + realGaze * 0.70);
+            if (!faceAnalysis.isInFrame) return 0;
+            return Math.round(prev * 0.25 + realGaze * 0.75);
           });
 
           setFacePosition(faceAnalysis.position);
@@ -248,21 +249,28 @@ export default function Practice() {
           setIsInFrame(faceAnalysis.isInFrame);
 
           if (isRecording) {
-            setEyeContactData((prev) => [...prev.slice(-180), { timestamp: Date.now(), gazeScore: Math.round(realGaze), hasEyeContact }]);
-            setPostureData((prev) => [...prev.slice(-180), { timestamp: Date.now(), posture: posture.posture, confidence: posture.confidence }]);
+            setEyeContactData((prev) => [...prev.slice(-180), { timestamp: Date.now(), gazeScore: faceAnalysis.isInFrame ? Math.round(realGaze) : 0, hasEyeContact }]);
+            setPostureData((prev) => [...prev.slice(-180), { timestamp: Date.now(), posture: faceAnalysis.isInFrame ? posture.posture : 'unknown', confidence: faceAnalysis.isInFrame ? posture.confidence : 0 }]);
           }
 
-          setCurrentPosture(posture.posture);
-          setPostureScore(posture.confidence);
+          setCurrentPosture(faceAnalysis.isInFrame ? posture.posture : 'unknown');
+          setPostureScore(faceAnalysis.isInFrame ? posture.confidence : 0);
 
           // Real-time On-Screen Cues
-          if (isRecording && faces.length > 0) {
-            if (!hasEyeContact || !faceAnalysis.isInFrame) {
+          if (isRecording) {
+            if (!faceAnalysis.isInFrame) {
+              lookAwayCountRef.current += 1;
+              if (lookAwayCountRef.current >= 4 && !showSuggestion) {
+                setSuggestionMessage('Position your face inside the camera view');
+                setShowSuggestion(true);
+                if (suggestionTimeoutRef.current) clearTimeout(suggestionTimeoutRef.current);
+                suggestionTimeoutRef.current = setTimeout(() => setShowSuggestion(false), 3000);
+              }
+            } else if (!hasEyeContact) {
               lookAwayCountRef.current += 1;
               if (lookAwayCountRef.current >= 6 && !showSuggestion) {
-                let msg = 'Direct your gaze towards the camera';
-                if (!faceAnalysis.isInFrame) msg = 'Position yourself within camera view';
-                else if (faceAnalysis.headTilt === 'down') msg = 'Elevate chin slightly towards camera';
+                let msg = 'Direct your gaze towards the camera lens';
+                if (faceAnalysis.headTilt === 'down') msg = 'Elevate chin slightly towards camera';
                 else if (faceAnalysis.headTilt === 'up') msg = 'Look directly at camera lens';
 
                 setSuggestionMessage(msg);
@@ -482,12 +490,18 @@ export default function Practice() {
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground font-medium">Eye Gaze Focus</span>
-            <Badge variant={eyePercentage >= 65 ? "default" : "secondary"} className="text-[10px]">
-              {eyePercentage >= 65 ? 'Direct Focus' : 'Looking Away'}
-            </Badge>
+            {!isInFrame ? (
+              <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/30">
+                Out of Frame
+              </Badge>
+            ) : (
+              <Badge variant={eyePercentage >= 60 ? "default" : "secondary"} className="text-[10px]">
+                {eyePercentage >= 60 ? 'Direct Focus' : 'Looking Away'}
+              </Badge>
+            )}
           </div>
           <div className="text-lg font-bold text-foreground">
-            {eyePercentage}% <span className="text-[11px] font-normal text-muted-foreground">real-time gaze tracking</span>
+            {isInFrame ? eyePercentage : 0}% <span className="text-[11px] font-normal text-muted-foreground">real-time gaze tracking</span>
           </div>
         </div>
 
@@ -495,12 +509,18 @@ export default function Practice() {
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground font-medium">Posture Alignment</span>
-            <Badge variant={postureScore >= 75 ? "default" : "secondary"} className="text-[10px]">
-              {currentPosture === 'good' ? 'Upright' : currentPosture === 'slouching' ? 'Slouching' : currentPosture === 'leaning' ? 'Leaning' : 'Calibrating'}
-            </Badge>
+            {!isInFrame ? (
+              <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/30">
+                Adjust Camera
+              </Badge>
+            ) : (
+              <Badge variant={currentPosture === 'good' ? "default" : "secondary"} className="text-[10px]">
+                {currentPosture === 'good' ? 'Upright' : currentPosture === 'slouching' ? 'Slouching' : currentPosture === 'leaning' ? 'Leaning' : 'Calibrating'}
+              </Badge>
+            )}
           </div>
           <div className="text-lg font-bold text-foreground">
-            {Math.round(postureScore)}% <span className="text-[11px] font-normal text-muted-foreground">stability</span>
+            {isInFrame ? Math.round(postureScore) : 0}% <span className="text-[11px] font-normal text-muted-foreground">stability</span>
           </div>
         </div>
 

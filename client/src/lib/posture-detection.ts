@@ -88,14 +88,15 @@ export async function analyzePosture(videoElement: HTMLVideoElement, existingFac
   const rollDegrees = Math.abs(Math.atan2(dy, dx) * (180 / Math.PI));
   const isLateralTilted = rollDegrees > 8.0;
 
-  // 2. Vertical Sinking / Slouch in Frame (Calibrated for standard laptop webcams)
-  const isSlouchedDown = normCenterY > 0.54;
-  const isTooHigh = normCenterY < 0.20;
+  // 2. Vertical Sinking / Slouch in Frame (Calibrated for laptop webcams)
+  const isSlouchedDown = normCenterY > 0.52;
+  const isSeverelySlouched = normCenterY > 0.64;
+  const isTooHigh = normCenterY < 0.18;
 
   // 3. Head Pitch & Chin Elevation
   const faceHeight = Math.abs((forehead?.y || (eyeCenterY - 40)) - (chin?.y || (eyeCenterY + 50))) || 90;
   const noseToChin = Math.abs((chin?.y || (eyeCenterY + 50)) - noseTip.y) / faceHeight;
-  const isChinDown = noseToChin < 0.26 && normCenterY > 0.48;
+  const isChinDown = noseToChin < 0.26 && normCenterY > 0.46;
 
   // 4. Horizontal Centering Symmetry
   const leftDist = Math.abs(noseTip.x - (leftCheek?.x || (leftEye.x - 25)));
@@ -107,10 +108,14 @@ export async function analyzePosture(videoElement: HTMLVideoElement, existingFac
   let confidence = 90;
   const improvements: string[] = [];
 
-  if (isSlouchedDown || isChinDown) {
+  if (isSeverelySlouched) {
     posture = "slouching";
-    const dropAmount = Math.max(0, (normCenterY - 0.54) * 120);
-    confidence = Math.max(30, Math.round(65 - dropAmount));
+    confidence = Math.max(15, Math.round(45 - (normCenterY - 0.64) * 120));
+    improvements.push("Sit upright and center yourself within the webcam frame");
+  } else if (isSlouchedDown || isChinDown) {
+    posture = "slouching";
+    const dropAmount = Math.max(0, (normCenterY - 0.52) * 120);
+    confidence = Math.max(30, Math.round(62 - dropAmount));
     improvements.push("Elevate chin and straighten your back");
   } else if (isLateralTilted || isLeaningSide) {
     posture = "leaning";
@@ -118,7 +123,7 @@ export async function analyzePosture(videoElement: HTMLVideoElement, existingFac
     confidence = Math.max(35, Math.round(70 - tiltPenalty));
     improvements.push("Level your head and square your shoulders with the camera");
   } else if (isTooHigh) {
-    confidence = 72;
+    confidence = 68;
     improvements.push("Adjust camera angle or step back slightly for balanced framing");
   } else {
     // Dynamic score based on micro-alignment

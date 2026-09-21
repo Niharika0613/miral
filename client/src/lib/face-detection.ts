@@ -2,6 +2,7 @@
 declare global {
   interface Window {
     FaceMesh: any;
+    FaceDetector?: any;
   }
 }
 
@@ -10,6 +11,7 @@ let isProcessing = false;
 let lastProcessTime = 0;
 let fallbackCanvas: HTMLCanvasElement | null = null;
 let fallbackCtx: CanvasRenderingContext2D | null = null;
+let nativeDetector: any = null;
 
 const getVideoDimensions = (video?: HTMLVideoElement) => {
   const videoWidth = video?.videoWidth || video?.clientWidth || 640;
@@ -18,12 +20,23 @@ const getVideoDimensions = (video?: HTMLVideoElement) => {
 };
 
 export async function loadFaceDetector() {
+  // 1. Try Native Chrome/Edge Hardware-Accelerated FaceDetector
+  if (typeof window !== 'undefined' && typeof (window as any).FaceDetector !== 'undefined') {
+    try {
+      nativeDetector = new (window as any).FaceDetector({ fastMode: true, maxDetectedFaces: 1 });
+      return nativeDetector;
+    } catch {
+      nativeDetector = null;
+    }
+  }
+
+  // 2. Load MediaPipe FaceMesh
   if (faceMesh) return faceMesh;
 
   return new Promise((resolve) => {
     const timeout = setTimeout(() => {
       resolve(null);
-    }, 1500);
+    }, 2500);
 
     try {
       const existingScript = document.querySelector('script[src*="face_mesh.js"]');
@@ -56,7 +69,7 @@ export async function loadFaceDetector() {
       };
       
       document.head.appendChild(script);
-    } catch (e) {
+    } catch {
       clearTimeout(timeout);
       resolve(null);
     }
@@ -73,15 +86,15 @@ function initFaceMesh() {
     faceMesh.setOptions({
       maxNumFaces: 1,
       refineLandmarks: true,
-      minDetectionConfidence: 0.3,
-      minTrackingConfidence: 0.3
+      minDetectionConfidence: 0.4,
+      minTrackingConfidence: 0.4
     });
   } catch (e) {
     console.warn('FaceMesh init:', e);
   }
 }
 
-// Resilient In-Browser Pupil & Facial Centroid Engine
+// Precision In-Browser Skin Chrominance & Facial Geometry Engine
 function analyzePupilAndCanvas(video: HTMLVideoElement) {
   const width = video.videoWidth || video.clientWidth || 640;
   const height = video.videoHeight || video.clientHeight || 480;
@@ -100,94 +113,133 @@ function analyzePupilAndCanvas(video: HTMLVideoElement) {
     const frame = fallbackCtx.getImageData(0, 0, 160, 120);
     const data = frame.data;
     
-    let facePixels = 0;
+    let skinPixels = 0;
     let sumX = 0;
     let sumY = 0;
-    let totalLum = 0;
+    let minX = 160, maxX = 0, minY = 120, maxY = 0;
 
-    for (let y = 6; y < 114; y += 2) {
-      for (let x = 8; x < 152; x += 2) {
+    // Strict human skin chrominance filter (prevents white/cream/yellow walls, doors, ceilings from triggering)
+    for (let y = 4; y < 116; y += 2) {
+      for (let x = 6; x < 154; x += 2) {
         const idx = (y * 160 + x) * 4;
         const r = data[idx];
         const g = data[idx + 1];
         const b = data[idx + 2];
         const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-        totalLum += lum;
 
-        const isFace = (r > 40 && g > 25 && b > 15 && r >= b) || (lum > 30 && lum < 225);
-        if (isFace) {
-          facePixels++;
+        // True human skin chrominance constraints
+        const isSkin = (
+          r > 60 && g > 35 && b > 20 &&
+          r > g && g >= (b - 8) &&
+          (r - g) >= 10 &&
+          (r - b) >= 15 &&
+          Math.abs(r - g) >= 8 &&
+          lum >= 35 && lum <= 235
+        );
+
+        if (isSkin) {
+          skinPixels++;
           sumX += x;
           sumY += y;
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
         }
       }
     }
 
-    if (facePixels > 20 || totalLum > 5000) {
-      const normCenterX = facePixels > 0 ? (sumX / facePixels) / 160 : 0.5;
-      const normCenterY = facePixels > 0 ? (sumY / facePixels) / 120 : 0.45;
-      const centerX = normCenterX * width;
-      const centerY = normCenterY * height;
+    const faceWidth = maxX - minX;
+    const faceHeight = maxY - minY;
 
-      // Extract left and right eye regions
-      const eyeXLeft = Math.max(0, Math.min(150, Math.round(normCenterX * 160 - 20)));
-      const eyeXRight = Math.max(0, Math.min(150, Math.round(normCenterX * 160 + 20)));
-      const eyeY = Math.max(0, Math.min(110, Math.round(normCenterY * 120 - 6)));
+    // Reject background noise: Must have at least 90 dense skin pixels and reasonable face aspect ratio
+    if (skinPixels < 90 || faceWidth < 18 || faceHeight < 20) {
+      return []; // NO FACE IN FRAME
+    }
 
-      let pupilSumX = 0, pupilCount = 0;
-      for (let ey = -4; ey <= 4; ey++) {
-        for (let ex = -10; ex <= 10; ex++) {
-          const px = eyeXLeft + ex;
-          const py = eyeY + ey;
-          if (px >= 0 && px < 160 && py >= 0 && py < 120) {
-            const idx = (py * 160 + px) * 4;
-            const lum = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
-            if (lum < 75) {
-              pupilSumX += ex;
-              pupilCount++;
-            }
+    const normCenterX = (sumX / skinPixels) / 160;
+    const normCenterY = (sumY / skinPixels) / 120;
+
+    // If face is cut off at the bottom edge (e.g. only forehead/hair visible at bottom) or out of frame
+    if (normCenterY > 0.72 || normCenterY < 0.12 || normCenterX < 0.10 || normCenterX > 0.90) {
+      return []; // OUT OF FRAME
+    }
+
+    const centerX = normCenterX * width;
+    const centerY = normCenterY * height;
+
+    // Extract left and right eye pupil/darkness regions
+    const eyeXLeft = Math.max(4, Math.min(150, Math.round(normCenterX * 160 - faceWidth * 0.22)));
+    const eyeXRight = Math.max(4, Math.min(150, Math.round(normCenterX * 160 + faceWidth * 0.22)));
+    const eyeY = Math.max(4, Math.min(114, Math.round(normCenterY * 120 - faceHeight * 0.12)));
+
+    let leftPupilOffset = 0, rightPupilOffset = 0;
+    let leftDarkFound = 0, rightDarkFound = 0;
+
+    for (let ey = -3; ey <= 3; ey++) {
+      for (let ex = -6; ex <= 6; ex++) {
+        const plx = eyeXLeft + ex;
+        const ply = eyeY + ey;
+        if (plx >= 0 && plx < 160 && ply >= 0 && ply < 120) {
+          const idx = (ply * 160 + plx) * 4;
+          const lum = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+          if (lum < 65) {
+            leftPupilOffset += ex;
+            leftDarkFound++;
+          }
+        }
+
+        const prx = eyeXRight + ex;
+        const pry = eyeY + ey;
+        if (prx >= 0 && prx < 160 && pry >= 0 && pry < 120) {
+          const idx = (pry * 160 + prx) * 4;
+          const lum = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+          if (lum < 65) {
+            rightPupilOffset += ex;
+            rightDarkFound++;
           }
         }
       }
-
-      const avgPupilOffset = pupilCount > 0 ? (pupilSumX / pupilCount) : 0;
-      const eyeSpread = width * 0.13;
-      const keypoints: any[] = [];
-      for (let i = 0; i < 478; i++) {
-        keypoints.push({ x: centerX, y: centerY, z: 0, name: `${i}` });
-      }
-
-      keypoints[33] = { x: centerX - eyeSpread - 15, y: centerY - height * 0.05, z: 0 };
-      keypoints[133] = { x: centerX - eyeSpread + 15, y: centerY - height * 0.05, z: 0 };
-      keypoints[468] = { x: centerX - eyeSpread + avgPupilOffset * 2, y: centerY - height * 0.05, z: 0 };
-
-      keypoints[362] = { x: centerX + eyeSpread - 15, y: centerY - height * 0.05, z: 0 };
-      keypoints[263] = { x: centerX + eyeSpread + 15, y: centerY - height * 0.05, z: 0 };
-      keypoints[473] = { x: centerX + eyeSpread + avgPupilOffset * 2, y: centerY - height * 0.05, z: 0 };
-
-      keypoints[159] = { x: centerX - eyeSpread, y: centerY - height * 0.05 - 8, z: 0 };
-      keypoints[145] = { x: centerX - eyeSpread, y: centerY - height * 0.05 + 8, z: 0 };
-      keypoints[386] = { x: centerX + eyeSpread, y: centerY - height * 0.05 - 8, z: 0 };
-      keypoints[374] = { x: centerX + eyeSpread, y: centerY - height * 0.05 + 8, z: 0 };
-
-      keypoints[1] = { x: centerX, y: centerY + height * 0.03, z: 0 };
-      keypoints[10] = { x: centerX, y: centerY - height * 0.20, z: 0 };
-      keypoints[175] = { x: centerX, y: centerY + height * 0.20, z: 0 };
-      keypoints[234] = { x: centerX - eyeSpread * 1.5, y: centerY + height * 0.03, z: 0 };
-      keypoints[454] = { x: centerX + eyeSpread * 1.5, y: centerY + height * 0.03, z: 0 };
-
-      return [{
-        keypoints,
-        avgPupilOffset,
-        normCenterX,
-        normCenterY
-      }];
     }
-  } catch (e) {
-    // Ignore canvas errors
-  }
 
-  return [];
+    const avgPupilOffset = (leftDarkFound > 0 && rightDarkFound > 0)
+      ? ((leftPupilOffset / leftDarkFound) + (rightPupilOffset / rightDarkFound)) / 2
+      : (leftDarkFound > 0 ? (leftPupilOffset / leftDarkFound) : (rightDarkFound > 0 ? (rightPupilOffset / rightDarkFound) : 0));
+
+    const eyeSpread = (faceWidth / 160) * width * 0.28;
+    const keypoints: any[] = [];
+    for (let i = 0; i < 478; i++) {
+      keypoints.push({ x: centerX, y: centerY, z: 0, name: `${i}` });
+    }
+
+    keypoints[33] = { x: centerX - eyeSpread - 15, y: centerY - height * 0.05, z: 0 };
+    keypoints[133] = { x: centerX - eyeSpread + 15, y: centerY - height * 0.05, z: 0 };
+    keypoints[468] = { x: centerX - eyeSpread + avgPupilOffset * 2.5, y: centerY - height * 0.05, z: 0 };
+
+    keypoints[362] = { x: centerX + eyeSpread - 15, y: centerY - height * 0.05, z: 0 };
+    keypoints[263] = { x: centerX + eyeSpread + 15, y: centerY - height * 0.05, z: 0 };
+    keypoints[473] = { x: centerX + eyeSpread + avgPupilOffset * 2.5, y: centerY - height * 0.05, z: 0 };
+
+    keypoints[159] = { x: centerX - eyeSpread, y: centerY - height * 0.05 - 8, z: 0 };
+    keypoints[145] = { x: centerX - eyeSpread, y: centerY - height * 0.05 + 8, z: 0 };
+    keypoints[386] = { x: centerX + eyeSpread, y: centerY - height * 0.05 - 8, z: 0 };
+    keypoints[374] = { x: centerX + eyeSpread, y: centerY - height * 0.05 + 8, z: 0 };
+
+    keypoints[1] = { x: centerX, y: centerY + height * 0.02, z: 0 };
+    keypoints[10] = { x: centerX, y: centerY - faceHeight * 0.5 * (height / 120), z: 0 };
+    keypoints[175] = { x: centerX, y: centerY + faceHeight * 0.5 * (height / 120), z: 0 };
+    keypoints[234] = { x: centerX - eyeSpread * 1.4, y: centerY + height * 0.02, z: 0 };
+    keypoints[454] = { x: centerX + eyeSpread * 1.4, y: centerY + height * 0.02, z: 0 };
+
+    return [{
+      keypoints,
+      avgPupilOffset,
+      normCenterX,
+      normCenterY
+    }];
+  } catch {
+    return [];
+  }
 }
 
 export async function detectFaces(video: HTMLVideoElement) {
@@ -200,8 +252,59 @@ export async function detectFaces(video: HTMLVideoElement) {
     return [];
   }
 
+  // 1. Try Native Browser FaceDetector if available (instant 60fps hardware acceleration)
+  if (nativeDetector) {
+    try {
+      const detected = await nativeDetector.detect(video);
+      if (detected && detected.length > 0) {
+        const f = detected[0];
+        const box = f.boundingBox;
+        const cx = box.x + box.width / 2;
+        const cy = box.y + box.height / 2;
+        const normY = cy / videoHeight;
+        
+        // Out of frame check
+        if (normY > 0.72 || normY < 0.12) {
+          return [];
+        }
+
+        const eyeSpread = box.width * 0.24;
+        const keypoints: any[] = [];
+        for (let i = 0; i < 478; i++) {
+          keypoints.push({ x: cx, y: cy, z: 0, name: `${i}` });
+        }
+
+        keypoints[33] = { x: cx - eyeSpread - 12, y: cy - box.height * 0.12, z: 0 };
+        keypoints[133] = { x: cx - eyeSpread + 12, y: cy - box.height * 0.12, z: 0 };
+        keypoints[468] = { x: cx - eyeSpread, y: cy - box.height * 0.12, z: 0 };
+
+        keypoints[362] = { x: cx + eyeSpread - 12, y: cy - box.height * 0.12, z: 0 };
+        keypoints[263] = { x: cx + eyeSpread + 12, y: cy - box.height * 0.12, z: 0 };
+        keypoints[473] = { x: cx + eyeSpread, y: cy - box.height * 0.12, z: 0 };
+
+        keypoints[1] = { x: cx, y: cy, z: 0 };
+        keypoints[10] = { x: cx, y: box.y, z: 0 };
+        keypoints[175] = { x: cx, y: box.y + box.height, z: 0 };
+        keypoints[234] = { x: box.x, y: cy, z: 0 };
+        keypoints[454] = { x: box.x + box.width, y: cy, z: 0 };
+
+        return [{
+          keypoints,
+          avgPupilOffset: 0,
+          normCenterX: cx / videoWidth,
+          normCenterY: normY
+        }];
+      } else {
+        // Native detector found 0 faces
+        return [];
+      }
+    } catch {
+      // Fall through to MediaPipe / Canvas
+    }
+  }
+
   const now = Date.now();
-  if (isProcessing && (now - lastProcessTime > 300)) {
+  if (isProcessing && (now - lastProcessTime > 400)) {
     isProcessing = false;
   }
 
@@ -222,7 +325,7 @@ export async function detectFaces(video: HTMLVideoElement) {
         const timeout = setTimeout(() => {
           isProcessing = false;
           resolve(analyzePupilAndCanvas(video));
-        }, 180);
+        }, 350);
 
         faceMesh.onResults((res: any) => {
           clearTimeout(timeout);
@@ -238,7 +341,8 @@ export async function detectFaces(video: HTMLVideoElement) {
             }));
             resolve(faces);
           } else {
-            resolve(analyzePupilAndCanvas(video));
+            // MediaPipe explicitly confirmed 0 faces in frame
+            resolve([]);
           }
         });
 
@@ -250,7 +354,7 @@ export async function detectFaces(video: HTMLVideoElement) {
       });
 
       return results;
-    } catch (e) {
+    } catch {
       isProcessing = false;
       return analyzePupilAndCanvas(video);
     }
@@ -279,7 +383,7 @@ export function analyzeFace(faces: any[], videoElement?: HTMLVideoElement): Face
     hasEyeContact: false,
     gazeScore: 0,
     isInFrame: false,
-    position: "center",
+    position: "too-far",
     headTilt: "straight",
     gazeDetail: "looking-down",
   };
@@ -305,14 +409,7 @@ export function analyzeFace(faces: any[], videoElement?: HTMLVideoElement): Face
   const leftEyeBottom = keypoints[145];
 
   if (!leftEyeOuter || !rightEyeOuter || !noseTip) {
-    return {
-      hasEyeContact: false,
-      gazeScore: 0,
-      isInFrame: false,
-      position: "center",
-      headTilt: "straight",
-      gazeDetail: "looking-down",
-    };
+    return defaultResult;
   }
 
   const eyeCenterX = (leftEyeOuter.x + rightEyeOuter.x) / 2;
@@ -323,19 +420,31 @@ export function analyzeFace(faces: any[], videoElement?: HTMLVideoElement): Face
   const normEyeDistance = eyeDistance / (videoWidth || 1);
   const vertAlign = (rightEyeOuter.y - leftEyeOuter.y) / (videoHeight || 1);
 
+  // Out of frame / edge cutting detection
+  if (normCenterY > 0.70 || normCenterY < 0.12 || normCenterX < 0.12 || normCenterX > 0.88) {
+    return {
+      hasEyeContact: false,
+      gazeScore: 0,
+      isInFrame: false,
+      position: normCenterY > 0.70 ? "too-far" : (normCenterX < 0.12 ? "left" : "right"),
+      headTilt: normCenterY > 0.70 ? "down" : "straight",
+      gazeDetail: "looking-down",
+    };
+  }
+
   // Natural head positioning
   let position: FaceAnalysis["position"] = "center";
   if (normEyeDistance < 0.04) position = "too-far";
   else if (normEyeDistance > 0.45) position = "too-close";
-  else if (normCenterX < 0.20) position = "left";
-  else if (normCenterX > 0.80) position = "right";
+  else if (normCenterX < 0.25) position = "left";
+  else if (normCenterX > 0.75) position = "right";
 
   let headTilt: FaceAnalysis["headTilt"] = "straight";
   if (Math.abs(vertAlign) > 0.08) {
     headTilt = vertAlign > 0 ? "right" : "left";
-  } else if (normCenterY < 0.20) {
+  } else if (normCenterY < 0.22) {
     headTilt = "up";
-  } else if (normCenterY > 0.58) {
+  } else if (normCenterY > 0.54) {
     headTilt = "down";
   }
 
@@ -358,7 +467,7 @@ export function analyzeFace(faces: any[], videoElement?: HTMLVideoElement): Face
 
     // Continuous Real-Time Iris Centering Score (0-100)
     const irisDev = Math.abs(avgIrisRatio - 0.50);
-    const horizScore = Math.max(0, Math.min(100, Math.round((1 - (irisDev / 0.25)) * 100)));
+    const horizScore = Math.max(0, Math.min(100, Math.round((1 - (irisDev / 0.22)) * 100)));
 
     // Vertical Eyelid / Pupil Ratio
     let vertScore = 90;
@@ -366,53 +475,53 @@ export function analyzeFace(faces: any[], videoElement?: HTMLVideoElement): Face
       const eyeH = Math.abs(leftEyeBottom.y - leftEyeTop.y) || 1;
       const vertRatio = (leftIris.y - leftEyeTop.y) / eyeH;
       const vertDev = Math.abs(vertRatio - 0.50);
-      vertScore = Math.max(0, Math.min(100, Math.round((1 - (vertDev / 0.30)) * 100)));
+      vertScore = Math.max(0, Math.min(100, Math.round((1 - (vertDev / 0.28)) * 100)));
     }
 
     // Head Yaw Penalty
-    const yawPenalty = Math.min(Math.max((yawRatio - 1.20) * 50, 0), 50);
+    const yawPenalty = Math.min(Math.max((yawRatio - 1.15) * 50, 0), 50);
 
     // Composite Real-time Gaze Metric
     gazeScore = Math.round((horizScore * 0.65 + vertScore * 0.35) - yawPenalty);
     gazeScore = Math.max(10, Math.min(98, gazeScore));
 
-    if (avgIrisRatio < 0.32 || yawRatio > 1.60) {
+    if (avgIrisRatio < 0.32 || yawRatio > 1.55) {
       gazeDetail = "looking-left";
       hasEyeContact = false;
     } else if (avgIrisRatio > 0.68) {
       gazeDetail = "looking-right";
       hasEyeContact = false;
-    } else if (normCenterY > 0.58) {
+    } else if (normCenterY > 0.54) {
       gazeDetail = "looking-down";
       hasEyeContact = false;
-    } else if (normCenterY < 0.18) {
+    } else if (normCenterY < 0.20) {
       gazeDetail = "looking-up";
       hasEyeContact = false;
     } else {
       gazeDetail = "centered";
-      hasEyeContact = gazeScore >= 55;
+      hasEyeContact = gazeScore >= 60;
     }
   } else if (typeof face.avgPupilOffset === 'number') {
     const pupilOffset = face.avgPupilOffset;
     const dev = Math.abs(pupilOffset);
-    gazeScore = Math.round(Math.max(15, Math.min(95, (1 - Math.min(dev / 4.0, 1)) * 80 + 15)));
+    gazeScore = Math.round(Math.max(15, Math.min(95, (1 - Math.min(dev / 3.5, 1)) * 80 + 15)));
 
-    if (pupilOffset < -3.0) {
+    if (pupilOffset < -2.5) {
       gazeDetail = "looking-left";
       hasEyeContact = false;
-    } else if (pupilOffset > 3.0) {
+    } else if (pupilOffset > 2.5) {
       gazeDetail = "looking-right";
       hasEyeContact = false;
-    } else if (normCenterY > 0.58) {
+    } else if (normCenterY > 0.54) {
       gazeDetail = "looking-down";
       hasEyeContact = false;
     } else {
       gazeDetail = "centered";
-      hasEyeContact = gazeScore >= 50 && normCenterX >= 0.20 && normCenterX <= 0.80;
+      hasEyeContact = gazeScore >= 55 && normCenterX >= 0.25 && normCenterX <= 0.75;
     }
   } else {
-    const isCentered = normCenterX >= 0.25 && normCenterX <= 0.75 && normCenterY >= 0.20 && normCenterY <= 0.56;
-    gazeScore = isCentered ? 82 : 30;
+    const isCentered = normCenterX >= 0.25 && normCenterX <= 0.75 && normCenterY >= 0.20 && normCenterY <= 0.52;
+    gazeScore = isCentered ? 85 : 25;
     hasEyeContact = isCentered;
   }
 

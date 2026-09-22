@@ -189,91 +189,258 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
   const { upgrades, hasDetectedWords } = useMemo(() => {
     const list: { from: string; to: string; explanation: string; isDetected: boolean }[] = [];
     const text = (transcript || '').toLowerCase();
+    const cleanTopic = (topic || '').toLowerCase();
 
+    // 1. Comprehensive library of candidate speech, ESL patterns, and corporate upgrades
     const vocabularyBank = [
+      // --- Self-Introduction & Background ---
       {
-        pattern: /\b(did work|worked on|worked in|worked|did coding|coded|did work)\b/i,
-        from: "worked on / did work",
-        to: "architected / spearheaded / implemented",
-        explanation: "Conveys direct engineering ownership rather than passive participation."
+        pattern: /\b(myself|my name is|i am)\b/i,
+        from: "Myself [Name] / My name is",
+        to: "I am [Name], a final-year engineer specializing in...",
+        explanation: "Corrects the colloquial 'Myself...' error to standard corporate introduction.",
+        category: "intro"
+      },
+      {
+        pattern: /\b(passout|passed out|pass out|fresher)\b/i,
+        from: "passout / fresher candidate",
+        to: "recent graduate / early-career engineer",
+        explanation: "Replaces outdated campus slang with globally recognized recruitment terms.",
+        category: "intro"
+      },
+      {
+        pattern: /\b(knowledge of|know about|learned about|learning)\b/i,
+        from: "I have knowledge of / know about",
+        to: "I have hands-on proficiency & specialized depth in",
+        explanation: "Elevates passive bookish knowledge to active engineering execution.",
+        category: "intro"
+      },
+      {
+        pattern: /\b(my hobbies are|i like to play|free time|in my free time)\b/i,
+        from: "my hobbies are / in free time",
+        to: "Beyond core academics, I actively cultivate",
+        explanation: "Frames personal interests as disciplined co-curricular initiatives.",
+        category: "intro"
+      },
+      {
+        pattern: /\b(hardworking|do hard work|hard work|work hard)\b/i,
+        from: "hardworking person / do hard work",
+        to: "demonstrate high execution rigor & ownership",
+        explanation: "Replaces generic buzzwords with measurable professional competencies.",
+        category: "hr"
+      },
+      {
+        pattern: /\b(want this job|want to join|want to work in your company)\b/i,
+        from: "want to join your company",
+        to: "am eager to contribute to your core engineering roadmap",
+        explanation: "Demonstrates strategic alignment with the organization's business impact.",
+        category: "hr"
+      },
+      {
+        pattern: /\b(in my college|during my college|in our college)\b/i,
+        from: "in my college / during college",
+        to: "throughout my undergraduate coursework & capstone labs",
+        explanation: "Formalizes campus references into structured academic credentials.",
+        category: "hr"
+      },
+
+      // --- Common Indian English / ESL Colloquialisms ---
+      {
+        pattern: /\b(cope up|cope up with)\b/i,
+        from: "cope up with",
+        to: "adapt seamlessly to / manage effectively",
+        explanation: "Corrects the common Indian ESL redundancy 'cope up with'.",
+        category: "esl"
+      },
+      {
+        pattern: /\b(give exam|give interview|giving interview)\b/i,
+        from: "give an interview / give exam",
+        to: "appear for an assessment / take an interview",
+        explanation: "Standardizes the literal Hindi-to-English translation ('interview dena').",
+        category: "esl"
+      },
+      {
+        pattern: /\b(revert back|revert)\b/i,
+        from: "revert back",
+        to: "respond / follow up with updates",
+        explanation: "Replaces the redundant Indian corporate phrase 'revert back'.",
+        category: "esl"
+      },
+      {
+        pattern: /\b(doubt|have a doubt|i have doubt)\b/i,
+        from: "I have a doubt",
+        to: "I would like clarification on / I have a question regarding",
+        explanation: "Uses positive, inquiry-driven language rather than expressing doubt.",
+        category: "esl"
+      },
+      {
+        pattern: /\b(tell about|explain about|discuss about)\b/i,
+        from: "tell about / discuss about",
+        to: "walk through / analyze the details of",
+        explanation: "Removes unnecessary preposition 'about' after transitive verbs.",
+        category: "esl"
+      },
+
+      // --- Technical & Project Defense ---
+      {
+        pattern: /\b(made a project|did a project|our project is|my project is|built a project)\b/i,
+        from: "made a project / our project is",
+        to: "architected a capstone engineering initiative designed to",
+        explanation: "Conveys system architecture ownership rather than academic assignment completion.",
+        category: "tech"
+      },
+      {
+        pattern: /\b(made a website|made an app|built a website|built an app|created website)\b/i,
+        from: "made a website / app",
+        to: "engineered and deployed a full-stack platform",
+        explanation: "Emphasizes end-to-end software development lifecycle standards.",
+        category: "tech"
+      },
+      {
+        pattern: /\b(used database|stored data|in mysql|in mongodb|in database)\b/i,
+        from: "used database / stored data",
+        to: "designed optimized relational schemas & indexed queries",
+        explanation: "Demonstrates database design and query efficiency.",
+        category: "tech"
+      },
+      {
+        pattern: /\b(used api|connected api|call api|calling api)\b/i,
+        from: "used API / connected API",
+        to: "integrated asynchronous RESTful endpoints & microservices",
+        explanation: "Demonstrates backend architectural clarity.",
+        category: "tech"
+      },
+      {
+        pattern: /\b(fixed the bug|fixed the issue|solved the error|fixed error|solved it)\b/i,
+        from: "fixed the bug / solved the error",
+        to: "diagnosed root-cause and deployed remediation patches",
+        explanation: "Reflects professional debugging methodology and RCA depth.",
+        category: "tech"
+      },
+      {
+        pattern: /\b(it was slow|speed problem|lagging|very slow)\b/i,
+        from: "it was slow / speed issue",
+        to: "encountered latency bottlenecks under concurrent load",
+        explanation: "Quantifies performance hurdles with industry standard terminology.",
+        category: "tech"
+      },
+      {
+        pattern: /\b(tested it|checked it|did testing)\b/i,
+        from: "tested it / checked it",
+        to: "conducted unit & end-to-end integration validation",
+        explanation: "Highlights software testing discipline and QA standards.",
+        category: "tech"
+      },
+      {
+        pattern: /\b(with my friends|team members|in team|with group)\b/i,
+        from: "with my friends / in team",
+        to: "in an Agile sprint with cross-functional peer engineers",
+        explanation: "Highlights collaborative engineering teamwork.",
+        category: "tech"
+      },
+
+      // --- Group Discussion, Pitching & General Articulation ---
+      {
+        pattern: /\b(i think|i feel that|in my opinion|i guess|maybe)\b/i,
+        from: "I think / I feel / maybe",
+        to: "Empirical data indicates / From a strategic perspective",
+        explanation: "Projects assertive conviction and evidence-backed reasoning.",
+        category: "gd"
+      },
+      {
+        pattern: /\b(agree with you|same point|i agree)\b/i,
+        from: "I agree with you / same point",
+        to: "I concur with that assessment and would build upon it by",
+        explanation: "Demonstrates executive active listening and turn-taking in GDs.",
+        category: "gd"
+      },
+      {
+        pattern: /\b(dont agree|i disagree|you are wrong|wrong)\b/i,
+        from: "I don't agree / you are wrong",
+        to: "I offer an alternative perspective considering...",
+        explanation: "Maintains professional diplomacy and composure during debates.",
+        category: "gd"
+      },
+      {
+        pattern: /\b(pros and cons|good and bad|advantages and disadvantages)\b/i,
+        from: "pros and cons / good and bad",
+        to: "architectural trade-offs & strategic implications",
+        explanation: "Elevates conversational speech to board-level analytical framing.",
+        category: "gd"
+      },
+      {
+        pattern: /\b(in the end|lastly|at last|final point)\b/i,
+        from: "in the end / lastly",
+        to: "In synthesis / To summarize our actionable takeaways",
+        explanation: "Delivers crisp, definitive closing statements.",
+        category: "gd"
+      },
+      {
+        pattern: /\b(very good|really good|nice work|great)\b/i,
+        from: "very good / really great",
+        to: "highly scalable / quantitatively impactful",
+        explanation: "Replaces vague subjective compliments with measurable value.",
+        category: "general"
       },
       {
         pattern: /\b(big problem|huge problem|hard thing|trouble|difficult)\b/i,
         from: "big problem / hard thing",
         to: "critical operational bottleneck",
-        explanation: "Frames challenges as objective engineering problems with professional composure."
+        explanation: "Frames challenges as objective engineering hurdles.",
+        category: "general"
       },
       {
-        pattern: /\b(very good|really good|nice|great work|good job)\b/i,
-        from: "very good / great",
-        to: "high-throughput / highly impactful",
-        explanation: "Quantifies results with measurable business impact."
-      },
-      {
-        pattern: /\b(told them|told my team|said to them|talked to them)\b/i,
-        from: "told them / said",
-        to: "aligned cross-functional stakeholders",
-        explanation: "Demonstrates managerial empathy and executive communication."
-      },
-      {
-        pattern: /\b(made it fast|very fast|speed up|faster)\b/i,
-        from: "made it fast / speed up",
-        to: "optimized algorithmic latency",
-        explanation: "Highlights exact technical depth and performance metrics."
-      },
-      {
-        pattern: /\b(i think that|i feel that|maybe|i guess)\b/i,
-        from: "I think that / maybe",
-        to: "Empirical data indicates that",
-        explanation: "Eliminates hesitant fillers and projects assertive conviction."
-      },
-      {
-        pattern: /\b(trying to|tried to|wanted to)\b/i,
-        from: "trying to / wanted to",
-        to: "initiated / drove the roadmap to",
-        explanation: "Replaces tentative effort with proactive leadership."
-      },
-      {
-        pattern: /\b(fixed the bug|fixed the issue|solved it)\b/i,
-        from: "fixed the bug / solved it",
-        to: "diagnosed root-cause & deployed remediation",
-        explanation: "Describes the complete diagnostic and resolution lifecycle."
-      },
-      {
-        pattern: /\b(lots of|a lot of|many things)\b/i,
+        pattern: /\b(lots of|a lot of|many things|so many)\b/i,
         from: "lots of / a lot of",
         to: "a comprehensive suite of / substantial volume of",
-        explanation: "Elevates informal quantity to formal vocabulary."
-      },
-      {
-        pattern: /\b(help them|helped people|helped users)\b/i,
-        from: "helped users",
-        to: "empowered end-users / streamlined workflows",
-        explanation: "Frames user impact through direct product value."
+        explanation: "Elevates informal quantity to formal executive vocabulary.",
+        category: "general"
       }
     ];
 
+    // 2. Scan transcript for direct spoken matches
     let foundCount = 0;
-    vocabularyBank.forEach(item => {
-      if (item.pattern.test(text)) {
-        list.push({ ...item, isDetected: true });
-        foundCount++;
-      }
-    });
+    if (text.length > 0) {
+      vocabularyBank.forEach(item => {
+        if (item.pattern.test(text) && !list.some(existing => existing.from === item.from)) {
+          list.push({ from: item.from, to: item.to, explanation: item.explanation, isDetected: true });
+          foundCount++;
+        }
+      });
+    }
 
     const isDetected = foundCount > 0;
 
-    // If fewer than 4 matched from actual speech, add situational upgrades
+    // 3. If fewer than 4 matched, dynamically fill with Scenario-Specific Upgrades
     if (list.length < 4) {
+      let targetCategory = "intro";
+      if (cleanTopic.includes('tech') || cleanTopic.includes('viva') || cleanTopic.includes('code') || cleanTopic.includes('project')) {
+        targetCategory = "tech";
+      } else if (cleanTopic.includes('gd') || cleanTopic.includes('debate') || cleanTopic.includes('discussion')) {
+        targetCategory = "gd";
+      } else if (cleanTopic.includes('hr') || cleanTopic.includes('placement') || cleanTopic.includes('interview')) {
+        targetCategory = "hr";
+      }
+
+      // First add category-matching items
+      vocabularyBank
+        .filter(item => item.category === targetCategory)
+        .forEach(item => {
+          if (!list.some(existing => existing.from === item.from) && list.length < 4) {
+            list.push({ from: item.from, to: item.to, explanation: item.explanation, isDetected: false });
+          }
+        });
+
+      // Then fill any remaining from general bank
       vocabularyBank.forEach(item => {
         if (!list.some(existing => existing.from === item.from) && list.length < 4) {
-          list.push({ ...item, isDetected: false });
+          list.push({ from: item.from, to: item.to, explanation: item.explanation, isDetected: false });
         }
       });
     }
 
     return { upgrades: list.slice(0, 4), hasDetectedWords: isDetected };
-  }, [transcript]);
+  }, [transcript, topic]);
 
   return (
     <Card className="border border-border/60 shadow-xs bg-card">

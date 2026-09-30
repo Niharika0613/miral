@@ -1,4 +1,4 @@
-﻿# server-fastapi/storage.py
+# server-fastapi/storage.py
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from sqlalchemy.sql import desc
@@ -80,20 +80,22 @@ class DatabaseStorage:
         user_id: Optional[str],
         db: AsyncSession
     ) -> List[Session]:
-        """Get all sessions, optionally filtered by user"""
+        """Get all completed sessions, optionally filtered by user"""
         if user_id:
             return await self.get_user_sessions(user_id, db)
         
         result = await db.execute(
-            select(Session).order_by(desc(Session.created_at))
+            select(Session)
+            .where(Session.duration > 0)
+            .order_by(desc(Session.created_at))
         )
         return result.scalars().all()
     
     async def get_user_sessions(self, user_id: str, db: AsyncSession) -> List[Session]:
-        """Get all sessions for a specific user"""
+        """Get all completed sessions for a specific user"""
         result = await db.execute(
             select(Session)
-            .where(Session.user_id == user_id)
+            .where(Session.user_id == user_id, Session.duration > 0)
             .order_by(desc(Session.created_at))
         )
         return result.scalars().all()

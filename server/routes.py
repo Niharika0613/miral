@@ -208,8 +208,18 @@ async def create_session(
     Create new practice session with automatic SQLite fallback
     """
     async def _execute_create(session: AsyncSession):
+        if session_data.id:
+            existing = await storage.get_session(session_data.id, session)
+            if existing:
+                return existing
+            return await storage.create_session_with_id(
+                session_id=session_data.id,
+                topic=session_data.topic or 'Practice Session',
+                user_id=session_data.userId,
+                db=session
+            )
         return await storage.create_session(
-            topic=session_data.topic or 'Untitled Session',
+            topic=session_data.topic or 'Practice Session',
             user_id=session_data.userId,
             db=session
         )

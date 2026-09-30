@@ -94,18 +94,27 @@ export default function Practice() {
   const lookAwayCountRef = useRef(0);
   const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Speech Recognition Stream
+  // Speech Recognition Stream & Mobile Mic Handler
   const startAudioStream = useCallback(() => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setIsAudioStreaming(false);
       return;
     }
     
     try {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch {}
+      }
+
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      recognition.maxAlternatives = 1;
+      
+      // Auto-detect browser/regional English dialect
+      const userLang = navigator.language || 'en-US';
+      recognition.lang = userLang.toLowerCase().includes('in') ? 'en-IN' : 'en-US';
       
       recognition.onstart = () => {
         setIsAudioStreaming(true);
@@ -117,42 +126,64 @@ export default function Practice() {
           accumulated += event.results[i][0].transcript + ' ';
         }
         const trimmed = accumulated.trim();
-        setLiveTranscript(trimmed);
+        if (trimmed) {
+          setLiveTranscript(trimmed);
 
-        const words = trimmed.split(/\s+/).filter(Boolean);
-        const startTime = sessionStartTimeRef.current || Date.now();
-        const activeSeconds = Math.max(1, Math.round((Date.now() - startTime) / 1000));
-        
-        if (words.length > 0 && activeSeconds >= 2) {
-          const rawWpm = Math.round(words.length / (activeSeconds / 60));
-          setEstimatedWPM(Math.min(220, Math.max(40, rawWpm)));
-        } else if (words.length > 0) {
-          setEstimatedWPM(135);
+          const words = trimmed.split(/\s+/).filter(Boolean);
+          const startTime = sessionStartTimeRef.current || Date.now();
+          const activeSeconds = Math.max(1, Math.round((Date.now() - startTime) / 1000));
+          
+          if (words.length > 0 && activeSeconds >= 2) {
+            const rawWpm = Math.round(words.length / (activeSeconds / 60));
+            setEstimatedWPM(Math.min(220, Math.max(40, rawWpm)));
+          } else if (words.length > 0) {
+            setEstimatedWPM(135);
+          }
+
+          const fillerRules = [
+            /\b(um+|uh+|uhm+|er+|ah+|ahm+)\b/gi,
+            /\b(you know|i mean|kind of|sort of|at the end of the day)\b/gi,
+            /\b(basically|actually|literally|essentially)\b/gi,
+            /\b(matlab|yaani|aur kya|and all that)\b/gi,
+            /\b(like)\b/gi
+          ];
+          let count = 0;
+          fillerRules.forEach(pattern => {
+            const matches = trimmed.match(pattern);
+            if (matches) count += matches.length;
+          });
+          setFillerWordsCount(count);
         }
-
-        const fillerRules = [
-          /\b(um+|uh+|uhm+|er+|ah+|ahm+)\b/gi,
-          /\b(you know|i mean|kind of|sort of|at the end of the day)\b/gi,
-          /\b(basically|actually|literally|essentially)\b/gi,
-          /\b(matlab|yaani|aur kya|and all that)\b/gi,
-          /\b(like)\b/gi
-        ];
-        let count = 0;
-        fillerRules.forEach(pattern => {
-          const matches = trimmed.match(pattern);
-          if (matches) count += matches.length;
-        });
-        setFillerWordsCount(count);
       };
       
-      recognition.onerror = () => {};
+      recognition.onerror = (e: any) => {
+        // Silently handle transient errors on mobile (e.g. no-speech, network timeout)
+        if (isRecordingRef.current && e?.error !== 'not-allowed') {
+          setTimeout(() => {
+            if (isRecordingRef.current && recognitionRef.current) {
+              try { recognitionRef.current.start(); } catch {}
+            }
+          }, 200);
+        }
+      };
+
       recognition.onend = () => {
         if (isRecordingRef.current) {
-          try {
-            recognition.start();
-          } catch {
-            setIsAudioStreaming(false);
-          }
+          setTimeout(() => {
+            if (isRecordingRef.current) {
+              try {
+                recognition.start();
+                setIsAudioStreaming(true);
+              } catch {
+                // If restart fails, retry once more
+                setTimeout(() => {
+                  if (isRecordingRef.current) {
+                    try { recognition.start(); } catch {}
+                  }
+                }, 400);
+              }
+            }
+          }, 100);
         } else {
           setIsAudioStreaming(false);
         }

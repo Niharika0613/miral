@@ -1,4 +1,4 @@
-﻿# server-fastapi/schemas.py
+# server-fastapi/schemas.py
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -49,7 +49,8 @@ class FeedbackResponse(BaseModel):
 
 # Session schemas
 class SessionCreate(BaseModel):
-    topic: str
+    id: Optional[str] = None
+    topic: Optional[str] = 'Practice Session'
     userId: Optional[str] = None
 
 class SessionResponse(BaseModel):

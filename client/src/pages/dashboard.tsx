@@ -63,19 +63,23 @@ export default function Dashboard() {
   });
 
   const sessionsList = useMemo(() => {
-    const apiList = Array.isArray(sessions) ? sessions : [];
-    let localList: any[] = [];
+    const rawApiList = Array.isArray(sessions) ? sessions : [];
+    let rawLocalList: any[] = [];
     try {
       const stored = localStorage.getItem('miral_completed_sessions');
-      localList = stored ? JSON.parse(stored) : [];
-      if (!Array.isArray(localList)) localList = [];
+      rawLocalList = stored ? JSON.parse(stored) : [];
+      if (!Array.isArray(rawLocalList)) rawLocalList = [];
     } catch {
-      localList = [];
+      rawLocalList = [];
     }
+
+    // Filter out uncompleted/0-sec ghost attempts
+    const validApiList = rawApiList.filter((s: any) => getDuration(s) > 0);
+    const validLocalList = rawLocalList.filter((s: any) => getDuration(s) > 0);
     
     // Merge both, deduplicate by session ID, latest first
     const map = new Map<string, any>();
-    [...apiList, ...localList].forEach((item) => {
+    [...validApiList, ...validLocalList].forEach((item) => {
       if (item && item.id && !map.has(item.id)) {
         map.set(item.id, item);
       }

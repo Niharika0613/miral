@@ -169,6 +169,10 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
+                  <span><strong>Full Access to All Certified Coach Masterclasses</strong> in Learn Hub</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-primary shrink-0" />
                   <span><strong>Verified Placement Readiness Certificate (PDF)</strong> with QR Code</span>
                 </li>
               </ul>

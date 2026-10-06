@@ -132,7 +132,7 @@ export default function Home() {
       id: 'practice' as const,
       label: 'Live Practice Studio',
       icon: Video,
-      image: '/images/practice-preview-v2.png',
+      image: '/images/practice-preview-v3.png',
       badge: 'Real-Time In-Browser Feedback',
       heading: 'Live Eye Gaze, Posture & Transcript Analysis',
       description: 'Practice directly on camera. Miral calculates your real-time eye gaze percentage, upright posture stability, speaking tempo (WPM), and live speech transcript with 100% in-browser WebAssembly.'
@@ -141,7 +141,7 @@ export default function Home() {
       id: 'scenarios' as const,
       label: 'Curated Scenarios',
       icon: Compass,
-      image: '/images/scenarios-preview-v2.png',
+      image: '/images/scenarios-preview-v3.png',
       badge: '100+ Pre-Built Prompts',
       heading: '1-Click Launch Across Placement & Speaking Tracks',
       description: 'Choose from Campus HR rounds, Technical Project Defenses, Group Discussions, and MUN Debates. Each track comes with curated questions and benchmark focus targets.'
@@ -150,7 +150,7 @@ export default function Home() {
       id: 'dashboard' as const,
       label: 'Analytics Dashboard',
       icon: BarChart3,
-      image: '/images/dashboard-preview-v2.png',
+      image: '/images/dashboard-preview-v3.png',
       badge: 'Personalized Scorecard',
       heading: 'Comparative Analytics: Baseline vs Current Session',
       description: 'Review your total practice sessions, composite confidence score (0-100), time invested, and comparative improvements across eye contact, posture, and pacing.'
@@ -159,7 +159,7 @@ export default function Home() {
       id: 'trajectory' as const,
       label: 'Session Trajectory Curve',
       icon: TrendingUp,
-      image: '/images/trajectory-preview-v2.png',
+      image: '/images/trajectory-preview-v3.png',
       badge: 'Progress Visualization',
       heading: 'Historical Multi-Metric Improvement Trajectory',
       description: 'Visualize your progress over time with interactive growth curves tracking your eye contact stability and composite confidence across all completed mock sessions.'

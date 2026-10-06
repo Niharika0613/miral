@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 import { Mail, MessageSquare, Building2, Send, CheckCircle2, ShieldCheck, HelpCircle, Loader2 } from 'lucide-react';
 
 export default function Contact() {

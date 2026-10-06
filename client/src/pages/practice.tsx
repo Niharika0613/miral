@@ -301,31 +301,31 @@ export default function Practice() {
           setCurrentPosture(faceAnalysis.isInFrame ? posture.posture : 'unknown');
           setPostureScore(faceAnalysis.isInFrame ? posture.confidence : 0);
 
-          // Real-time On-Screen Cues
-          if (isRecording) {
-            if (!faceAnalysis.isInFrame) {
-              lookAwayCountRef.current += 1;
-              if (lookAwayCountRef.current >= 4 && !showSuggestion) {
-                setSuggestionMessage('Position your face inside the camera view');
-                setShowSuggestion(true);
-                if (suggestionTimeoutRef.current) clearTimeout(suggestionTimeoutRef.current);
-                suggestionTimeoutRef.current = setTimeout(() => setShowSuggestion(false), 3000);
-              }
-            } else if (!hasEyeContact) {
-              lookAwayCountRef.current += 1;
-              if (lookAwayCountRef.current >= 6 && !showSuggestion) {
-                let msg = 'Direct your gaze towards the camera lens';
-                if (faceAnalysis.headTilt === 'down') msg = 'Elevate chin slightly towards camera';
-                else if (faceAnalysis.headTilt === 'up') msg = 'Look directly at camera lens';
-
-                setSuggestionMessage(msg);
-                setShowSuggestion(true);
-                if (suggestionTimeoutRef.current) clearTimeout(suggestionTimeoutRef.current);
-                suggestionTimeoutRef.current = setTimeout(() => setShowSuggestion(false), 3000);
-              }
+          // Real-time On-Screen Visual Coaching Cues
+          let activeHint = '';
+          if (!faceAnalysis.isInFrame) {
+            activeHint = 'Position your face inside the camera view';
+          } else if (!hasEyeContact) {
+            if (faceAnalysis.headTilt === 'down') {
+              activeHint = 'Elevate chin slightly & look at the camera lens';
+            } else if (faceAnalysis.headTilt === 'up') {
+              activeHint = 'Level your head & look directly into the camera';
+            } else if (faceAnalysis.position === 'left' || faceAnalysis.position === 'right') {
+              activeHint = 'Center your face in front of the camera';
             } else {
-              lookAwayCountRef.current = 0;
+              activeHint = 'Direct your gaze towards the camera lens';
             }
+          } else if (posture.posture === 'slouching') {
+            activeHint = 'Sit upright & roll your shoulders back';
+          } else if (posture.posture === 'leaning') {
+            activeHint = 'Align posture centered with camera';
+          }
+
+          if (activeHint) {
+            setSuggestionMessage(activeHint);
+            setShowSuggestion(true);
+          } else {
+            setShowSuggestion(false);
           }
         } catch {}
       }
@@ -749,11 +749,12 @@ export default function Practice() {
               className="w-full h-full object-contain"
             />
 
-            {/* Real-Time Eye Gaze Feedback Banner */}
-            {showSuggestion && isRecording && (
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-in slide-in-from-bottom duration-200 z-10">
-                <div className="bg-foreground/90 text-background text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg text-center backdrop-blur-sm">
-                  {suggestionMessage}
+            {/* Real-Time Live Visual Coaching Banner */}
+            {showSuggestion && suggestionMessage && (
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 animate-in slide-in-from-bottom duration-150 z-20 pointer-events-none max-w-[90%]">
+                <div className="bg-slate-900/95 text-white border border-white/20 text-xs font-semibold px-4 py-2 rounded-full shadow-2xl flex items-center gap-2 backdrop-blur-md">
+                  <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                  <span>{suggestionMessage}</span>
                 </div>
               </div>
             )}

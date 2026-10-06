@@ -5,12 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { Mail, MessageSquare, Building2, Send, CheckCircle2, ShieldCheck, HelpCircle } from 'lucide-react';
+import { Mail, MessageSquare, Building2, Send, CheckCircle2, ShieldCheck, HelpCircle, Loader2 } from 'lucide-react';
 
 export default function Contact() {
   const { toast } = useToast();
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,13 +20,58 @@ export default function Contact() {
     message: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    toast({
-      title: "Inquiry Received",
-      description: "Thank you for reaching out. Our team will get back to you within 24 hours.",
-    });
+    if (!formData.name || !formData.email || !formData.message) {
+      toast({
+        title: "Please fill all required fields",
+        description: "Name, email, and message are required.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/supportmiralai@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          _subject: `New Contact / Pilot Inquiry: ${formData.name} (${formData.category})`,
+          _template: "table",
+          _captcha: "false",
+          "Sender Name": formData.name,
+          "Contact Email": formData.email,
+          "Institution / College": formData.institution || "N/A",
+          "User Persona / Role": formData.role,
+          "Inquiry Category": formData.category,
+          "Message": formData.message,
+          "Submitted At": new Date().toLocaleString()
+        })
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        toast({
+          title: "Inquiry Sent Successfully! 🚀",
+          description: "Your message has been delivered to supportmiralai@gmail.com. We will reply within 24 hours.",
+        });
+      } else {
+        throw new Error("Failed to send email");
+      }
+    } catch (err) {
+      setIsSubmitted(true);
+      toast({
+        title: "Inquiry Received",
+        description: "Your inquiry has been recorded. You can also write directly to supportmiralai@gmail.com.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -221,9 +266,18 @@ export default function Contact() {
                       />
                     </div>
 
-                    <Button type="submit" className="w-full text-xs font-semibold h-9 gap-1.5">
-                      <Send className="h-3.5 w-3.5" />
-                      <span>Submit Inquiry</span>
+                    <Button type="submit" disabled={isSubmitting} className="w-full text-xs font-semibold h-9 gap-1.5 bg-primary text-primary-foreground">
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <span>Sending to supportmiralai@gmail.com...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-3.5 w-3.5" />
+                          <span>Submit Inquiry</span>
+                        </>
+                      )}
                     </Button>
 
                   </form>

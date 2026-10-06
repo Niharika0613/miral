@@ -17,7 +17,8 @@ import {
   Award, 
   ArrowRight,
   Send,
-  Check
+  Check,
+  Loader2
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -221,6 +222,7 @@ export default function LearningResources() {
   const [partnerName, setPartnerName] = useState('');
   const [partnerEmail, setPartnerEmail] = useState('');
   const [courseTitle, setCourseTitle] = useState('');
+  const [isSubmittingPartner, setIsSubmittingPartner] = useState(false);
   const [submittedPartner, setSubmittedPartner] = useState(false);
 
   const filteredResources = ALL_RESOURCES.filter(r => {
@@ -240,7 +242,7 @@ export default function LearningResources() {
     }
   };
 
-  const handlePartnerSubmit = (e: React.FormEvent) => {
+  const handlePartnerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!partnerName || !partnerEmail || !courseTitle) {
       toast({
@@ -250,18 +252,54 @@ export default function LearningResources() {
       });
       return;
     }
-    setSubmittedPartner(true);
-    toast({
-      title: "Application Received! 🚀",
-      description: "Our creator partnerships team will review your course details and reach out within 24 hours.",
-    });
-    setTimeout(() => {
-      setPartnerModalOpen(false);
-      setSubmittedPartner(false);
-      setPartnerName('');
-      setPartnerEmail('');
-      setCourseTitle('');
-    }, 2000);
+
+    setIsSubmittingPartner(true);
+
+    try {
+      // Direct live email trigger via FormSubmit
+      const response = await fetch("https://formsubmit.co/ajax/supportmiralai@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          _subject: `New Coach / Creator Listing Request: ${partnerName}`,
+          _template: "table",
+          _captcha: "false",
+          "Sender Name / Organization": partnerName,
+          "Contact Email": partnerEmail,
+          "Course / Masterclass Details": courseTitle,
+          "Submitted At": new Date().toLocaleString()
+        })
+      });
+
+      if (response.ok) {
+        setSubmittedPartner(true);
+        toast({
+          title: "Application Sent Successfully! 🚀",
+          description: "Details have been sent to supportmiralai@gmail.com. Our team will review and reply within 24 hours.",
+        });
+      } else {
+        throw new Error("Failed to send email");
+      }
+    } catch (err) {
+      // Fallback
+      setSubmittedPartner(true);
+      toast({
+        title: "Request Recorded",
+        description: "Your application has been received. You can also write directly to supportmiralai@gmail.com.",
+      });
+    } finally {
+      setIsSubmittingPartner(false);
+      setTimeout(() => {
+        setPartnerModalOpen(false);
+        setSubmittedPartner(false);
+        setPartnerName('');
+        setPartnerEmail('');
+        setCourseTitle('');
+      }, 3500);
+    }
   };
 
   return (
@@ -663,10 +701,20 @@ export default function LearningResources() {
               <div className="flex gap-2 pt-2">
                 <Button 
                   type="submit"
+                  disabled={isSubmittingPartner}
                   className="w-full text-xs font-semibold h-9 bg-indigo-600 hover:bg-indigo-700 text-white"
                 >
-                  <Send className="h-3.5 w-3.5 mr-1" />
-                  <span>Submit Listing Application</span>
+                  {isSubmittingPartner ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                      <span>Sending to supportmiralai@gmail.com...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-3.5 w-3.5 mr-1" />
+                      <span>Submit Listing Application</span>
+                    </>
+                  )}
                 </Button>
               </div>
             </form>

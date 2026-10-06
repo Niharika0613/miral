@@ -28,7 +28,9 @@ import {
   ChevronDown,
   ChevronRight,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  Layers,
+  Monitor
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -40,6 +42,9 @@ export default function Home() {
 
   // Selected Category / Scenario State
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState(0);
+
+  // Product Screenshot Showcase Tab
+  const [activePreviewTab, setActivePreviewTab] = useState<'practice' | 'scenarios' | 'dashboard' | 'trajectory'>('practice');
 
   // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -120,6 +125,47 @@ export default function Home() {
     sessionStorage.setItem('preferredTopic', cat.title);
     setLocation('/practice');
   };
+
+  const previewTabs = [
+    {
+      id: 'practice' as const,
+      label: 'Live Practice Studio',
+      icon: Video,
+      image: '/images/practice-preview.png',
+      badge: 'Real-Time In-Browser Feedback',
+      heading: 'Live Eye Gaze, Posture & Transcript Analysis',
+      description: 'Practice directly on camera. Miral calculates your real-time eye gaze percentage, upright posture stability, speaking tempo (WPM), and live speech transcript with 100% in-browser WebAssembly.'
+    },
+    {
+      id: 'scenarios' as const,
+      label: 'Curated Scenarios',
+      icon: Compass,
+      image: '/images/scenarios-preview.png',
+      badge: '100+ Pre-Built Prompts',
+      heading: '1-Click Launch Across Placement & Speaking Tracks',
+      description: 'Choose from Campus HR rounds, Technical Project Defenses, Group Discussions, and MUN Debates. Each track comes with curated questions and benchmark focus targets.'
+    },
+    {
+      id: 'dashboard' as const,
+      label: 'Analytics Dashboard',
+      icon: BarChart3,
+      image: '/images/dashboard-preview.png',
+      badge: 'Personalized Scorecard',
+      heading: 'Comparative Analytics: Baseline vs Current Session',
+      description: 'Review your total practice sessions, composite confidence score (0-100), time invested, and comparative improvements across eye contact, posture, and pacing.'
+    },
+    {
+      id: 'trajectory' as const,
+      label: 'Session Trajectory Curve',
+      icon: TrendingUp,
+      image: '/images/trajectory-preview.png',
+      badge: 'Progress Visualization',
+      heading: 'Historical Multi-Metric Improvement Trajectory',
+      description: 'Visualize your progress over time with interactive growth curves tracking your eye contact stability and composite confidence across all completed mock sessions.'
+    }
+  ];
+
+  const activePreview = previewTabs.find(t => t.id === activePreviewTab) || previewTabs[0];
 
   const faqs = [
     {
@@ -336,8 +382,109 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ===================== REAL PRODUCT APP PREVIEWS (Engaging & Visual) ===================== */}
+      <section className="py-10 sm:py-14 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-[#090b10]">
+        <div className="container max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
+          
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-3 py-0.5">
+              Inside Miral
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              See the actual practice studio in action.
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              Explore real screenshots of the practice studio, scenario libraries, and performance dashboards.
+            </p>
+          </div>
+
+          {/* Interactive Showcase Tabs */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {previewTabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activePreviewTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActivePreviewTab(tab.id)}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border ${
+                    isActive
+                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm'
+                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Showcase Display Card with Browser Chrome Frame */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0e1322] shadow-xl overflow-hidden text-left">
+            
+            {/* Top Window Bar */}
+            <div className="px-4 py-3 bg-slate-100/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1.5">
+                  <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                </div>
+                <span className="text-xs font-mono text-slate-500 ml-2">
+                  miral.app/{activePreviewTab}
+                </span>
+              </div>
+              <Badge variant="outline" className="border-indigo-200 dark:border-indigo-900 text-indigo-700 dark:text-indigo-300 text-[10px]">
+                {activePreview.badge}
+              </Badge>
+            </div>
+
+            {/* Main Screenshot & Description Grid */}
+            <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              
+              {/* Image Preview Container */}
+              <div className="lg:col-span-8 rounded-xl border border-slate-200/90 dark:border-slate-800/90 overflow-hidden shadow-sm bg-slate-950">
+                <img 
+                  src={activePreview.image} 
+                  alt={activePreview.heading} 
+                  className="w-full h-auto object-cover transform hover:scale-[1.01] transition-transform duration-300"
+                />
+              </div>
+
+              {/* Explanatory Details */}
+              <div className="lg:col-span-4 space-y-4">
+                <div className="space-y-1.5">
+                  <Badge variant="secondary" className="bg-indigo-100/70 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-mono">
+                    {activePreview.label}
+                  </Badge>
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-snug">
+                    {activePreview.heading}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {activePreview.description}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <Link href={activePreviewTab === 'scenarios' ? '/scenarios' : activePreviewTab === 'dashboard' ? '/dashboard' : '/practice'}>
+                    <Button size="sm" className="w-full text-xs font-semibold gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
+                      <span>Open {activePreview.label}</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
       {/* ===================== WHAT MIRAL ANALYZES IN REAL TIME ===================== */}
-      <section className="py-8 sm:py-12 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#0b0f19]">
+      <section className="py-8 sm:py-12 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
         <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           
           <div className="text-center max-w-2xl mx-auto mb-8 space-y-1.5">
@@ -352,7 +499,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
             
             {/* Feature 1 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
+            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
               <div className="h-9 w-9 rounded-lg bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 flex items-center justify-center">
                 <Eye className="h-4 w-4" />
               </div>
@@ -363,7 +510,7 @@ export default function Home() {
             </div>
 
             {/* Feature 2 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
+            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
               <div className="h-9 w-9 rounded-lg bg-violet-100 dark:bg-violet-500/15 text-violet-700 dark:text-violet-400 flex items-center justify-center">
                 <Activity className="h-4 w-4" />
               </div>
@@ -374,7 +521,7 @@ export default function Home() {
             </div>
 
             {/* Feature 3 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
+            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
               <div className="h-9 w-9 rounded-lg bg-cyan-100 dark:bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 flex items-center justify-center">
                 <Gauge className="h-4 w-4" />
               </div>
@@ -385,7 +532,7 @@ export default function Home() {
             </div>
 
             {/* Feature 4 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
+            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
               <div className="h-9 w-9 rounded-lg bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 flex items-center justify-center">
                 <FileText className="h-4 w-4" />
               </div>
@@ -401,7 +548,7 @@ export default function Home() {
       </section>
 
       {/* ===================== HOW IT WORKS (3 Simple Steps) ===================== */}
-      <section className="py-8 sm:py-12 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
+      <section className="py-8 sm:py-12 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#0b0f19]">
         <div className="container max-w-5xl mx-auto px-4 sm:px-6">
           
           <div className="text-center max-w-xl mx-auto mb-8 space-y-1.5">
@@ -416,7 +563,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
             
             {/* Step 1 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 p-5 space-y-2">
+            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-5 space-y-2">
               <div className="text-2xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">01</div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Pick a Scenario or Write a Script</h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -425,7 +572,7 @@ export default function Home() {
             </div>
 
             {/* Step 2 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 p-5 space-y-2">
+            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-5 space-y-2">
               <div className="text-2xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">02</div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Practice with Live Visual Cues</h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -434,7 +581,7 @@ export default function Home() {
             </div>
 
             {/* Step 3 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 p-5 space-y-2">
+            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-5 space-y-2">
               <div className="text-2xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">03</div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Review Diagnostic Scorecard</h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -448,7 +595,7 @@ export default function Home() {
       </section>
 
       {/* ===================== FAQ SECTION ===================== */}
-      <section className="py-8 sm:py-12 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#0b0f19]">
+      <section className="py-8 sm:py-12 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
         <div className="container max-w-3xl mx-auto px-4 sm:px-6">
           
           <div className="text-center mb-8 space-y-1.5">
@@ -466,7 +613,7 @@ export default function Home() {
               return (
                 <div 
                   key={idx}
-                  className="rounded-lg border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] overflow-hidden transition-all"
+                  className="rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-[#090b12] overflow-hidden transition-all"
                 >
                   <button
                     type="button"
@@ -490,7 +637,7 @@ export default function Home() {
       </section>
 
       {/* ===================== FINAL CALL TO ACTION ===================== */}
-      <section className="py-10 sm:py-14 bg-white dark:bg-[#0e1322] relative overflow-hidden">
+      <section className="py-10 sm:py-14 bg-slate-50/70 dark:bg-[#0b0f19] relative overflow-hidden">
         <div className="container max-w-3xl mx-auto px-4 sm:px-6">
           
           <div className="rounded-2xl border border-indigo-200 dark:border-indigo-500/30 bg-gradient-to-b from-indigo-50/80 via-white to-white dark:from-indigo-950/20 dark:via-[#0e1322] dark:to-[#0b0f19] p-6 sm:p-10 text-center space-y-4 shadow-sm">

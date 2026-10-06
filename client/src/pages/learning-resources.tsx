@@ -256,8 +256,8 @@ export default function LearningResources() {
     setIsSubmittingPartner(true);
 
     try {
-      // Direct live email trigger via FormSubmit
-      const response = await fetch("https://formsubmit.co/ajax/supportmiralai@gmail.com", {
+      // Direct live email trigger via FormSubmit (Masked Token)
+      const response = await fetch("https://formsubmit.co/ajax/97cf5e01e51923817bcd03ab487ad52a", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,5 @@
 // client/src/pages/report.tsx
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRoute, useLocation, Link } from 'wouter';
 import { 
@@ -71,7 +71,7 @@ function AICoachSection({ session }: AICoachSectionProps) {
       presenceText = `Your visual engagement was ${eye}% and posture was ${posture}%. During practice, your gaze frequently dropped and posture slouched. Elevate your laptop to eye level and look directly at the webcam lens.`;
       presenceStatus = "Gaze & Posture Focus";
     } else if (eye < 65) {
-      presenceText = `Holding eye contact forward towards your audience was at ${eye}%. In interviews and speeches, holding direct lens gaze establishes immediate trust and rapport.`;
+      presenceText = `Holding eye contact forward towards your audience was at ${eye}%. In presentations, speeches, and discussions, holding direct lens gaze establishes immediate trust and rapport.`;
       presenceStatus = "Gaze Focus Needed";
     } else {
       presenceText = `Good energy on "${topic}". Keep your spine erect and shoulders square (${posture}%) to reinforce non-verbal conviction throughout long explanations.`;
@@ -88,10 +88,10 @@ function AICoachSection({ session }: AICoachSectionProps) {
       deliveryText = `Optimal speaking cadence measured at ${wpm} WPM. This rate allows listeners to comfortably absorb ideas and complex arguments without fatigue.`;
       deliveryStatus = "Optimal Rhythm";
     } else if (wpm > 0 && wpm < 125) {
-      deliveryText = `Speaking rhythm was measured at ${wpm} WPM (deliberate / slow). Aim for 130–155 WPM in placement drives and debates by minimizing pauses between sentences.`;
+      deliveryText = `Speaking rhythm was measured at ${wpm} WPM (deliberate / slow). Aim for 130–155 WPM in competitive speaking, debates, and presentations by minimizing pauses between sentences.`;
       deliveryStatus = "Pacing Boost Needed";
     } else {
-      deliveryText = `You spoke rapidly at ${wpm} WPM. High energy is great, but use deliberate 1-second pauses before key takeaways so critical numbers and points sink in.`;
+      deliveryText = `You spoke rapidly at ${wpm} WPM. High energy is great, but use deliberate 1-second pauses before key takeaways so critical arguments and ideas sink in.`;
       deliveryStatus = "Pacing Control";
     }
 
@@ -114,17 +114,20 @@ function AICoachSection({ session }: AICoachSectionProps) {
     let strategyStatus = "Core Delivery Technique";
     const lowerTopic = topic.toLowerCase();
     if (lowerTopic.includes('hr') || lowerTopic.includes('placement') || lowerTopic.includes('interview')) {
-      strategyText = `For campus HR drives: Structure behavioral answers using STAR (Situation -> Task -> Action -> Measurable Result) to prove concrete competencies.`;
+      strategyText = `For interview rounds: Structure answers using STAR (Situation -> Task -> Action -> Measurable Result) to prove concrete competencies.`;
       strategyStatus = "STAR Methodology";
     } else if (lowerTopic.includes('tech') || lowerTopic.includes('defense') || lowerTopic.includes('viva') || lowerTopic.includes('project')) {
-      strategyText = `For technical defenses: Walk from high-level architecture down to database trade-offs, explain bottlenecks resolved, and quantify latency/scalability.`;
+      strategyText = `For technical defenses & viva: Walk from high-level architecture down to database trade-offs, explain bottlenecks resolved, and quantify latency.`;
       strategyStatus = "System Architecture Tip";
     } else if (lowerTopic.includes('gd') || lowerTopic.includes('discussion') || lowerTopic.includes('debate')) {
-      strategyText = `For GDs & Debates: Open with a balanced framing statement, cite 1 real-world industry example, and invite others or synthesize the discussion.`;
+      strategyText = `For GDs & Debates: Open with a balanced framing statement, cite 1 real-world example, and invite others or synthesize the discussion.`;
       strategyStatus = "Turn-Taking & Framing";
     } else if (lowerTopic.includes('pitch')) {
-      strategyText = `For 60s pitches: Hook the listener in the first 10s with the core problem, highlight your unique unfair advantage, and finish with a strong call-to-action.`;
+      strategyText = `For elevator pitches: Hook the listener in the first 10s with the core problem, highlight your unique unfair advantage, and finish with a strong call-to-action.`;
       strategyStatus = "Elevator Hook & CTA";
+    } else if (lowerTopic.includes('recitation') || lowerTopic.includes('poetry') || lowerTopic.includes('speech')) {
+      strategyText = `For speeches & recitation: Modulate your pitch to emphasize emotional peaks, utilize dramatic pauses, and maintain direct eye contact with the audience.`;
+      strategyStatus = "Pitch Modulation & Flow";
     } else {
       strategyText = `For speeches and presentations: Structure key arguments using the Rule of Three (Point 1 -> Point 2 -> Point 3) and close with a definitive summary.`;
       strategyStatus = "Rule of Three";
@@ -211,49 +214,49 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
       {
         pattern: /\b(myself\s+[\w]+|my name is\s+[\w]+|i am\s+[\w]+)\b/i,
         from: "Myself [Name] / My name is...",
-        to: "I am [Name], a software engineer specializing in...",
-        explanation: "Corrects colloquial intro phrasing to standard corporate introduction.",
+        to: "I am [Name], specializing in...",
+        explanation: "Corrects colloquial intro phrasing to standard formal self-introduction.",
         category: "intro"
       },
       {
         pattern: /\b(passout|passed out|pass out|fresher)\b/i,
         from: "passout / fresher candidate",
-        to: "recent graduate / early-career engineer",
-        explanation: "Replaces outdated campus slang with globally recognized recruitment terms.",
+        to: "recent graduate / early-career professional",
+        explanation: "Replaces outdated campus slang with standard professional terminology.",
         category: "intro"
       },
       {
         pattern: /\b(knowledge of|know about|learned about|i know)\b/i,
         from: "I have knowledge of / know about",
-        to: "I have hands-on proficiency & engineering depth in",
-        explanation: "Elevates passive bookish knowledge to active production engineering depth.",
+        to: "I have hands-on proficiency & specialized depth in",
+        explanation: "Elevates passive bookish knowledge to active practical depth.",
         category: "intro"
       },
       {
         pattern: /\b(my hobbies are|i like to play|free time|in my free time)\b/i,
         from: "my hobbies are / in free time",
-        to: "Beyond core engineering, I actively cultivate",
-        explanation: "Frames personal interests as disciplined co-curricular initiatives.",
+        to: "Beyond my core pursuits, I actively cultivate",
+        explanation: "Frames personal interests as disciplined initiatives.",
         category: "intro"
       },
       {
         pattern: /\b(hardworking|do hard work|hard work|work hard)\b/i,
         from: "hardworking person / do hard work",
         to: "demonstrate high execution rigor & ownership",
-        explanation: "Replaces generic buzzwords with measurable professional competencies.",
+        explanation: "Replaces generic buzzwords with measurable competencies.",
         category: "hr"
       },
       {
         pattern: /\b(want this job|want to join|want to work in your company)\b/i,
         from: "want to join your company",
-        to: "am eager to contribute to your core engineering roadmap",
-        explanation: "Demonstrates strategic alignment with the company's business impact.",
+        to: "am eager to contribute to your core organizational mission",
+        explanation: "Demonstrates strategic alignment with organizational value.",
         category: "hr"
       },
       {
         pattern: /\b(in my college|during my college|in our college)\b/i,
         from: "in my college / during college",
-        to: "throughout my undergraduate coursework & capstone labs",
+        to: "throughout my academic coursework & capstone projects",
         explanation: "Formalizes campus references into structured academic credentials.",
         category: "hr"
       },
@@ -277,7 +280,7 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         pattern: /\b(revert back|revert)\b/i,
         from: "revert back",
         to: "respond / follow up with updates",
-        explanation: "Replaces the redundant Indian corporate phrase 'revert back'.",
+        explanation: "Replaces the redundant phrase 'revert back'.",
         category: "esl"
       },
       {
@@ -299,7 +302,7 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
       {
         pattern: /\b(made a project|did a project|our project is|my project is|built a project)\b/i,
         from: "made a project / our project is",
-        to: "architected a capstone engineering system designed to",
+        to: "architected a capstone project designed to",
         explanation: "Conveys system architecture ownership rather than academic assignment completion.",
         category: "tech"
       },
@@ -307,20 +310,20 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         pattern: /\b(made a website|made an app|built a website|built an app|created website)\b/i,
         from: "made a website / app",
         to: "engineered and deployed a full-stack platform",
-        explanation: "Emphasizes end-to-end software development lifecycle standards.",
+        explanation: "Emphasizes end-to-end development lifecycle standards.",
         category: "tech"
       },
       {
         pattern: /\b(used database|stored data|in mysql|in mongodb|in database)\b/i,
         from: "used database / stored data",
-        to: "designed optimized relational schemas & indexed queries",
+        to: "designed optimized schemas & indexed data queries",
         explanation: "Demonstrates database design and query efficiency.",
         category: "tech"
       },
       {
         pattern: /\b(used api|connected api|call api|calling api)\b/i,
         from: "used API / connected API",
-        to: "integrated asynchronous RESTful endpoints & microservices",
+        to: "integrated asynchronous RESTful endpoints & services",
         explanation: "Demonstrates backend architectural clarity.",
         category: "tech"
       },
@@ -358,7 +361,7 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         pattern: /\b(agree with you|same point|i agree)\b/i,
         from: "I agree with you / same point",
         to: "I concur with that assessment and would build upon it by",
-        explanation: "Demonstrates executive active listening and turn-taking in GDs.",
+        explanation: "Demonstrates active listening and constructive turn-taking in discussions.",
         category: "gd"
       },
       {
@@ -371,8 +374,8 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
       {
         pattern: /\b(pros and cons|good and bad|advantages and disadvantages)\b/i,
         from: "pros and cons / good and bad",
-        to: "architectural trade-offs & strategic implications",
-        explanation: "Elevates conversational speech to board-level analytical framing.",
+        to: "trade-offs & strategic implications",
+        explanation: "Elevates conversational speech to structured analytical framing.",
         category: "gd"
       },
       {
@@ -386,14 +389,14 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         pattern: /\b(big problem|huge problem|hard thing|trouble|difficult)\b/i,
         from: "big problem / hard thing",
         to: "critical operational bottleneck",
-        explanation: "Frames challenges as objective engineering hurdles.",
+        explanation: "Frames challenges as objective problem statements.",
         category: "general"
       },
       {
         pattern: /\b(lots of|a lot of|many things|so many)\b/i,
         from: "lots of / a lot of",
         to: "a comprehensive suite of / substantial volume of",
-        explanation: "Elevates informal quantity to formal executive vocabulary.",
+        explanation: "Elevates informal quantity to formal articulate vocabulary.",
         category: "general"
       }
     ];
@@ -472,10 +475,10 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
             <BookOpen className="h-4 w-4 text-primary" />
             <div>
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground">
-                Executive Vocabulary & Phrasing Upgrades
+                Vocabulary & Phrasing Upgrades
               </CardTitle>
               <span className="text-[10px] text-muted-foreground block">
-                English as a Second Language (ESL) — Upgrades conversational phrases into placement-grade executive phrasing
+                Speech Articulation & ESL — Upgrades informal speech patterns into confident, articulate phrasing
               </span>
             </div>
           </div>
@@ -497,7 +500,7 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
                     </Badge>
                   )}
                 </span>
-                <span className="text-primary font-bold">Executive Upgrade</span>
+                <span className="text-primary font-bold">Recommended Upgrade</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded bg-muted/40 font-mono text-xs gap-2">
                 <span className="text-muted-foreground line-through truncate max-w-[45%]">{item.from}</span>
@@ -543,7 +546,7 @@ function RecommendedLearningSection({ session }: { session: Session }) {
     if (fillers > 1) {
       list.push({
         title: "Public Speaking Tips: Eliminating Filler Words",
-        reason: `Your session recorded ${fillers} filler sounds ("um", "like"). Master the deliberate 1-second pause to project effortless executive calm.`,
+        reason: `Your session recorded ${fillers} filler sounds ("um", "like"). Master the deliberate 1-second pause to project effortless calm.`,
         source: "Toastmasters International",
         duration: "8 min read",
         url: "https://www.toastmasters.org/education/pathways/presentation-mastery",
@@ -556,7 +559,7 @@ function RecommendedLearningSection({ session }: { session: Session }) {
     if (eye < 70 || posture < 70) {
       list.push({
         title: "Your Body Language May Shape Who You Are",
-        reason: `Eye gaze (${eye}%) or posture (${posture}%) need reinforcement. Amy Cuddy's acclaimed framework builds nonverbal conviction before high-stakes rounds.`,
+        reason: `Eye gaze (${eye}%) or posture (${posture}%) need reinforcement. Amy Cuddy's acclaimed framework builds physical confidence before speaking.`,
         source: "TED Global • Amy Cuddy",
         duration: "21 min watch",
         url: "https://www.youtube.com/watch?v=Unzc731iCUY",
@@ -587,7 +590,7 @@ function RecommendedLearningSection({ session }: { session: Session }) {
         duration: "3.5 Hours • 12 Modules",
         url: "/learning",
         type: "Masterclass",
-        badge: "Aligned with Campus Placements",
+        badge: "Aligned with Interview Practice",
         isMasterclass: true
       });
     } else if (topic.includes('pitch')) {
@@ -603,13 +606,13 @@ function RecommendedLearningSection({ session }: { session: Session }) {
       });
     } else {
       list.push({
-        title: "Executive Speech & Boardroom Presence Framework",
+        title: "Executive Speech & Stage Presence Framework",
         reason: "A structured curriculum on commanding audience attention, structuring arguments with the Rule of Three, and eliminating hesitation.",
         source: "Miral Communication Lab",
-        duration: "4.5 Hours • Certified Framework",
+        duration: "4.5 Hours • Framework",
         url: "/learning",
         type: "Masterclass",
-        badge: "Boardroom & Stage Mastery",
+        badge: "Speech & Stage Mastery",
         isMasterclass: true
       });
     }
@@ -618,12 +621,12 @@ function RecommendedLearningSection({ session }: { session: Session }) {
     if (list.length < 3) {
       list.push({
         title: "Body Language Guide for High-Stakes Presentations",
-        reason: "Harvard Business Review's research-backed guide on nonverbal cues, camera eye contact, and executive stance.",
+        reason: "Harvard Business Review's research-backed guide on nonverbal cues, camera eye contact, and audience engagement.",
         source: "Harvard Business Review",
         duration: "12 min read",
         url: "https://hbr.org/topic/subject/public-speaking",
         type: "Article",
-        badge: "Executive Non-Verbal Stance"
+        badge: "Non-Verbal Delivery Stance"
       });
     }
 
@@ -699,8 +702,8 @@ function RecommendedLearningSection({ session }: { session: Session }) {
   );
 }
 
-// Dedicated Placement Readiness Certificate Modal & Print Engine
-function PlacementCertificateModal({
+// Dedicated Speech & Communication Competency Certificate Modal & Print Engine
+function SpeechCertificateModal({
   session,
   onClose
 }: {
@@ -710,7 +713,7 @@ function PlacementCertificateModal({
   const currentUser = getCurrentUser();
   const candidateName = currentUser?.name && currentUser.name !== 'Candidate' 
     ? currentUser.name 
-    : (session.candidateName || 'Verified Candidate');
+    : (session.candidateName || 'Verified Speaker');
 
   const confidence = getConfidence(session);
   const eye = getEyeContact(session);
@@ -753,8 +756,8 @@ function PlacementCertificateModal({
           <div className="flex items-center gap-2">
             <Award className="h-5 w-5 text-primary" />
             <div>
-              <h3 className="text-sm font-bold text-foreground">Official Placement Readiness Certificate</h3>
-              <p className="text-[11px] text-muted-foreground">Accredited Multi-Modal Speech & Vision Audit</p>
+              <h3 className="text-sm font-bold text-foreground">Official Communication Competence Certificate</h3>
+              <p className="text-[11px] text-muted-foreground">Multi-Modal Computer Vision & Acoustic Speech Audit</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -780,8 +783,8 @@ function PlacementCertificateModal({
         {/* The Printable Certificate Container */}
         <div id="miral-official-certificate" className="p-6 sm:p-10 bg-white text-slate-900 relative print:p-8">
           
-          {/* Certificate Classic Guilloche & Border Styling */}
-          <div className="border-[6px] border-double border-indigo-900 rounded-xl p-6 sm:p-8 relative bg-radial-pattern">
+          {/* Certificate Classic Border Styling */}
+          <div className="border-[6px] border-double border-indigo-950 rounded-xl p-6 sm:p-8 relative bg-radial-pattern">
             
             {/* Corner Decorative Ornaments */}
             <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-indigo-700" />
@@ -793,36 +796,36 @@ function PlacementCertificateModal({
             <div className="text-center space-y-2 pb-4 border-b border-indigo-100">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-900 text-[10px] font-bold tracking-widest uppercase">
                 <Shield className="h-3.5 w-3.5 text-indigo-700 fill-indigo-100" />
-                MIRAL AI MULTI-MODAL EVALUATION LAB
+                MIRAL MULTI-MODAL SPEECH & VISION LAB
               </div>
               <h1 className="text-2xl sm:text-3xl font-serif font-bold text-indigo-950 tracking-tight">
-                Certificate of Placement Readiness
+                Certificate of Communication Competency
               </h1>
               <p className="text-xs text-slate-600 uppercase tracking-wider font-medium">
-                Verified Multi-Modal Speech, Cadence & Visual Presence Audit
+                Verified Multi-Modal Computer Vision & Acoustic Cadence Audit
               </p>
             </div>
 
             {/* Candidate Presentation */}
             <div className="text-center py-6 space-y-3">
-              <p className="text-xs uppercase tracking-widest text-slate-500">This official credential is proudly awarded to</p>
+              <p className="text-xs uppercase tracking-widest text-slate-500">This official credential is awarded to</p>
               <h2 className="text-3xl sm:text-4xl font-bold text-indigo-900 font-serif tracking-tight underline decoration-indigo-300 underline-offset-8">
                 {candidateName}
               </h2>
               <p className="text-xs text-slate-600 max-w-lg mx-auto leading-relaxed pt-2">
-                For demonstrating evaluated competence in live communication, vocal modulation, and visual delivery during the structured assessment track:
+                For evaluated competence in live communication, vocal cadence, and visual presence during the practice track:
               </p>
               <p className="text-sm font-bold text-slate-800 bg-slate-50 inline-block px-4 py-1.5 rounded-lg border border-slate-200">
-                "{session.topic || 'Executive Speech & Placement Simulation'}"
+                "{session.topic || 'Speech & Communication Practice'}"
               </p>
             </div>
 
             {/* Performance Metric Breakdown */}
             <div className="grid grid-cols-4 gap-2 sm:gap-4 my-4 p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-100 text-center">
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-500 block">Composite Score</span>
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">Overall Score</span>
                 <span className="text-lg sm:text-xl font-bold text-indigo-900">{confidence} / 100</span>
-                <span className="text-[9px] text-emerald-700 font-semibold block">Placement Verified</span>
+                <span className="text-[9px] text-emerald-700 font-semibold block">Verified Audit</span>
               </div>
               <div>
                 <span className="text-[10px] uppercase font-bold text-slate-500 block">Visual Engagement</span>
@@ -832,7 +835,7 @@ function PlacementCertificateModal({
               <div>
                 <span className="text-[10px] uppercase font-bold text-slate-500 block">Cadence Rhythm</span>
                 <span className="text-lg sm:text-xl font-bold text-slate-800">{wpm} <span className="text-[10px] font-normal">WPM</span></span>
-                <span className="text-[9px] text-slate-500 block">Optimal Speed</span>
+                <span className="text-[9px] text-slate-500 block">Speaking Pace</span>
               </div>
               <div>
                 <span className="text-[10px] uppercase font-bold text-slate-500 block">Speech Clarity</span>
@@ -841,7 +844,7 @@ function PlacementCertificateModal({
               </div>
             </div>
 
-            {/* Footer / Verification / Signatures */}
+            {/* Footer / Verification / System Signatures */}
             <div className="pt-6 border-t border-indigo-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
               
               {/* Left: Security & ID */}
@@ -858,26 +861,27 @@ function PlacementCertificateModal({
                 </p>
                 <div className="flex items-center gap-1 text-[9px] text-emerald-700 font-semibold">
                   <CheckCircle2 className="h-3 w-3" />
-                  <span>Tamper-Resistant Pilot Ledger</span>
+                  <span>Cryptographic Session Verification</span>
                 </div>
               </div>
 
-              {/* Center: Official Gold Seal */}
+              {/* Center: Official Seal */}
               <div className="h-16 w-16 rounded-full border-2 border-amber-500 bg-amber-50 flex flex-col items-center justify-center p-1 shadow-xs text-center">
                 <Award className="h-6 w-6 text-amber-600" />
                 <span className="text-[7px] uppercase font-bold tracking-tighter text-amber-900 leading-none mt-0.5">
-                  MIRAL LAB
+                  MIRAL AI
                 </span>
                 <span className="text-[6px] text-amber-700 uppercase leading-none">VERIFIED</span>
               </div>
 
-              {/* Right: Signature */}
+              {/* Right: Authentic System Verification Engine */}
               <div className="text-center sm:text-right space-y-1">
-                <div className="font-serif italic text-sm font-semibold text-indigo-950 border-b border-slate-300 pb-1 px-2 inline-block">
-                  Dr. M. S. Rathi
+                <div className="flex items-center justify-center sm:justify-end gap-1.5 text-xs font-bold text-indigo-950 border-b border-slate-300 pb-1 px-2">
+                  <Shield className="h-3.5 w-3.5 text-indigo-700" />
+                  <span>MIRAL Multi-Modal AI Engine</span>
                 </div>
-                <p className="text-[10px] font-bold text-slate-700 block">Director of AI Assessment</p>
-                <p className="text-[9px] text-slate-500 block">MIRAL AI Communication Systems</p>
+                <p className="text-[10px] font-semibold text-slate-700 block">Automated Vision & Speech Analysis</p>
+                <p className="text-[9px] text-slate-500 block">100% Client-Side Private ML Assessment</p>
               </div>
 
             </div>
@@ -887,7 +891,7 @@ function PlacementCertificateModal({
 
         {/* Modal Footer Controls (Hidden during Print) */}
         <div className="p-4 bg-muted/30 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground print:hidden">
-          <span>This certificate is verifiable for campus recruitment, portfolios, and LinkedIn.</span>
+          <span>This certificate is verifiable for portfolios, achievements, and LinkedIn profiles.</span>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={onClose} className="h-8 text-xs font-semibold">
               Close
@@ -930,7 +934,7 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
       if (onFeedbackSubmitted) onFeedbackSubmitted();
       toast({
         title: "Feedback Recorded",
-        description: "Thank you for helping us improve MIRAL for your placement drive!",
+        description: "Thank you for helping us improve MIRAL for your communication goals!",
       });
     } catch {
       setIsSubmitted(true);
@@ -1187,17 +1191,17 @@ export default function Report() {
   const durationSecs = duration % 60;
 
   const performanceTier = confidence >= 85 
-    ? "Advanced Delivery — Stage & Interview Ready"
+    ? "Advanced Communicator — High Stage & Delivery Presence"
     : confidence >= 70
-    ? "Competent Delivery — Strong Foundation"
-    : "Developing Delivery — Continued Practice Recommended";
+    ? "Competent Communicator — Strong Delivery Foundation"
+    : "Developing Communicator — Practice & Refinement Track";
 
   return (
     <div className="min-h-screen bg-background pb-16">
 
-      {/* Placement Certificate Full-Screen Modal */}
+      {/* Official Speech & Communication Certificate Full-Screen Modal */}
       {showCertificateModal && (
-        <PlacementCertificateModal
+        <SpeechCertificateModal
           session={activeSession}
           onClose={() => setShowCertificateModal(false)}
         />
@@ -1312,7 +1316,7 @@ export default function Report() {
               onClick={() => setShowCertificateModal(true)}
             >
               <Award className="h-4 w-4 text-amber-200" />
-              <span>View Placement Certificate</span>
+              <span>View Performance Certificate</span>
             </Button>
 
             <Button 
@@ -1357,7 +1361,7 @@ export default function Report() {
             </div>
 
             <div className="text-left md:text-right flex flex-col items-start md:items-end gap-1.5">
-              <span className="text-[11px] text-muted-foreground uppercase block font-medium">Readiness Level</span>
+              <span className="text-[11px] text-muted-foreground uppercase block font-medium">Communication Level</span>
               <Badge variant="outline" className="text-xs border-primary/40 text-primary font-medium">
                 {performanceTier}
               </Badge>
@@ -1378,7 +1382,7 @@ export default function Report() {
             <div className="p-3.5 rounded-lg bg-muted/40 border border-border/40 space-y-1">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">Overall Score</span>
               <span className="text-2xl font-bold text-primary">{confidence} <span className="text-xs font-normal text-muted-foreground">/ 100</span></span>
-              <span className="text-[10px] text-muted-foreground block">Composite Confidence</span>
+              <span className="text-[10px] text-muted-foreground block">Composite Score</span>
             </div>
 
             <div className="p-3.5 rounded-lg bg-muted/40 border border-border/40 space-y-1">
@@ -1445,7 +1449,7 @@ export default function Report() {
                 Thank You for Your Valuable Feedback!
               </CardTitle>
               <CardDescription className="text-xs text-muted-foreground leading-relaxed pt-1">
-                We truly appreciate your insights. Our engineering team will review your notes to make MIRAL even more responsive for your upcoming interviews and presentations.
+                We truly appreciate your insights. Our engineering team will review your notes to make MIRAL even more responsive for your communication practice.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 pt-2 text-center space-y-4">

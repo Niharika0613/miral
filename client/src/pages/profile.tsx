@@ -49,8 +49,8 @@ export default function Profile() {
       setCurrentUser(user);
       setEditedName(user.name);
     } else {
-      setCurrentUser({ id: 'guest-user', name: 'Niharika' });
-      setEditedName('Niharika');
+      setCurrentUser({ id: 'guest-user', name: 'Candidate' });
+      setEditedName('Candidate');
     }
   }, []);
 
@@ -59,16 +59,10 @@ export default function Profile() {
   const { data: apiSessions } = useQuery<Session[]>({
     queryKey: ['/api/sessions', userId],
     queryFn: async () => {
-      let response = await fetch(`/api/sessions${userId ? `?userId=${userId}` : ''}`, {
+      let response = await fetch(`/api/sessions${userId && userId !== 'guest-user' ? `?userId=${userId}` : ''}`, {
         cache: 'no-store',
         headers: { 'Cache-Control': 'no-cache' }
       });
-      if (!response.ok) {
-        response = await fetch('/api/sessions', {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache' }
-        });
-      }
       if (response.ok) {
         const data = await response.json();
         return Array.isArray(data) ? data : [];
@@ -82,15 +76,19 @@ export default function Profile() {
     const apiList = Array.isArray(apiSessions) ? apiSessions : [];
     let localList: any[] = [];
     try {
-      const stored = localStorage.getItem('miral_completed_sessions');
+      const userKey = userId && userId !== 'guest-user' ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
+      const stored = localStorage.getItem(userKey);
       localList = stored ? JSON.parse(stored) : [];
       if (!Array.isArray(localList)) localList = [];
     } catch {
       localList = [];
     }
 
+    const validApiList = apiList.filter((s: any) => getDuration(s) > 0 && (!userId || userId === 'guest-user' || !s.userId || s.userId === userId));
+    const validLocalList = localList.filter((s: any) => getDuration(s) > 0 && (!userId || userId === 'guest-user' || !s.userId || s.userId === userId));
+
     const map = new Map<string, any>();
-    [...apiList, ...localList].forEach((item) => {
+    [...validApiList, ...validLocalList].forEach((item) => {
       if (item && item.id && !map.has(item.id)) {
         map.set(item.id, item);
       }
@@ -99,7 +97,7 @@ export default function Profile() {
     return Array.from(map.values()).sort((a, b) => {
       return new Date(getCreatedAt(b)).getTime() - new Date(getCreatedAt(a)).getTime();
     });
-  }, [apiSessions]);
+  }, [apiSessions, userId]);
 
   const stats = useMemo(() => {
     if (!mergedSessions.length) {
@@ -116,17 +114,17 @@ export default function Profile() {
 
     const totalSessions = mergedSessions.length;
     const totalTimeSec = mergedSessions.reduce((acc, s) => acc + getDuration(s), 0);
-    const totalConfidence = mergedSessions.reduce((acc, s) => acc + (getConfidence(s) || 75), 0);
-    const totalEye = mergedSessions.reduce((acc, s) => acc + (getEyeContact(s) || 80), 0);
-    const totalWpm = mergedSessions.reduce((acc, s) => acc + (getWpm(s) || 135), 0);
+    const totalConfidence = mergedSessions.reduce((acc, s) => acc + getConfidence(s), 0);
+    const totalEye = mergedSessions.reduce((acc, s) => acc + getEyeContact(s), 0);
+    const totalWpm = mergedSessions.reduce((acc, s) => acc + getWpm(s), 0);
     const totalFillers = mergedSessions.reduce((acc, s) => acc + getFillers(s), 0);
-    const bestScore = Math.max(...mergedSessions.map(s => getConfidence(s) || 0), 0);
+    const bestScore = Math.max(...mergedSessions.map(s => getConfidence(s)), 0);
 
     return {
       totalSessions,
       avgScore: Math.round(totalConfidence / totalSessions),
       totalTimeMinutes: Math.round(totalTimeSec / 60) || (totalSessions > 0 ? 1 : 0),
-      bestScore: bestScore > 0 ? bestScore : 88,
+      bestScore,
       avgEyeContact: Math.round(totalEye / totalSessions),
       avgWpm: Math.round(totalWpm / totalSessions),
       totalFillers
@@ -301,7 +299,7 @@ export default function Profile() {
             </div>
             <div>
               <span className="text-[11px] text-muted-foreground block font-medium">Average Eye Focus</span>
-              <span className="text-lg font-bold font-mono text-foreground tabular-nums">{stats.avgEyeContact > 0 ? `${stats.avgEyeContact}%` : '88%'}</span>
+              <span className="text-lg font-bold font-mono text-foreground tabular-nums">{stats.avgEyeContact > 0 ? `${stats.avgEyeContact}%` : '0%'}</span>
             </div>
           </Card>
 
@@ -311,7 +309,7 @@ export default function Profile() {
             </div>
             <div>
               <span className="text-[11px] text-muted-foreground block font-medium">Average Speaking Pace</span>
-              <span className="text-lg font-bold font-mono text-foreground tabular-nums">{stats.avgWpm > 0 ? `${stats.avgWpm} WPM` : '138 WPM'}</span>
+              <span className="text-lg font-bold font-mono text-foreground tabular-nums">{stats.avgWpm > 0 ? `${stats.avgWpm} WPM` : '0 WPM'}</span>
             </div>
           </Card>
 
@@ -386,9 +384,9 @@ export default function Profile() {
                         <div className="flex items-center gap-3 text-muted-foreground text-[11px]">
                           <span>{dateStr}</span>
                           <span>•</span>
-                          <span>Eye Focus: <strong className="text-foreground">{eye > 0 ? `${eye}%` : '90%'}</strong></span>
+                          <span>Eye Focus: <strong className="text-foreground">{eye}%</strong></span>
                           <span>•</span>
-                          <span>Pace: <strong className="text-foreground">{wpm > 0 ? `${wpm} WPM` : '138 WPM'}</strong></span>
+                          <span>Pace: <strong className="text-foreground">{wpm} WPM</strong></span>
                         </div>
                       </div>
 
@@ -396,7 +394,7 @@ export default function Profile() {
                         <div className="text-right">
                           <span className="text-[10px] text-muted-foreground block font-medium">Confidence</span>
                           <span className="text-base font-bold font-mono text-emerald-600 tabular-nums">
-                            {conf > 0 ? `${conf}%` : '85%'}
+                            {conf}%
                           </span>
                         </div>
 

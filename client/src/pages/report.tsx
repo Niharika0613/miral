@@ -693,7 +693,9 @@ export default function Report() {
           return parsed;
         }
       }
-      const allStored = localStorage.getItem('miral_completed_sessions');
+      const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
+      const userKey = userId ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
+      const allStored = localStorage.getItem(userKey) || localStorage.getItem('miral_completed_sessions');
       if (allStored) {
         const list = JSON.parse(allStored);
         if (Array.isArray(list) && list.length > 0) {

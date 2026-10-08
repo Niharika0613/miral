@@ -66,16 +66,18 @@ export default function Dashboard() {
     const rawApiList = Array.isArray(sessions) ? sessions : [];
     let rawLocalList: any[] = [];
     try {
-      const stored = localStorage.getItem('miral_completed_sessions');
+      // User-isolated local sessions storage key
+      const userKey = userId ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
+      const stored = localStorage.getItem(userKey);
       rawLocalList = stored ? JSON.parse(stored) : [];
       if (!Array.isArray(rawLocalList)) rawLocalList = [];
     } catch {
       rawLocalList = [];
     }
 
-    // Filter out uncompleted/0-sec ghost attempts
-    const validApiList = rawApiList.filter((s: any) => getDuration(s) > 0);
-    const validLocalList = rawLocalList.filter((s: any) => getDuration(s) > 0);
+    // Filter out uncompleted/0-sec ghost attempts and ensure matching userId
+    const validApiList = rawApiList.filter((s: any) => getDuration(s) > 0 && (!userId || !s.userId || s.userId === userId));
+    const validLocalList = rawLocalList.filter((s: any) => getDuration(s) > 0 && (!userId || !s.userId || s.userId === userId));
     
     // Merge both, deduplicate by session ID, latest first
     const map = new Map<string, any>();
@@ -88,7 +90,7 @@ export default function Dashboard() {
     return Array.from(map.values()).sort(
       (a, b) => new Date(getCreatedAt(b)).getTime() - new Date(getCreatedAt(a)).getTime()
     );
-  }, [sessions]);
+  }, [sessions, userId]);
 
   // Selected session IDs for comparison
   const [baselineId, setBaselineId] = useState<string>('');

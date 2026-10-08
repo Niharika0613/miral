@@ -464,9 +464,12 @@ export default function Practice() {
       
       const confidenceCalc = Math.min(100, Math.max(10, Math.round((finalEyeContact * 0.40) + (finalPosture * 0.35) + (vocalScore * 0.25))));
 
+      const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
+
       const localBackup = {
         id: targetSessionId,
         topic: activeTopic,
+        userId: userId || undefined,
         duration: actualDuration,
         eyeContactPercentage: finalEyeContact,
         postureScore: finalPosture,
@@ -485,10 +488,11 @@ export default function Practice() {
       sessionStorage.setItem('last_completed_session', JSON.stringify(localBackup));
 
       try {
-        const storedStr = localStorage.getItem('miral_completed_sessions');
+        const userStorageKey = userId ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
+        const storedStr = localStorage.getItem(userStorageKey);
         const existingList = storedStr ? JSON.parse(storedStr) : [];
         const filtered = Array.isArray(existingList) ? existingList.filter((s: any) => s && s.id !== targetSessionId) : [];
-        localStorage.setItem('miral_completed_sessions', JSON.stringify([localBackup, ...filtered]));
+        localStorage.setItem(userStorageKey, JSON.stringify([localBackup, ...filtered]));
       } catch (cacheErr) {
         console.warn("Local storage cache notice:", cacheErr);
       }

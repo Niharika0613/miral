@@ -1,4 +1,4 @@
-﻿// client/src/utils/auth.ts
+// client/src/utils/auth.ts
 export const setAuth = (userId: string, userName: string) => {
   localStorage.setItem('userId', userId);
   localStorage.setItem('userName', userName);
@@ -9,8 +9,7 @@ export const setAuth = (userId: string, userName: string) => {
 export const logout = () => {
   localStorage.removeItem('userId');
   localStorage.removeItem('userName');
-  sessionStorage.removeItem('userId');
-  sessionStorage.removeItem('userName');
+  sessionStorage.clear();
   window.location.href = '/login';
 };
 

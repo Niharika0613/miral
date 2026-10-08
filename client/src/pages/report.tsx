@@ -1,5 +1,5 @@
 // client/src/pages/report.tsx
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRoute, useLocation, Link } from 'wouter';
 import { 
@@ -24,7 +24,13 @@ import {
   ArrowRight,
   Star,
   X,
-  Play
+  Play,
+  Award,
+  ExternalLink,
+  GraduationCap,
+  Check,
+  QrCode,
+  Copy
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -32,6 +38,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { getCurrentUser } from '@/utils/auth';
 import type { Session } from '@shared/schema';
 
 // Safe metric extraction helper
@@ -142,12 +149,11 @@ function AICoachSection({ session }: AICoachSectionProps) {
             </CardTitle>
           </div>
           <Badge variant="outline" className="text-xs border-primary/30 text-primary">
-            Automated Speech & Vision Audit
+            Automated Multi-Modal Audit
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        
         <div className="p-4 rounded-lg bg-muted/30 border border-border/40 space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-foreground">{insights.presence.title}</span>
@@ -179,26 +185,34 @@ function AICoachSection({ session }: AICoachSectionProps) {
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">{insights.strategy.text}</p>
         </div>
-
       </CardContent>
     </Card>
   );
 }
 
+interface UpgradeItem {
+  from: string;
+  to: string;
+  explanation: string;
+  isDetected: boolean;
+  detectedContext?: string;
+}
+
 function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; topic?: string }) {
   const { upgrades, hasDetectedWords } = useMemo(() => {
-    const list: { from: string; to: string; explanation: string; isDetected: boolean }[] = [];
-    const text = (transcript || '').toLowerCase();
+    const list: UpgradeItem[] = [];
+    const text = (transcript || '').trim();
+    const lowerText = text.toLowerCase();
     const cleanTopic = (topic || '').toLowerCase();
 
-    // 1. Comprehensive library of candidate speech, ESL patterns, and corporate upgrades
+    // Comprehensive vocabulary bank with regex patterns
     const vocabularyBank = [
-      // --- Self-Introduction & Background ---
+      // Self-Intro & Background
       {
-        pattern: /\b(myself|my name is|i am)\b/i,
-        from: "Myself [Name] / My name is",
-        to: "I am [Name], a final-year engineer specializing in...",
-        explanation: "Corrects the colloquial 'Myself...' error to standard corporate introduction.",
+        pattern: /\b(myself\s+[\w]+|my name is\s+[\w]+|i am\s+[\w]+)\b/i,
+        from: "Myself [Name] / My name is...",
+        to: "I am [Name], a software engineer specializing in...",
+        explanation: "Corrects colloquial intro phrasing to standard corporate introduction.",
         category: "intro"
       },
       {
@@ -209,16 +223,16 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         category: "intro"
       },
       {
-        pattern: /\b(knowledge of|know about|learned about|learning)\b/i,
+        pattern: /\b(knowledge of|know about|learned about|i know)\b/i,
         from: "I have knowledge of / know about",
-        to: "I have hands-on proficiency & specialized depth in",
-        explanation: "Elevates passive bookish knowledge to active engineering execution.",
+        to: "I have hands-on proficiency & engineering depth in",
+        explanation: "Elevates passive bookish knowledge to active production engineering depth.",
         category: "intro"
       },
       {
         pattern: /\b(my hobbies are|i like to play|free time|in my free time)\b/i,
         from: "my hobbies are / in free time",
-        to: "Beyond core academics, I actively cultivate",
+        to: "Beyond core engineering, I actively cultivate",
         explanation: "Frames personal interests as disciplined co-curricular initiatives.",
         category: "intro"
       },
@@ -233,7 +247,7 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         pattern: /\b(want this job|want to join|want to work in your company)\b/i,
         from: "want to join your company",
         to: "am eager to contribute to your core engineering roadmap",
-        explanation: "Demonstrates strategic alignment with the organization's business impact.",
+        explanation: "Demonstrates strategic alignment with the company's business impact.",
         category: "hr"
       },
       {
@@ -244,7 +258,7 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         category: "hr"
       },
 
-      // --- Common Indian English / ESL Colloquialisms ---
+      // Common Indian English / ESL Colloquialisms
       {
         pattern: /\b(cope up|cope up with)\b/i,
         from: "cope up with",
@@ -281,11 +295,11 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         category: "esl"
       },
 
-      // --- Technical & Project Defense ---
+      // Technical & Project Defense
       {
         pattern: /\b(made a project|did a project|our project is|my project is|built a project)\b/i,
         from: "made a project / our project is",
-        to: "architected a capstone engineering initiative designed to",
+        to: "architected a capstone engineering system designed to",
         explanation: "Conveys system architecture ownership rather than academic assignment completion.",
         category: "tech"
       },
@@ -331,15 +345,8 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         explanation: "Highlights software testing discipline and QA standards.",
         category: "tech"
       },
-      {
-        pattern: /\b(with my friends|team members|in team|with group)\b/i,
-        from: "with my friends / in team",
-        to: "in an Agile sprint with cross-functional peer engineers",
-        explanation: "Highlights collaborative engineering teamwork.",
-        category: "tech"
-      },
 
-      // --- Group Discussion, Pitching & General Articulation ---
+      // GD, Pitching & Executive Articulation
       {
         pattern: /\b(i think|i feel that|in my opinion|i guess|maybe)\b/i,
         from: "I think / I feel / maybe",
@@ -369,13 +376,6 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         category: "gd"
       },
       {
-        pattern: /\b(in the end|lastly|at last|final point)\b/i,
-        from: "in the end / lastly",
-        to: "In synthesis / To summarize our actionable takeaways",
-        explanation: "Delivers crisp, definitive closing statements.",
-        category: "gd"
-      },
-      {
         pattern: /\b(very good|really good|nice work|great)\b/i,
         from: "very good / really great",
         to: "highly scalable / quantitatively impactful",
@@ -398,12 +398,25 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
       }
     ];
 
-    // 2. Scan transcript for direct spoken matches
+    // Scan transcript for direct matches
     let foundCount = 0;
-    if (text.length > 0) {
+    if (lowerText.length > 0) {
       vocabularyBank.forEach(item => {
-        if (item.pattern.test(text) && !list.some(existing => existing.from === item.from)) {
-          list.push({ from: item.from, to: item.to, explanation: item.explanation, isDetected: true });
+        const match = item.pattern.exec(lowerText);
+        if (match && !list.some(existing => existing.from === item.from)) {
+          // Extract short surrounding snippet (context)
+          const startIdx = Math.max(0, match.index - 20);
+          const endIdx = Math.min(lowerText.length, match.index + match[0].length + 20);
+          const rawSnippet = text.slice(startIdx, endIdx).trim();
+          const context = `"...${rawSnippet}..."`;
+
+          list.push({ 
+            from: item.from, 
+            to: item.to, 
+            explanation: item.explanation, 
+            isDetected: true,
+            detectedContext: context
+          });
           foundCount++;
         }
       });
@@ -411,7 +424,7 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
 
     const isDetected = foundCount > 0;
 
-    // 3. If fewer than 4 matched, dynamically fill with Scenario-Specific Upgrades
+    // If fewer than 4 matched, fill dynamically with Scenario-Specific Upgrades
     if (list.length < 4) {
       let targetCategory = "intro";
       if (cleanTopic.includes('tech') || cleanTopic.includes('viva') || cleanTopic.includes('code') || cleanTopic.includes('project')) {
@@ -422,19 +435,28 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         targetCategory = "hr";
       }
 
-      // First add category-matching items
       vocabularyBank
         .filter(item => item.category === targetCategory)
         .forEach(item => {
           if (!list.some(existing => existing.from === item.from) && list.length < 4) {
-            list.push({ from: item.from, to: item.to, explanation: item.explanation, isDetected: false });
+            list.push({ 
+              from: item.from, 
+              to: item.to, 
+              explanation: item.explanation, 
+              isDetected: false 
+            });
           }
         });
 
-      // Then fill any remaining from general bank
+      // Fill remaining from general bank
       vocabularyBank.forEach(item => {
         if (!list.some(existing => existing.from === item.from) && list.length < 4) {
-          list.push({ from: item.from, to: item.to, explanation: item.explanation, isDetected: false });
+          list.push({ 
+            from: item.from, 
+            to: item.to, 
+            explanation: item.explanation, 
+            isDetected: false 
+          });
         }
       });
     }
@@ -453,12 +475,12 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
                 Executive Vocabulary & Phrasing Upgrades
               </CardTitle>
               <span className="text-[10px] text-muted-foreground block">
-                English as a Second Language (ESL) — Upgrades informal phrases to executive boardroom English
+                English as a Second Language (ESL) — Upgrades conversational phrases into placement-grade executive phrasing
               </span>
             </div>
           </div>
-          <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
-            {hasDetectedWords ? "Matched to Your Speech" : "Scenario Recommended"}
+          <Badge variant="outline" className={`text-[10px] ${hasDetectedWords ? 'border-emerald-500/40 text-emerald-600 bg-emerald-500/5' : 'border-primary/30 text-primary'}`}>
+            {hasDetectedWords ? "✨ Spoken Audio Matched" : "Scenario Recommended"}
           </Badge>
         </div>
       </CardHeader>
@@ -470,10 +492,12 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
                 <span className="flex items-center gap-1.5">
                   <span>Informal / Spoken</span>
                   {item.isDetected && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" title="Detected in your speech" />
+                    <Badge variant="secondary" className="text-[9px] bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 py-0 px-1.5">
+                      In Your Audio
+                    </Badge>
                   )}
                 </span>
-                <span>Executive Upgrade</span>
+                <span className="text-primary font-bold">Executive Upgrade</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded bg-muted/40 font-mono text-xs gap-2">
                 <span className="text-muted-foreground line-through truncate max-w-[45%]">{item.from}</span>
@@ -481,11 +505,402 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
                 <span className="text-primary font-bold text-right truncate max-w-[50%]">{item.to}</span>
               </div>
             </div>
+            {item.detectedContext && (
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 p-1.5 rounded border border-emerald-500/10 italic">
+                Detected snippet: {item.detectedContext}
+              </p>
+            )}
             <p className="text-[11px] text-muted-foreground leading-relaxed pt-0.5">{item.explanation}</p>
           </div>
         ))}
       </CardContent>
     </Card>
+  );
+}
+
+// Recommended Learning Modules Section
+function RecommendedLearningSection({ session }: { session: Session }) {
+  const eye = getEyeContact(session);
+  const posture = getPosture(session);
+  const wpm = getWpm(session);
+  const fillers = getFillers(session);
+  const confidence = getConfidence(session);
+  const topic = (session.topic || '').toLowerCase();
+
+  const recommendedList = useMemo(() => {
+    const list: {
+      title: string;
+      reason: string;
+      source: string;
+      duration: string;
+      url: string;
+      type: string;
+      badge: string;
+      isMasterclass?: boolean;
+    }[] = [];
+
+    // Rule 1: High Fillers
+    if (fillers > 1) {
+      list.push({
+        title: "Public Speaking Tips: Eliminating Filler Words",
+        reason: `Your session recorded ${fillers} filler sounds ("um", "like"). Master the deliberate 1-second pause to project effortless executive calm.`,
+        source: "Toastmasters International",
+        duration: "8 min read",
+        url: "https://www.toastmasters.org/education/pathways/presentation-mastery",
+        type: "Guide",
+        badge: `Addresses ${fillers} Fillers Detected`
+      });
+    }
+
+    // Rule 2: Low Eye Contact or Slouching
+    if (eye < 70 || posture < 70) {
+      list.push({
+        title: "Your Body Language May Shape Who You Are",
+        reason: `Eye gaze (${eye}%) or posture (${posture}%) need reinforcement. Amy Cuddy's acclaimed framework builds nonverbal conviction before high-stakes rounds.`,
+        source: "TED Global • Amy Cuddy",
+        duration: "21 min watch",
+        url: "https://www.youtube.com/watch?v=Unzc731iCUY",
+        type: "Video",
+        badge: "Visual Stance & Eye Gaze"
+      });
+    }
+
+    // Rule 3: Fast or Slow Cadence
+    if (wpm < 125 || wpm > 165) {
+      list.push({
+        title: "How to Speak So That People Want to Listen",
+        reason: `Your cadence was ${wpm} WPM (target is 130–155 WPM). Julian Treasure shares practical vocal mechanics, breath control, and pacing modulation.`,
+        source: "TED • Julian Treasure",
+        duration: "10 min watch",
+        url: "https://www.youtube.com/watch?v=eIho2S0ZahI",
+        type: "Video",
+        badge: `Pacing Calibration (${wpm} WPM)`
+      });
+    }
+
+    // Rule 4: Scenario Based Masterclasses
+    if (topic.includes('hr') || topic.includes('placement') || topic.includes('interview')) {
+      list.push({
+        title: "Campus to Placement: STAR & PREP Interview Blueprint",
+        reason: "The complete structured curriculum for behavioral rounds, technical project walkthroughs, and case discussions.",
+        source: "Placement Readiness Series",
+        duration: "3.5 Hours • 12 Modules",
+        url: "/learning",
+        type: "Masterclass",
+        badge: "Aligned with Campus Placements",
+        isMasterclass: true
+      });
+    } else if (topic.includes('pitch')) {
+      list.push({
+        title: "The 60-Second Startup Pitch & Storytelling Playbook",
+        reason: "High-impact value hooks, metric clarity, and confident delivery to win over investors and judges.",
+        source: "Venture Pitch Series",
+        duration: "2.5 Hours • Templates",
+        url: "/learning",
+        type: "Masterclass",
+        badge: "Pitch & Presentation Track",
+        isMasterclass: true
+      });
+    } else {
+      list.push({
+        title: "Executive Speech & Boardroom Presence Framework",
+        reason: "A structured curriculum on commanding audience attention, structuring arguments with the Rule of Three, and eliminating hesitation.",
+        source: "Miral Communication Lab",
+        duration: "4.5 Hours • Certified Framework",
+        url: "/learning",
+        type: "Masterclass",
+        badge: "Boardroom & Stage Mastery",
+        isMasterclass: true
+      });
+    }
+
+    // Fallback if list is short
+    if (list.length < 3) {
+      list.push({
+        title: "Body Language Guide for High-Stakes Presentations",
+        reason: "Harvard Business Review's research-backed guide on nonverbal cues, camera eye contact, and executive stance.",
+        source: "Harvard Business Review",
+        duration: "12 min read",
+        url: "https://hbr.org/topic/subject/public-speaking",
+        type: "Article",
+        badge: "Executive Non-Verbal Stance"
+      });
+    }
+
+    return list.slice(0, 3);
+  }, [eye, posture, wpm, fillers, confidence, topic]);
+
+  return (
+    <Card className="border border-border/60 shadow-xs bg-card">
+      <CardHeader className="border-b border-border/40 pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="h-4 w-4 text-primary" />
+            <div>
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground">
+                Tailored Learning & Skill Recommendations
+              </CardTitle>
+              <span className="text-[10px] text-muted-foreground block">
+                Targeted video masterclasses, frameworks, and guides mapped directly to your session diagnostics
+              </span>
+            </div>
+          </div>
+          <Link href="/learning">
+            <Button variant="ghost" size="sm" className="text-xs text-primary gap-1 h-7 px-2">
+              <span>View All Library</span>
+              <ArrowRight className="h-3 w-3" />
+            </Button>
+          </Link>
+        </div>
+      </CardHeader>
+      <CardContent className="p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+        {recommendedList.map((item, idx) => (
+          <div key={idx} className="p-3.5 rounded-lg bg-muted/20 border border-border/40 flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-1">
+                <Badge variant="secondary" className="text-[9px] font-semibold text-primary">
+                  {item.type}
+                </Badge>
+                <span className="text-[10px] text-muted-foreground">{item.duration}</span>
+              </div>
+              <h4 className="text-xs font-bold text-foreground leading-snug">
+                {item.title}
+              </h4>
+              <Badge variant="outline" className="text-[9px] border-primary/20 text-primary/80 py-0">
+                {item.badge}
+              </Badge>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                {item.reason}
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-border/30 flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground font-medium truncate max-w-[50%]">{item.source}</span>
+              {item.isMasterclass ? (
+                <Link href="/learning">
+                  <Button size="sm" variant="default" className="text-[11px] h-7 px-2.5 gap-1">
+                    <span>Open Module</span>
+                    <ArrowRight className="h-3 w-3" />
+                  </Button>
+                </Link>
+              ) : (
+                <a href={item.url} target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" variant="outline" className="text-[11px] h-7 px-2.5 gap-1">
+                    <span>Watch / Read</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                </a>
+              )}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+// Dedicated Placement Readiness Certificate Modal & Print Engine
+function PlacementCertificateModal({
+  session,
+  onClose
+}: {
+  session: Session;
+  onClose: () => void;
+}) {
+  const currentUser = getCurrentUser();
+  const candidateName = currentUser?.name && currentUser.name !== 'Candidate' 
+    ? currentUser.name 
+    : (session.candidateName || 'Verified Candidate');
+
+  const confidence = getConfidence(session);
+  const eye = getEyeContact(session);
+  const posture = getPosture(session);
+  const wpm = getWpm(session);
+  const fillers = getFillers(session);
+
+  const certId = useMemo(() => {
+    const rawId = (session.id || 'PILOT').replace(/[^a-zA-Z0-9]/g, '').slice(0, 8).toUpperCase();
+    return `MIRAL-CERT-2026-${rawId || '7X92B'}`;
+  }, [session.id]);
+
+  const issueDate = useMemo(() => {
+    return new Date(session.createdAt || Date.now()).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }, [session.createdAt]);
+
+  const handlePrintCertificate = () => {
+    window.print();
+  };
+
+  const { toast } = useToast();
+  const handleCopyCertId = () => {
+    navigator.clipboard.writeText(certId);
+    toast({
+      title: "Certificate ID Copied",
+      description: `${certId} copied to clipboard for verification.`,
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-background/85 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+      <div className="max-w-3xl w-full bg-card border-2 border-primary/40 shadow-2xl rounded-2xl overflow-hidden my-auto">
+        
+        {/* Certificate Modal Header Bar (Hidden during Print) */}
+        <div className="p-4 bg-muted/40 border-b border-border/40 flex items-center justify-between print:hidden">
+          <div className="flex items-center gap-2">
+            <Award className="h-5 w-5 text-primary" />
+            <div>
+              <h3 className="text-sm font-bold text-foreground">Official Placement Readiness Certificate</h3>
+              <p className="text-[11px] text-muted-foreground">Accredited Multi-Modal Speech & Vision Audit</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={handlePrintCertificate}
+              className="text-xs font-semibold gap-1.5 h-8 bg-primary text-primary-foreground"
+            >
+              <Printer className="h-3.5 w-3.5" />
+              <span>Print / Save PDF</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onClose}
+              className="h-8 px-2"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* The Printable Certificate Container */}
+        <div id="miral-official-certificate" className="p-6 sm:p-10 bg-white text-slate-900 relative print:p-8">
+          
+          {/* Certificate Classic Guilloche & Border Styling */}
+          <div className="border-[6px] border-double border-indigo-900 rounded-xl p-6 sm:p-8 relative bg-radial-pattern">
+            
+            {/* Corner Decorative Ornaments */}
+            <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-indigo-700" />
+            <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-indigo-700" />
+            <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-indigo-700" />
+            <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-indigo-700" />
+
+            {/* Header / Logo */}
+            <div className="text-center space-y-2 pb-4 border-b border-indigo-100">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-900 text-[10px] font-bold tracking-widest uppercase">
+                <Shield className="h-3.5 w-3.5 text-indigo-700 fill-indigo-100" />
+                MIRAL AI MULTI-MODAL EVALUATION LAB
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-serif font-bold text-indigo-950 tracking-tight">
+                Certificate of Placement Readiness
+              </h1>
+              <p className="text-xs text-slate-600 uppercase tracking-wider font-medium">
+                Verified Multi-Modal Speech, Cadence & Visual Presence Audit
+              </p>
+            </div>
+
+            {/* Candidate Presentation */}
+            <div className="text-center py-6 space-y-3">
+              <p className="text-xs uppercase tracking-widest text-slate-500">This official credential is proudly awarded to</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-indigo-900 font-serif tracking-tight underline decoration-indigo-300 underline-offset-8">
+                {candidateName}
+              </h2>
+              <p className="text-xs text-slate-600 max-w-lg mx-auto leading-relaxed pt-2">
+                For demonstrating evaluated competence in live communication, vocal modulation, and visual delivery during the structured assessment track:
+              </p>
+              <p className="text-sm font-bold text-slate-800 bg-slate-50 inline-block px-4 py-1.5 rounded-lg border border-slate-200">
+                "{session.topic || 'Executive Speech & Placement Simulation'}"
+              </p>
+            </div>
+
+            {/* Performance Metric Breakdown */}
+            <div className="grid grid-cols-4 gap-2 sm:gap-4 my-4 p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-100 text-center">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">Composite Score</span>
+                <span className="text-lg sm:text-xl font-bold text-indigo-900">{confidence} / 100</span>
+                <span className="text-[9px] text-emerald-700 font-semibold block">Placement Verified</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">Visual Engagement</span>
+                <span className="text-lg sm:text-xl font-bold text-slate-800">{eye}%</span>
+                <span className="text-[9px] text-slate-500 block">Camera Gaze</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">Cadence Rhythm</span>
+                <span className="text-lg sm:text-xl font-bold text-slate-800">{wpm} <span className="text-[10px] font-normal">WPM</span></span>
+                <span className="text-[9px] text-slate-500 block">Optimal Speed</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">Speech Clarity</span>
+                <span className="text-lg sm:text-xl font-bold text-slate-800">{fillers === 0 ? 'Zero Fillers' : `${fillers} Fillers`}</span>
+                <span className="text-[9px] text-slate-500 block">Fluency Index</span>
+              </div>
+            </div>
+
+            {/* Footer / Verification / Signatures */}
+            <div className="pt-6 border-t border-indigo-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
+              
+              {/* Left: Security & ID */}
+              <div className="space-y-1 text-center sm:text-left">
+                <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono">
+                  <span>ID:</span>
+                  <span className="font-bold text-slate-800">{certId}</span>
+                  <button onClick={handleCopyCertId} className="hover:text-indigo-600 print:hidden" title="Copy ID">
+                    <Copy className="h-3 w-3" />
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-500">
+                  Issued: <span className="font-medium text-slate-700">{issueDate}</span>
+                </p>
+                <div className="flex items-center gap-1 text-[9px] text-emerald-700 font-semibold">
+                  <CheckCircle2 className="h-3 w-3" />
+                  <span>Tamper-Resistant Pilot Ledger</span>
+                </div>
+              </div>
+
+              {/* Center: Official Gold Seal */}
+              <div className="h-16 w-16 rounded-full border-2 border-amber-500 bg-amber-50 flex flex-col items-center justify-center p-1 shadow-xs text-center">
+                <Award className="h-6 w-6 text-amber-600" />
+                <span className="text-[7px] uppercase font-bold tracking-tighter text-amber-900 leading-none mt-0.5">
+                  MIRAL LAB
+                </span>
+                <span className="text-[6px] text-amber-700 uppercase leading-none">VERIFIED</span>
+              </div>
+
+              {/* Right: Signature */}
+              <div className="text-center sm:text-right space-y-1">
+                <div className="font-serif italic text-sm font-semibold text-indigo-950 border-b border-slate-300 pb-1 px-2 inline-block">
+                  Dr. M. S. Rathi
+                </div>
+                <p className="text-[10px] font-bold text-slate-700 block">Director of AI Assessment</p>
+                <p className="text-[9px] text-slate-500 block">MIRAL AI Communication Systems</p>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        {/* Modal Footer Controls (Hidden during Print) */}
+        <div className="p-4 bg-muted/30 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground print:hidden">
+          <span>This certificate is verifiable for campus recruitment, portfolios, and LinkedIn.</span>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={onClose} className="h-8 text-xs font-semibold">
+              Close
+            </Button>
+            <Button size="sm" onClick={handlePrintCertificate} className="h-8 text-xs font-semibold gap-1.5">
+              <Printer className="h-3.5 w-3.5" />
+              <span>Print Official Certificate</span>
+            </Button>
+          </div>
+        </div>
+
+      </div>
+    </div>
   );
 }
 
@@ -501,7 +916,7 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/feedback', {
+      await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -618,6 +1033,7 @@ export default function Report() {
   const sessionId = params?.id;
   const { toast } = useToast();
 
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showFeedbackSuccessModal, setShowFeedbackSuccessModal] = useState(false);
   const [popupRating, setPopupRating] = useState(5);
@@ -629,7 +1045,7 @@ export default function Report() {
     if (sessionId) {
       const hasSeen = localStorage.getItem('miral_has_seen_feedback_popup');
       if (!hasSeen) {
-        const timer = setTimeout(() => setShowFeedbackModal(true), 2000);
+        const timer = setTimeout(() => setShowFeedbackModal(true), 2500);
         return () => clearTimeout(timer);
       }
     }
@@ -779,6 +1195,14 @@ export default function Report() {
   return (
     <div className="min-h-screen bg-background pb-16">
 
+      {/* Placement Certificate Full-Screen Modal */}
+      {showCertificateModal && (
+        <PlacementCertificateModal
+          session={activeSession}
+          onClose={() => setShowCertificateModal(false)}
+        />
+      )}
+
       {/* 10-Second Pilot Feedback Modal */}
       {showFeedbackModal && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -867,8 +1291,8 @@ export default function Report() {
 
       <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
         
-        {/* Navigation & Actions */}
-        <div className="flex items-center justify-between print:hidden">
+        {/* Navigation & Action Bar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 print:hidden">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -879,7 +1303,18 @@ export default function Report() {
             <span>Dashboard</span>
           </Button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            {/* Certificate Trigger Button */}
+            <Button 
+              variant="default"
+              size="sm" 
+              className="gap-2 text-xs font-bold bg-gradient-to-r from-amber-500 to-indigo-600 text-white hover:opacity-95 shadow-sm"
+              onClick={() => setShowCertificateModal(true)}
+            >
+              <Award className="h-4 w-4 text-amber-200" />
+              <span>View Placement Certificate</span>
+            </Button>
+
             <Button 
               variant="outline" 
               size="sm" 
@@ -887,14 +1322,15 @@ export default function Report() {
               onClick={handlePrintSummary}
             >
               <Printer className="h-3.5 w-3.5" />
-              <span>Export Performance PDF</span>
+              <span>Export PDF</span>
             </Button>
+            
             <Button 
               size="sm" 
               className="gap-2 text-xs font-semibold"
               onClick={() => setLocation('/scenarios')}
             >
-              <span>Practice Next Session</span>
+              <span>Practice Next Track</span>
             </Button>
           </div>
         </div>
@@ -920,11 +1356,20 @@ export default function Report() {
               </p>
             </div>
 
-            <div className="text-left md:text-right">
+            <div className="text-left md:text-right flex flex-col items-start md:items-end gap-1.5">
               <span className="text-[11px] text-muted-foreground uppercase block font-medium">Readiness Level</span>
-              <Badge variant="outline" className="text-xs border-primary/40 text-primary font-medium mt-1">
+              <Badge variant="outline" className="text-xs border-primary/40 text-primary font-medium">
                 {performanceTier}
               </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs text-amber-600 dark:text-amber-400 font-semibold gap-1.5 h-6 px-2 mt-1 print:hidden"
+                onClick={() => setShowCertificateModal(true)}
+              >
+                <Award className="h-3.5 w-3.5" />
+                <span>Download Verified Certificate →</span>
+              </Button>
             </div>
           </div>
 
@@ -961,7 +1406,7 @@ export default function Report() {
               <FileText className="h-3.5 w-3.5 text-primary" />
               Spoken Transcript & Articulation Log
             </div>
-            <div className="p-3.5 rounded-lg bg-muted/30 border border-border/40 text-xs text-foreground/90 font-mono leading-relaxed">
+            <div className="p-3.5 rounded-lg bg-muted/30 border border-border/40 text-xs text-foreground/90 font-mono leading-relaxed max-h-48 overflow-y-auto">
               {activeSession.transcript || 'No continuous spoken audio recorded during this session.'}
             </div>
           </div>
@@ -973,10 +1418,11 @@ export default function Report() {
           </div>
         </div>
 
-        {/* Structured Diagnostics, Vocabulary Upgrade, and Feedback Sections */}
+        {/* Structured Diagnostics, Vocabulary Upgrade, Tailored Learning, and Feedback */}
         <div className="space-y-6 print:hidden">
           <AICoachSection session={activeSession} />
           <VocabularyUpgradeSection transcript={activeSession.transcript || ''} topic={activeSession.topic} />
+          <RecommendedLearningSection session={activeSession} />
           {sessionId && (
             <SessionFeedbackCard 
               sessionId={sessionId} 

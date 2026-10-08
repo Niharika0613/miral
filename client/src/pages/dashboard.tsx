@@ -284,6 +284,7 @@ export default function Dashboard() {
               </div>
               <p className="text-xs text-muted-foreground mt-1">vs initial baseline session</p>
             </CardContent>
+          </Card>
         </div>
 
         {/* Zero State Onboarding Callout when No Sessions Recorded Yet */}

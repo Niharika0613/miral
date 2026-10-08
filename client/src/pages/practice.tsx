@@ -518,7 +518,6 @@ export default function Practice() {
         console.warn("Backend sync notice:", postErr);
       }
 
-      const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
       await queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/sessions', userId] });
       await queryClient.invalidateQueries({ queryKey: ['/api/sessions', targetSessionId] });

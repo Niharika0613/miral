@@ -284,8 +284,62 @@ export default function Dashboard() {
               </div>
               <p className="text-xs text-muted-foreground mt-1">vs initial baseline session</p>
             </CardContent>
-          </Card>
         </div>
+
+        {/* Zero State Onboarding Callout when No Sessions Recorded Yet */}
+        {sessionsList.length === 0 && (
+          <Card className="border-2 border-dashed border-primary/30 bg-card p-8 text-center space-y-4 shadow-xs">
+            <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
+              <Video className="h-6 w-6" />
+            </div>
+            <div className="max-w-md mx-auto space-y-1">
+              <h3 className="text-base font-bold text-foreground">Welcome to Your Performance Dashboard</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                You haven't completed any practice sessions yet. Launch your first 2-minute mock practice session on camera to calculate your baseline metrics and start tracking your improvement trajectory.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+              <Button 
+                onClick={() => setLocation('/practice')}
+                className="text-xs font-semibold h-9 px-6 gap-2"
+              >
+                <Video className="h-3.5 w-3.5" />
+                <span>Launch First Practice Session</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => setLocation('/scenarios')}
+                className="text-xs font-semibold h-9 px-4 border-border/80"
+              >
+                <span>Browse Curated Scenarios</span>
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* 1 Session Guidance Banner */}
+        {sessionsList.length === 1 && (
+          <Card className="border border-border/70 bg-muted/20 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="space-y-1 text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <Badge className="bg-primary text-primary-foreground text-[10px]">1 Baseline Session Recorded</Badge>
+                <span className="text-xs font-bold text-foreground">Baseline Score: {getConfidence(sessionsList[0])} / 100</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Complete your second practice session to unlock comparative baseline vs current analytics and multi-metric trajectory growth curves.
+              </p>
+            </div>
+            <Button 
+              size="sm"
+              onClick={() => setLocation('/practice')}
+              className="text-xs font-semibold h-8 px-4 shrink-0 gap-1.5"
+            >
+              <Video className="h-3 w-3" />
+              <span>Practice Session #2</span>
+            </Button>
+          </Card>
+        )}
 
         {/* Quantifiable Session Comparison Engine */}
         {sessionsList.length >= 2 && baselineSession && currentSession && (
@@ -482,53 +536,61 @@ export default function Dashboard() {
             <span className="text-xs text-muted-foreground">{sessionsList.length} total sessions recorded</span>
           </div>
 
-          <div className="grid grid-cols-1 gap-3">
-            {sessionsList.slice(0, 8).map((s) => (
-              <Card 
-                key={s.id} 
-                className="border border-border/60 hover:border-primary/40 bg-card transition-all cursor-pointer shadow-xs p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                onClick={() => setLocation(`/report/${s.id}`)}
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm text-foreground">
-                      {s.topic || 'General Practice Session'}
-                    </span>
-                    <Badge variant="outline" className="text-[10px] py-0 px-1.5 font-normal">
-                      {Math.floor(getDuration(s) / 60)}m {getDuration(s) % 60}s
-                    </Badge>
+          {sessionsList.length === 0 ? (
+            <Card className="border border-border/60 bg-card p-6 text-center space-y-2">
+              <p className="text-xs text-muted-foreground">
+                No past sessions found. Once you complete practice rounds in the Practice Studio, your detailed history with eye contact %, posture alignment, and speech pace will appear here.
+              </p>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 gap-3">
+              {sessionsList.slice(0, 8).map((s) => (
+                <Card 
+                  key={s.id} 
+                  className="border border-border/60 hover:border-primary/40 bg-card transition-all cursor-pointer shadow-xs p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  onClick={() => setLocation(`/report/${s.id}`)}
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm text-foreground">
+                        {s.topic || 'General Practice Session'}
+                      </span>
+                      <Badge variant="outline" className="text-[10px] py-0 px-1.5 font-normal">
+                        {Math.floor(getDuration(s) / 60)}m {getDuration(s) % 60}s
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(getCreatedAt(s)).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(getCreatedAt(s)).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
-                </div>
 
-                <div className="flex items-center gap-4 text-xs">
-                  <div className="text-right">
-                    <span className="text-muted-foreground block text-[10px] uppercase">Score</span>
-                    <span className="font-bold text-primary text-sm">{getConfidence(s)} / 100</span>
+                  <div className="flex items-center gap-4 text-xs">
+                    <div className="text-right">
+                      <span className="text-muted-foreground block text-[10px] uppercase">Score</span>
+                      <span className="font-bold text-primary text-sm">{getConfidence(s)} / 100</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-muted-foreground block text-[10px] uppercase">Eye Contact</span>
+                      <span className="font-medium text-foreground">{getEyeContact(s)}%</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-muted-foreground block text-[10px] uppercase">Pacing</span>
+                      <span className="font-medium text-foreground">{getWpm(s)} WPM</span>
+                    </div>
+                    <Button variant="ghost" size="sm" className="h-8 px-2 text-primary">
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <div className="text-right">
-                    <span className="text-muted-foreground block text-[10px] uppercase">Eye Contact</span>
-                    <span className="font-medium text-foreground">{getEyeContact(s)}%</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-muted-foreground block text-[10px] uppercase">Pacing</span>
-                    <span className="font-medium text-foreground">{getWpm(s)} WPM</span>
-                  </div>
-                  <Button variant="ghost" size="sm" className="h-8 px-2 text-primary">
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>

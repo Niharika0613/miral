@@ -30,7 +30,9 @@ import {
   GraduationCap,
   Check,
   QrCode,
-  Copy
+  Copy,
+  Lock,
+  Edit3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -702,18 +704,31 @@ function RecommendedLearningSection({ session }: { session: Session }) {
   );
 }
 
-// Dedicated Speech & Communication Competency Certificate Modal & Print Engine
+// Dedicated Speech Practice Milestone Certificate Modal & Print Engine
 function SpeechCertificateModal({
   session,
+  eligibility,
   onClose
 }: {
   session: Session;
+  eligibility?: {
+    eligible: boolean;
+    count: number;
+    sessionsNeeded: number;
+    bestScore?: number;
+    firstScore?: number;
+    improvement?: number;
+  };
   onClose: () => void;
 }) {
   const currentUser = getCurrentUser();
-  const candidateName = (currentUser?.name && currentUser.name !== 'Candidate')
+  const initialName = (currentUser?.name && currentUser.name !== 'Candidate' && currentUser.name !== 'Verified Speaker')
     ? currentUser.name
-    : 'Verified Speaker';
+    : (localStorage.getItem('userName') || '');
+
+  const [candidateName, setCandidateName] = useState(initialName || 'Candidate');
+  const [isEditingName, setIsEditingName] = useState(!initialName || initialName === 'Candidate');
+  const [nameInput, setNameInput] = useState(candidateName);
 
   const confidence = getConfidence(session);
   const eye = getEyeContact(session);
@@ -747,6 +762,20 @@ function SpeechCertificateModal({
     });
   };
 
+  const handleSaveName = () => {
+    const trimmed = nameInput.trim();
+    if (trimmed) {
+      setCandidateName(trimmed);
+      localStorage.setItem('userName', trimmed);
+      sessionStorage.setItem('userName', trimmed);
+      setIsEditingName(false);
+      toast({
+        title: "Name Saved",
+        description: `Certificate updated for ${trimmed}`,
+      });
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-background/85 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div className="max-w-3xl w-full bg-card border-2 border-primary/40 shadow-2xl rounded-2xl overflow-hidden my-auto">
@@ -756,8 +785,8 @@ function SpeechCertificateModal({
           <div className="flex items-center gap-2">
             <Award className="h-5 w-5 text-primary" />
             <div>
-              <h3 className="text-sm font-bold text-foreground">Official Communication Competence Certificate</h3>
-              <p className="text-[11px] text-muted-foreground">Multi-Modal Computer Vision & Acoustic Speech Audit</p>
+              <h3 className="text-sm font-bold text-foreground">Certificate of Speaking Practice</h3>
+              <p className="text-[11px] text-muted-foreground">Speaking Practice Milestone Recognition</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -796,36 +825,69 @@ function SpeechCertificateModal({
             <div className="text-center space-y-2 pb-4 border-b border-indigo-100">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-900 text-[10px] font-bold tracking-widest uppercase">
                 <Shield className="h-3.5 w-3.5 text-indigo-700 fill-indigo-100" />
-                MIRAL MULTI-MODAL SPEECH & VISION LAB
+                MIRAL SPEECH & VISION STUDIO
               </div>
               <h1 className="text-2xl sm:text-3xl font-serif font-bold text-indigo-950 tracking-tight">
-                Certificate of Communication Competency
+                Certificate of Speaking Practice
               </h1>
               <p className="text-xs text-slate-600 uppercase tracking-wider font-medium">
-                Verified Multi-Modal Computer Vision & Acoustic Cadence Audit
+                Speaking Practice Milestone • Multi-Modal Delivery Feedback
               </p>
             </div>
 
             {/* Candidate Presentation */}
             <div className="text-center py-6 space-y-3">
-              <p className="text-xs uppercase tracking-widest text-slate-500">This official credential is awarded to</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-indigo-900 font-serif tracking-tight underline decoration-indigo-300 underline-offset-8">
-                {candidateName}
-              </h2>
+              <p className="text-xs uppercase tracking-widest text-slate-500">This practice milestone certificate is presented to</p>
+              
+              {isEditingName ? (
+                <div className="max-w-xs mx-auto flex items-center gap-2 print:hidden">
+                  <Input 
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    placeholder="Enter candidate full name"
+                    className="text-center text-sm font-semibold h-9 bg-white border-indigo-300"
+                    autoFocus
+                  />
+                  <Button size="sm" onClick={handleSaveName} className="h-9 px-3 text-xs">Save</Button>
+                </div>
+              ) : (
+                <div className="inline-flex items-center justify-center gap-2">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-indigo-900 font-serif tracking-tight underline decoration-indigo-300 underline-offset-8">
+                    {candidateName}
+                  </h2>
+                  <button 
+                    type="button" 
+                    onClick={() => { setNameInput(candidateName); setIsEditingName(true); }}
+                    className="text-slate-400 hover:text-indigo-600 p-1 print:hidden" 
+                    title="Edit Name on Certificate"
+                  >
+                    <Edit3 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+
               <p className="text-xs text-slate-600 max-w-lg mx-auto leading-relaxed pt-2">
-                For evaluated competence in live communication, vocal cadence, and visual presence during the practice track:
+                For completing dedicated speaking practice sessions and calibrating vocal delivery, pacing rhythm, and camera focus in:
               </p>
-              <p className="text-sm font-bold text-slate-800 bg-slate-50 inline-block px-4 py-1.5 rounded-lg border border-slate-200">
-                "{session.topic || 'Speech & Communication Practice'}"
-              </p>
+              <div className="space-y-1">
+                <p className="text-sm font-bold text-slate-800 bg-slate-50 inline-block px-4 py-1.5 rounded-lg border border-slate-200">
+                  "{session.topic || 'General Practice Track'}"
+                </p>
+                {eligibility && eligibility.count > 0 && (
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    {eligibility.count} Practice Session{eligibility.count > 1 ? 's' : ''} Completed
+                    {eligibility.improvement !== undefined && eligibility.improvement > 0 ? ` • Progress Trajectory: ${eligibility.firstScore} → ${eligibility.bestScore} pts (+${eligibility.improvement})` : ''}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Performance Metric Breakdown */}
             <div className="grid grid-cols-4 gap-2 sm:gap-4 my-4 p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-100 text-center">
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-500 block">Overall Score</span>
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">Practice Score</span>
                 <span className="text-lg sm:text-xl font-bold text-indigo-900">{confidence} / 100</span>
-                <span className="text-[9px] text-emerald-700 font-semibold block">Verified Audit</span>
+                <span className="text-[9px] text-indigo-700 font-medium block">Studio Benchmark</span>
               </div>
               <div>
                 <span className="text-[10px] uppercase font-bold text-slate-500 block">Visual Engagement</span>
@@ -839,8 +901,8 @@ function SpeechCertificateModal({
               </div>
               <div>
                 <span className="text-[10px] uppercase font-bold text-slate-500 block">Speech Clarity</span>
-                <span className="text-lg sm:text-xl font-bold text-slate-800">{fillers === 0 ? 'Zero Fillers' : `${fillers} Fillers`}</span>
-                <span className="text-[9px] text-slate-500 block">Fluency Index</span>
+                <span className="text-lg sm:text-xl font-bold text-slate-800">Fillers: {fillers}</span>
+                <span className="text-[9px] text-slate-500 block">Hesitation Count</span>
               </div>
             </div>
 
@@ -850,7 +912,7 @@ function SpeechCertificateModal({
               {/* Left: Security & ID */}
               <div className="space-y-1 text-center sm:text-left">
                 <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono">
-                  <span>ID:</span>
+                  <span>Reference ID:</span>
                   <span className="font-bold text-slate-800">{certId}</span>
                   <button onClick={handleCopyCertId} className="hover:text-indigo-600 print:hidden" title="Copy ID">
                     <Copy className="h-3 w-3" />
@@ -859,31 +921,38 @@ function SpeechCertificateModal({
                 <p className="text-[10px] text-slate-500">
                   Issued: <span className="font-medium text-slate-700">{issueDate}</span>
                 </p>
-                <div className="flex items-center gap-1 text-[9px] text-emerald-700 font-semibold">
-                  <CheckCircle2 className="h-3 w-3" />
-                  <span>Cryptographic Session Verification</span>
+                <div className="flex items-center gap-1 text-[9px] text-slate-600 font-medium">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                  <span>Verify: /verify/{certId}</span>
                 </div>
               </div>
 
-              {/* Center: Official Seal */}
-              <div className="h-16 w-16 rounded-full border-2 border-amber-500 bg-amber-50 flex flex-col items-center justify-center p-1 shadow-xs text-center">
-                <Award className="h-6 w-6 text-amber-600" />
-                <span className="text-[7px] uppercase font-bold tracking-tighter text-amber-900 leading-none mt-0.5">
+              {/* Center: Practice Seal */}
+              <div className="h-16 w-16 rounded-full border-2 border-indigo-500 bg-indigo-50 flex flex-col items-center justify-center p-1 shadow-xs text-center">
+                <Award className="h-6 w-6 text-indigo-700" />
+                <span className="text-[7px] uppercase font-bold tracking-tighter text-indigo-950 leading-none mt-0.5">
                   MIRAL AI
                 </span>
-                <span className="text-[6px] text-amber-700 uppercase leading-none">VERIFIED</span>
+                <span className="text-[6px] text-indigo-700 uppercase leading-none font-semibold">MILESTONE</span>
               </div>
 
               {/* Right: Authentic System Verification Engine */}
               <div className="text-center sm:text-right space-y-1">
                 <div className="flex items-center justify-center sm:justify-end gap-1.5 text-xs font-bold text-indigo-950 border-b border-slate-300 pb-1 px-2">
                   <Shield className="h-3.5 w-3.5 text-indigo-700" />
-                  <span>MIRAL Multi-Modal AI Engine</span>
+                  <span>MIRAL Speech & Vision Analytics</span>
                 </div>
-                <p className="text-[10px] font-semibold text-slate-700 block">Automated Vision & Speech Analysis</p>
-                <p className="text-[9px] text-slate-500 block">100% Client-Side Private ML Assessment</p>
+                <p className="text-[10px] font-semibold text-slate-700 block">Automated Camera & Cadence Feedback</p>
+                <p className="text-[9px] text-slate-500 block">Evaluated via Computer Vision & Audio Analysis</p>
               </div>
 
+            </div>
+
+            {/* Honest Disclaimer */}
+            <div className="mt-4 pt-3 border-t border-slate-100 text-center">
+              <p className="text-[9px] text-slate-500 leading-tight">
+                AI-assisted practice assessment based on camera and speech analysis. Not an accredited certification.
+              </p>
             </div>
 
           </div>
@@ -891,14 +960,14 @@ function SpeechCertificateModal({
 
         {/* Modal Footer Controls (Hidden during Print) */}
         <div className="p-4 bg-muted/30 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground print:hidden">
-          <span>This certificate is verifiable for portfolios, achievements, and LinkedIn profiles.</span>
+          <span>This certificate represents individual practice progress in the MIRAL AI studio.</span>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={onClose} className="h-8 text-xs font-semibold">
               Close
             </Button>
             <Button size="sm" onClick={handlePrintCertificate} className="h-8 text-xs font-semibold gap-1.5">
               <Printer className="h-3.5 w-3.5" />
-              <span>Print Official Certificate</span>
+              <span>Print / Save Certificate</span>
             </Button>
           </div>
         </div>
@@ -1196,6 +1265,46 @@ export default function Report() {
     ? "Competent Communicator — Strong Delivery Foundation"
     : "Developing Communicator — Practice & Refinement Track";
 
+  // Certificate eligibility: ≥3 sessions, each ≥2 min, AND (best score ≥70 OR improvement ≥10pts from first session)
+  const certEligibility = useMemo(() => {
+    const currentUserId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
+    const userKey = currentUserId ? `miral_completed_sessions_${currentUserId}` : 'miral_completed_sessions_guest';
+    let allSessions: any[] = [];
+    try {
+      const stored = localStorage.getItem(userKey);
+      allSessions = stored ? JSON.parse(stored) : [];
+      if (!Array.isArray(allSessions)) allSessions = [];
+    } catch { allSessions = []; }
+
+    // Only count sessions ≥2 minutes (120s)
+    const validSessions = allSessions.filter((s: any) => getDuration(s) >= 120);
+    const count = validSessions.length;
+
+    if (count === 0) return { eligible: false, count, sessionsNeeded: 3, reason: 'no_sessions' };
+
+    // Sort oldest → newest
+    const sorted = [...validSessions].sort((a, b) =>
+      new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+    );
+    const firstScore = getConfidence(sorted[0]);
+    const bestScore = Math.max(...sorted.map((s: any) => getConfidence(s)));
+    const improvement = bestScore - firstScore;
+
+    const meetsMinSessions = count >= 3;
+    const meetsScore = bestScore >= 70 || improvement >= 10;
+
+    return {
+      eligible: meetsMinSessions && meetsScore,
+      count,
+      sessionsNeeded: Math.max(0, 3 - count),
+      bestScore,
+      firstScore,
+      improvement,
+      reason: !meetsMinSessions ? 'need_more_sessions' : !meetsScore ? 'need_better_score' : 'eligible',
+    };
+  }, []);
+
+
   return (
     <div className="min-h-screen bg-background pb-16">
 
@@ -1203,6 +1312,7 @@ export default function Report() {
       {showCertificateModal && (
         <SpeechCertificateModal
           session={activeSession}
+          eligibility={certEligibility}
           onClose={() => setShowCertificateModal(false)}
         />
       )}
@@ -1308,16 +1418,39 @@ export default function Report() {
           </Button>
 
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            {/* Certificate Trigger Button */}
-            <Button 
-              variant="default"
-              size="sm" 
-              className="gap-2 text-xs font-bold bg-gradient-to-r from-amber-500 to-indigo-600 text-white hover:opacity-95 shadow-sm"
-              onClick={() => setShowCertificateModal(true)}
-            >
-              <Award className="h-4 w-4 text-amber-200" />
-              <span>View Performance Certificate</span>
-            </Button>
+            {/* Certificate Trigger Button - Locked vs Available based on actual session milestones */}
+            {certEligibility.eligible ? (
+              <Button 
+                variant="default"
+                size="sm" 
+                className="gap-2 text-xs font-bold bg-gradient-to-r from-amber-500 to-indigo-600 text-white hover:opacity-95 shadow-sm"
+                onClick={() => setShowCertificateModal(true)}
+              >
+                <Award className="h-4 w-4 text-amber-200" />
+                <span>View Practice Certificate</span>
+              </Button>
+            ) : (
+              <Button 
+                variant="outline"
+                size="sm" 
+                className="gap-1.5 text-xs font-medium text-muted-foreground border-border/70 hover:bg-muted/50"
+                onClick={() => {
+                  toast({
+                    title: "Certificate In Progress",
+                    description: certEligibility.count < 3
+                      ? `Complete ${certEligibility.sessionsNeeded} more sustained practice session(s) (≥2 min) to unlock your certificate.`
+                      : `Achieve a score of 70+ or improve +10 points from your first session to unlock!`,
+                  });
+                }}
+              >
+                <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>
+                  {certEligibility.count < 3
+                    ? `Certificate: ${certEligibility.sessionsNeeded} more session${certEligibility.sessionsNeeded > 1 ? 's' : ''} to unlock`
+                    : 'Certificate: Reach 70+ score to unlock'}
+                </span>
+              </Button>
+            )}
 
             <Button 
               variant="outline" 
@@ -1365,15 +1498,26 @@ export default function Report() {
               <Badge variant="outline" className="text-xs border-primary/40 text-primary font-medium">
                 {performanceTier}
               </Badge>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs text-amber-600 dark:text-amber-400 font-semibold gap-1.5 h-6 px-2 mt-1 print:hidden"
-                onClick={() => setShowCertificateModal(true)}
-              >
-                <Award className="h-3.5 w-3.5" />
-                <span>Download Verified Certificate →</span>
-              </Button>
+              {certEligibility.eligible ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-amber-600 dark:text-amber-400 font-semibold gap-1.5 h-6 px-2 mt-1 print:hidden"
+                  onClick={() => setShowCertificateModal(true)}
+                >
+                  <Award className="h-3.5 w-3.5" />
+                  <span>View Practice Certificate →</span>
+                </Button>
+              ) : (
+                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-1 print:hidden">
+                  <Lock className="h-3 w-3 text-muted-foreground/80" />
+                  <span>
+                    {certEligibility.count < 3
+                      ? `${certEligibility.sessionsNeeded} more session${certEligibility.sessionsNeeded > 1 ? 's' : ''} to unlock certificate`
+                      : 'Reach 70+ score to unlock certificate'}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

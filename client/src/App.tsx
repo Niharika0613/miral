@@ -21,6 +21,7 @@ import Terms from "@/pages/terms";
 import Contact from "@/pages/contact";
 import FAQ from "@/pages/faq";
 import Pricing from "@/pages/pricing";
+import VerifyCertificate from "@/pages/verify";
 import NotFound from "@/pages/not-found";
 import { getCurrentUser } from "@/utils/auth";
 
@@ -34,6 +35,8 @@ function AppRouter() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/learning" component={LearningResources} />
       <Route path="/report/:id" component={Report} />
+      <Route path="/verify/:id" component={VerifyCertificate} />
+      <Route path="/verify" component={VerifyCertificate} />
       <Route path="/profile" component={Profile} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Login} />

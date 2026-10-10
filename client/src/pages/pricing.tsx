@@ -153,7 +153,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span><strong>Indian Placement Rubric Packs</strong> (TCS, Infosys, SDE Viva, Consulting)</span>
+                  <span><strong>Curated Scenario Practice Packs</strong> (Campus HR, Group Discussions, Tech Viva, Debates)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
@@ -173,7 +173,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span><strong>Verified Placement Readiness Certificate (PDF)</strong> with QR Code</span>
+                  <span><strong>Speaking Practice Milestone Certificate (PDF)</strong> with Verification link</span>
                 </li>
               </ul>
 
@@ -299,13 +299,13 @@ export default function Pricing() {
                     <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
                   </tr>
                   <tr>
-                    <td className="p-4 font-medium text-foreground">Indian Corporate Rubric Packs (TCS, Infosys, Amazon)</td>
+                    <td className="p-4 font-medium text-foreground">Curated Scenario Practice Packs (Campus HR, GD, Viva, Debates)</td>
                     <td className="p-4 text-center text-muted-foreground/40">—</td>
                     <td className="p-4 text-center text-primary bg-primary/5"><Check className="h-4 w-4 mx-auto" /></td>
                     <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
                   </tr>
                   <tr>
-                    <td className="p-4 font-medium text-foreground">Verified QR Placement Certificate (PDF)</td>
+                    <td className="p-4 font-medium text-foreground">Speaking Practice Milestone Certificate (PDF)</td>
                     <td className="p-4 text-center text-muted-foreground/40">—</td>
                     <td className="p-4 text-center text-primary bg-primary/5"><Check className="h-4 w-4 mx-auto" /></td>
                     <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>

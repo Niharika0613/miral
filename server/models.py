@@ -1,4 +1,4 @@
-﻿# server-fastapi/models.py
+# server-fastapi/models.py
 from sqlalchemy import Column, String, Integer, Float, Text, TIMESTAMP, Boolean, JSON
 from sqlalchemy.sql import func
 from database import Base
@@ -11,6 +11,8 @@ class User(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     password = Column(Text, nullable=False)
     name = Column(String, nullable=True)
+    plan = Column(String, default="free", nullable=False)
+    pro_until = Column(TIMESTAMP, nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False)
 

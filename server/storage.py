@@ -129,7 +129,9 @@ class DatabaseStorage:
             id=str(uuid.uuid4()),
             email=email,
             password=hashed_password,
-            name=name
+            name=name,
+            plan="free",
+            pro_until=datetime(2026, 10, 31, 23, 59, 59)
         )
         
         db.add(new_user)

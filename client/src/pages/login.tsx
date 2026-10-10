@@ -90,7 +90,12 @@ export default function Login() {
           setMode('login');
           setFormData({ ...formData, password: '' });
         } else {
-          setAuth(data.user.id, data.user.name || data.user.email);
+          setAuth(
+            data.user.id, 
+            data.user.name || data.user.email,
+            data.user.plan || 'free',
+            data.user.pro_until || '2026-10-31T23:59:59Z'
+          );
           toast({
             title: 'Authentication Successful',
             description: `Welcome back, ${data.user.name || data.user.email}`,

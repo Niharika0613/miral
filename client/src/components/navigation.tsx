@@ -2,9 +2,10 @@
 import { Link, useLocation } from "wouter";
 import { Video, LayoutDashboard, User, LogOut, LogIn, Sparkles, Compass, Menu, X, ShieldCheck, HelpCircle, Mail, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState } from "react";
-import { logout, getCurrentUser } from "@/utils/auth";
+import { logout, getCurrentUser, getUserPlan } from "@/utils/auth";
 import { MiralLogo } from "@/components/miral-logo";
 
 export function Navigation() {
@@ -69,6 +70,9 @@ export function Navigation() {
                 <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 text-foreground font-medium">
                   <User className="h-3.5 w-3.5 text-primary" />
                   <span className="hidden sm:inline">{user.name}</span>
+                  <Badge variant="secondary" className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20 py-0 px-1.5 hidden md:inline-flex">
+                    Pro • 31 Oct tak
+                  </Badge>
                 </Button>
               </Link>
               <Button 

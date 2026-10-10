@@ -31,12 +31,14 @@ import { detectFaces, calculateEyeContact, analyzeFace, loadFaceDetector } from 
 import { analyzePosture, loadPostureDetector, getPostureColor } from '@/lib/posture-detection';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
-import { isLoggedIn } from '@/utils/auth';
+import { isLoggedIn, getUserPlan, getDailyAnalysisUsage } from '@/utils/auth';
 
 
 export default function Practice() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const userPlan = getUserPlan();
+  const dailyUsage = getDailyAnalysisUsage();
   const { videoRef, isReady, error: webcamError } = useWebcam();
   const { isRecording, startRecording, stopRecording } = useAudioRecorder();
   
@@ -101,6 +103,8 @@ export default function Practice() {
 
   const persistedTranscriptRef = useRef('');
   const activeSessionTextRef = useRef('');
+  // Active speech interval timestamps to calculate speaking-only WPM
+  const speechIntervalsRef = useRef<{ start: number; end: number }[]>([]);
 
   // Speech Recognition Stream & Mobile Mic Handler with Chunk Accumulation
   const startAudioStream = useCallback(() => {
@@ -139,13 +143,27 @@ export default function Practice() {
         if (combined) {
           setLiveTranscript(combined);
 
+          // Track active speaking interval (extend if within 2.2s of last utterance, else start new chunk)
+          const now = Date.now();
+          const intervals = speechIntervalsRef.current;
+          if (intervals.length > 0 && (now - intervals[intervals.length - 1].end) < 2200) {
+            intervals[intervals.length - 1].end = now;
+          } else {
+            intervals.push({ start: now, end: now + 800 });
+          }
+
           const words = combined.split(/\s+/).filter(Boolean);
-          const startTime = sessionStartTimeRef.current || Date.now();
-          const activeSeconds = Math.max(1, Math.round((Date.now() - startTime) / 1000));
+          // Calculate speaking time ONLY while actively speaking (not total elapsed idle time)
+          const rawActiveSpeakingSecs = intervals.reduce(
+            (sum, inv) => sum + Math.max(0.6, (inv.end - inv.start) / 1000), 
+            0
+          );
+          // Upper speed guard (~190 WPM max ceiling so 1-2 words don't explode WPM)
+          const activeSpeakingSeconds = Math.max(words.length * 0.31, rawActiveSpeakingSecs);
           
-          if (words.length > 0 && activeSeconds >= 2) {
-            const rawWpm = Math.round(words.length / (activeSeconds / 60));
-            setEstimatedWPM(Math.min(220, Math.max(40, rawWpm)));
+          if (words.length > 0 && activeSpeakingSeconds >= 1.5) {
+            const rawWpm = Math.round(words.length / (activeSpeakingSeconds / 60));
+            setEstimatedWPM(Math.min(210, Math.max(50, rawWpm)));
           } else if (words.length > 0) {
             setEstimatedWPM(135);
           }
@@ -375,6 +393,7 @@ export default function Practice() {
       setEstimatedWPM(0);
       persistedTranscriptRef.current = '';
       activeSessionTextRef.current = '';
+      speechIntervalsRef.current = [];
 
       const startTime = Date.now();
       sessionStartTimeRef.current = startTime;
@@ -422,6 +441,7 @@ export default function Practice() {
       setLiveTranscript('');
       setFillerWordsCount(0);
       setEstimatedWPM(0);
+      speechIntervalsRef.current = [];
 
       toast({
         title: "Session Reset",
@@ -460,8 +480,29 @@ export default function Practice() {
       // The report will show "No audio recorded" which is the honest truth.
 
       const wordsCount = resolvedTranscript.split(/\s+/).filter(Boolean).length;
-      const computedWpm = actualDuration > 0 && wordsCount > 0 ? Math.round(wordsCount / (actualDuration / 60)) : (estimatedWPM || 135);
-      const finalWPM = Math.min(220, Math.max(40, computedWpm));
+      let finalWPM = 0;
+
+      if (wordsCount > 0) {
+        const intervals = speechIntervalsRef.current;
+        const rawActiveSpeakingSecs = intervals.reduce(
+          (sum, inv) => sum + Math.max(0.6, (inv.end - inv.start) / 1000), 
+          0
+        );
+        // Active speaking seconds calculation measures pace ONLY while speaking, not silent periods
+        const activeSpeakingSeconds = Math.max(wordsCount * 0.31, rawActiveSpeakingSecs);
+
+        const computedWpm = activeSpeakingSeconds > 0
+          ? Math.round(wordsCount / (activeSpeakingSeconds / 60))
+          : (estimatedWPM || 135);
+
+        finalWPM = Math.min(210, Math.max(50, computedWpm));
+      } else {
+        finalWPM = 0;
+      }
+
+      // Record daily transcript analysis usage
+      getDailyAnalysisUsage().recordAnalysis();
+
       const activeTopic = topic || 'General Practice Session';
       
       const pacingFactor = finalWPM >= 120 && finalWPM <= 165 ? 100 : (finalWPM > 0 ? Math.max(20, 100 - Math.abs(finalWPM - 140) * 1.5) : 30);
@@ -629,10 +670,13 @@ export default function Practice() {
 
   const renderTranscriptCard = () => (
     <Card className="border border-border/60 bg-card shadow-xs">
-      <CardHeader className="pb-2 border-b border-border/40">
+      <CardHeader className="pb-2 border-b border-border/40 flex flex-row items-center justify-between">
         <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Live Spoken Transcript
         </CardTitle>
+        <Badge variant="outline" className="text-[10px] text-primary border-primary/30">
+          Daily Cap: {dailyUsage.count}/{dailyUsage.limit} • {userPlan.badgeText}
+        </Badge>
       </CardHeader>
       <CardContent className="p-3">
         <div className="h-36 overflow-y-auto font-mono text-[11px] text-foreground/90 leading-relaxed bg-muted/20 p-2.5 rounded border border-border/30">
@@ -657,9 +701,9 @@ export default function Practice() {
               <span className="font-bold text-[11px] uppercase tracking-wider text-foreground">
                 Live Teleprompter Notes
               </span>
-              <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                (Read naturally into the webcam lens)
-              </span>
+              <Badge variant="secondary" className="text-[9px] text-primary bg-primary/10 border-primary/20">
+                Pro • {userPlan.badgeText}
+              </Badge>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="flex items-center border border-border/60 rounded-md overflow-hidden bg-muted/40 h-6">

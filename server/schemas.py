@@ -17,6 +17,8 @@ class UserResponse(BaseModel):
     id: str
     email: str
     name: Optional[str]
+    plan: Optional[str] = 'free'
+    pro_until: Optional[datetime] = None
 
     class Config:
         from_attributes = True

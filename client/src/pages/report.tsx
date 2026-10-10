@@ -484,9 +484,14 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
               </span>
             </div>
           </div>
-          <Badge variant="outline" className={`text-[10px] ${hasDetectedWords ? 'border-emerald-500/40 text-emerald-600 bg-emerald-500/5' : 'border-primary/30 text-primary'}`}>
-            {hasDetectedWords ? "✨ Spoken Audio Matched" : "Scenario Recommended"}
-          </Badge>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20">
+              Pro • Pilot mein free, 31 Oct tak
+            </Badge>
+            <Badge variant="outline" className={`text-[10px] ${hasDetectedWords ? 'border-emerald-500/40 text-emerald-600 bg-emerald-500/5' : 'border-primary/30 text-primary'}`}>
+              {hasDetectedWords ? "✨ Spoken Audio Matched" : "Scenario Recommended"}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -650,12 +655,17 @@ function RecommendedLearningSection({ session }: { session: Session }) {
               </span>
             </div>
           </div>
-          <Link href="/learning">
-            <Button variant="ghost" size="sm" className="text-xs text-primary gap-1 h-7 px-2">
-              <span>View All Library</span>
-              <ArrowRight className="h-3 w-3" />
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20">
+              Pro Hub • Pilot mein free, 31 Oct tak
+            </Badge>
+            <Link href="/learning">
+              <Button variant="ghost" size="sm" className="text-xs text-primary gap-1 h-7 px-2">
+                <span>View All Library</span>
+                <ArrowRight className="h-3 w-3" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-4 grid grid-cols-1 md:grid-cols-3 gap-3">

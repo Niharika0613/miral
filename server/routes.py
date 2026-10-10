@@ -60,7 +60,9 @@ async def signup(user_data: UserSignup, db: AsyncSession = Depends(get_db)):
             "user": {
                 "id": user.id,
                 "email": user.email,
-                "name": user.name
+                "name": user.name,
+                "plan": getattr(user, 'plan', 'free') or 'free',
+                "pro_until": user.pro_until.isoformat() if getattr(user, 'pro_until', None) else "2026-10-31T23:59:59Z"
             }
         }
 
@@ -96,7 +98,9 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
             "user": {
                 "id": user.id,
                 "email": user.email,
-                "name": user.name
+                "name": user.name,
+                "plan": getattr(user, 'plan', 'free') or 'free',
+                "pro_until": user.pro_until.isoformat() if getattr(user, 'pro_until', None) else "2026-10-31T23:59:59Z"
             }
         }
 

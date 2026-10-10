@@ -128,16 +128,27 @@ export default function Pricing() {
             </div>
 
             <CardHeader className="pb-4 border-b border-border/30 pt-6">
-              <Badge variant="outline" className="w-fit text-[10px] font-semibold border-primary/40 text-primary mb-2">
-                Placement Intensive
-              </Badge>
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <Badge variant="outline" className="text-[10px] font-semibold border-primary/40 text-primary">
+                  Placement Intensive
+                </Badge>
+                <Badge className="bg-gradient-to-r from-amber-500 to-indigo-600 text-white text-[10px] font-bold">
+                  Pilot mein free, 31 Oct tak
+                </Badge>
+              </div>
               <CardTitle className="text-xl font-bold text-foreground">Pro Placement Pass</CardTitle>
               <CardDescription className="text-xs text-muted-foreground">
-                Unlimited practice, historical progress trajectory, and verified placement certificates.
+                Unlimited practice, historical progress trajectory, and speaking practice certificates.
               </CardDescription>
-              <div className="pt-4 flex items-baseline gap-1.5">
-                <span className="text-3xl font-bold text-primary">₹199</span>
-                <span className="text-xs text-muted-foreground">/ month or <strong>₹499 Season Pass</strong> (6 Months)</span>
+              <div className="pt-4 flex flex-col gap-1">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-primary">₹0</span>
+                  <span className="text-xs line-through text-muted-foreground">₹199/mo</span>
+                  <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-600 bg-emerald-500/10 font-bold">
+                    100% Free in Pilot
+                  </Badge>
+                </div>
+                <span className="text-[11px] text-muted-foreground">Standard ₹199/mo or ₹499 Season Pass activates after 31 Oct 2026</span>
               </div>
             </CardHeader>
 

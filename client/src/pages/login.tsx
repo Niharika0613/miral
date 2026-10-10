@@ -7,21 +7,36 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowRight, KeyRound, ArrowLeft, Check, Sparkles } from 'lucide-react';
+import { 
+  Loader2, 
+  ArrowRight, 
+  KeyRound, 
+  ArrowLeft, 
+  Check, 
+  Sparkles,
+  Briefcase,
+  Users,
+  Scale,
+  Mic,
+  BookOpen,
+  TrendingUp,
+  GraduationCap,
+  Globe
+} from 'lucide-react';
 import { setAuth } from '@/utils/auth';
 import { MiralLogo } from '@/components/miral-logo';
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
 const GOAL_OPTIONS = [
-  { id: 'interviews', label: 'Job & Campus Placement Interviews', icon: '💼' },
-  { id: 'gd', label: 'Group Discussions (GD) & Roundtables', icon: '🗣️' },
-  { id: 'debate', label: 'Debates & Competitive Speaking', icon: '⚡' },
-  { id: 'public_speaking', label: 'Public Speaking & Keynotes', icon: '🎙️' },
-  { id: 'recitation', label: 'Poetry Recitation & Storytelling', icon: '🎭' },
-  { id: 'pitch', label: 'Startup Pitching & Presentations', icon: '🚀' },
-  { id: 'viva', label: 'College Viva & Capstone Defense', icon: '🎓' },
-  { id: 'fluency', label: 'Everyday English Fluency & Accent', icon: '🌐' },
+  { id: 'interviews', label: 'Job & Campus Placement Interviews', icon: Briefcase },
+  { id: 'gd', label: 'Group Discussions (GD) & Roundtables', icon: Users },
+  { id: 'debate', label: 'Debates & Competitive Speaking', icon: Scale },
+  { id: 'public_speaking', label: 'Public Speaking & Keynotes', icon: Mic },
+  { id: 'recitation', label: 'Poetry Recitation & Storytelling', icon: BookOpen },
+  { id: 'pitch', label: 'Startup Pitching & Presentations', icon: TrendingUp },
+  { id: 'viva', label: 'College Viva & Capstone Defense', icon: GraduationCap },
+  { id: 'fluency', label: 'Everyday English Fluency & Accent', icon: Globe },
 ];
 
 export default function Login() {
@@ -249,12 +264,13 @@ export default function Login() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                   {GOAL_OPTIONS.map((goal) => {
                     const isSelected = selectedGoals.includes(goal.id);
+                    const IconComponent = goal.icon;
                     return (
                       <button
                         key={goal.id}
                         type="button"
                         onClick={() => toggleGoal(goal.id)}
-                        className={`flex items-center gap-2 p-2 rounded-lg border text-left text-xs transition-all ${
+                        className={`flex items-center gap-2.5 p-2.5 rounded-lg border text-left text-xs transition-all ${
                           isSelected
                             ? 'bg-primary/10 border-primary/50 text-foreground font-semibold shadow-xs'
                             : 'bg-muted/20 border-border/50 text-muted-foreground hover:border-border hover:text-foreground'
@@ -267,7 +283,7 @@ export default function Login() {
                         }`}>
                           {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
                         </div>
-                        <span className="text-sm shrink-0">{goal.icon}</span>
+                        <IconComponent className="h-4 w-4 text-primary shrink-0" />
                         <span className="truncate text-[11px] leading-tight">{goal.label}</span>
                       </button>
                     );

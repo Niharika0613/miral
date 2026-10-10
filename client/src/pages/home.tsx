@@ -200,9 +200,10 @@ export default function Home() {
       
       {/* Top Announcement Bar */}
       <div className="border-b border-indigo-100 dark:border-indigo-900/40 bg-indigo-50/70 dark:bg-indigo-950/30 py-2 px-4 text-center">
-        <p className="text-xs sm:text-sm font-medium text-indigo-700 dark:text-indigo-300">
-          <span className="font-semibold mr-1.5">✦ Live AI Practice Mirror:</span> 
-          Real-time feedback on your eye contact, posture, speaking pace, and clarity — 100% private in your browser.
+        <p className="text-xs sm:text-sm font-medium text-indigo-700 dark:text-indigo-300 flex items-center justify-center gap-1.5">
+          <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+          <span className="font-semibold">Live AI Practice Mirror:</span> 
+          <span>Real-time feedback on your eye contact, posture, speaking pace, and clarity — 100% private in your browser.</span>
         </p>
       </div>
 
@@ -680,10 +681,10 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="pt-2 flex items-center justify-center gap-5 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-              <span>✓ Free Account</span>
-              <span>✓ Save Progress History</span>
-              <span>✓ Instant Browser Launch</span>
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-5 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+              <span className="flex items-center gap-1.5"><Check className="h-3 w-3 text-indigo-500" /> Free Account</span>
+              <span className="flex items-center gap-1.5"><Check className="h-3 w-3 text-indigo-500" /> Save Progress History</span>
+              <span className="flex items-center gap-1.5"><Check className="h-3 w-3 text-indigo-500" /> Instant Browser Launch</span>
             </div>
 
           </div>

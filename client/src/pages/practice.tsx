@@ -911,7 +911,7 @@ export default function Practice() {
   return (
     <div className="min-h-screen bg-background">
       
-      {/* 🔐 Login Gate Modal — shown when unauthenticated user clicks Start */}
+      {/* Login Gate Modal — shown when unauthenticated user clicks Start */}
       {showLoginPrompt && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <Card className="max-w-md w-full border-2 border-primary/30 shadow-2xl bg-card">

@@ -58,7 +58,7 @@ export default function Contact() {
       if (response.ok) {
         setIsSubmitted(true);
         toast({
-          title: "Inquiry Sent Successfully! 🚀",
+          title: "Inquiry Sent Successfully",
           description: "Your message has been delivered to supportmiralai@gmail.com. We will reply within 24 hours.",
         });
       } else {

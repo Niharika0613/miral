@@ -488,8 +488,8 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
             <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20">
               Pro • Pilot mein free, 31 Oct tak
             </Badge>
-            <Badge variant="outline" className={`text-[10px] ${hasDetectedWords ? 'border-emerald-500/40 text-emerald-600 bg-emerald-500/5' : 'border-primary/30 text-primary'}`}>
-              {hasDetectedWords ? "✨ Spoken Audio Matched" : "Scenario Recommended"}
+            <Badge variant="outline" className={`text-[10px] ${hasDetectedWords ? 'border-emerald-500/40 text-emerald-600 bg-emerald-500/5 font-medium' : 'border-primary/30 text-primary'}`}>
+              {hasDetectedWords ? "Audio Matched" : "Scenario Recommended"}
             </Badge>
           </div>
         </div>
@@ -1031,7 +1031,7 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
             <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
             <span>Feedback submitted successfully. Thank you for helping us improve MIRAL!</span>
           </div>
-          <span className="font-semibold text-primary">Keep practicing & shining! ✨</span>
+          <span className="font-semibold text-primary">Keep practicing and refining your skills.</span>
         </CardContent>
       </Card>
     );
@@ -1062,13 +1062,14 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
                   key={star}
                   type="button"
                   onClick={() => setRating(star)}
-                  className={`h-7 w-7 rounded border text-xs font-bold transition-all ${
+                  className={`h-7 w-7 rounded border text-xs font-bold flex items-center justify-center gap-0.5 transition-all ${
                     rating >= star
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground'
                   }`}
                 >
-                  {star}★
+                  <span>{star}</span>
+                  <Star className="h-2.5 w-2.5 fill-current" />
                 </button>
               ))}
             </div>
@@ -1358,13 +1359,14 @@ export default function Report() {
                         key={star}
                         type="button"
                         onClick={() => setPopupRating(star)}
-                        className={`flex-1 py-2 rounded-lg border text-sm font-bold transition-all ${
+                        className={`flex-1 py-2 rounded-lg border text-sm font-bold flex items-center justify-center gap-1 transition-all ${
                           popupRating >= star
                             ? 'bg-primary text-primary-foreground border-primary shadow-xs'
                             : 'bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground'
                         }`}
                       >
-                        {star}★
+                        <span>{star}</span>
+                        <Star className="h-3.5 w-3.5 fill-current" />
                       </button>
                     ))}
                   </div>
@@ -1608,7 +1610,7 @@ export default function Report() {
             </CardHeader>
             <CardContent className="p-6 pt-2 text-center space-y-4">
               <div className="p-3 rounded-xl bg-muted/40 border border-border/40 text-xs font-medium text-foreground">
-                Keep practicing, stay confident, and keep shining! ✨
+                Consistent practice builds confident communication.
               </div>
               <div className="flex gap-2.5">
                 <Button

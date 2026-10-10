@@ -103,13 +103,13 @@ export function useAudioStream(options: AudioStreamOptions = {}) {
       wsRef.current.binaryType = 'arraybuffer';
 
       wsRef.current.onopen = () => {
-        console.log('✅ WebSocket connected');
+        console.log('[useAudioStream] WebSocket connected');
       };
 
       wsRef.current.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log('📨 WS message:', data);
+          console.log('[useAudioStream] WS message:', data);
 
           if (data.type === 'speech_partial') {
             setTranscript(data.text);

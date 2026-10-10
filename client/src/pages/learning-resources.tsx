@@ -271,7 +271,7 @@ export default function LearningResources() {
       if (response.ok) {
         setSubmittedPartner(true);
         toast({
-          title: "Application Sent Successfully! 🚀",
+          title: "Application Sent Successfully",
           description: "Details have been sent to supportmiralai@gmail.com. Our team will review and reply within 24 hours.",
         });
       } else {

@@ -10,7 +10,7 @@ export function AudioStreamDemo() {
 
   const { isRecording, transcript, metrics, startRecording, stopRecording } = useAudioStream({
     onFinalTranscript: async (text) => {
-      console.log('📝 Final transcript:', text);
+      console.log('[AudioStream] Final transcript:', text);
       
       // Call AI for feedback
       if (text && text.length > 10) {
@@ -18,13 +18,13 @@ export function AudioStreamDemo() {
       }
     },
     onPartialTranscript: (text) => {
-      console.log('📝 Partial transcript:', text);
+      console.log('[AudioStream] Partial transcript:', text);
     },
     onError: (error) => {
-      console.error('❌ Error:', error);
+      console.error('[AudioStream] Error:', error);
     },
     onMetrics: (m) => {
-      console.log('📊 Metrics:', m);
+      console.log('[AudioStream] Metrics:', m);
     },
   });
 
@@ -47,7 +47,7 @@ export function AudioStreamDemo() {
         setAiResponse(`Error: ${data.error}`);
       }
     } catch (error) {
-      console.error('❌ AI error:', error);
+      console.error('[AudioStream] AI error:', error);
       setAiResponse(`Error: ${String(error)}`);
     } finally {
       setIsLoadingAI(false);
@@ -56,7 +56,9 @@ export function AudioStreamDemo() {
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6 space-y-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold">🎤 Audio Stream Demo</h2>
+      <h2 className="text-2xl font-bold flex items-center gap-2">
+        <Mic className="h-6 w-6 text-primary" /> Audio Stream Demo
+      </h2>
 
       {/* Recording Controls */}
       <div className="flex gap-4">
@@ -82,7 +84,7 @@ export function AudioStreamDemo() {
 
       {/* Status */}
       <div className="p-4 bg-gray-100 rounded">
-        <p className="text-sm font-semibold">Status: {isRecording ? '🔴 Recording' : '⚫ Stopped'}</p>
+        <p className="text-sm font-semibold">Status: {isRecording ? 'Recording' : 'Stopped'}</p>
       </div>
 
       {/* Metrics */}
@@ -103,7 +105,7 @@ export function AudioStreamDemo() {
 
       {/* Transcript */}
       <div className="space-y-2">
-        <label className="text-sm font-semibold">📝 Live Transcript:</label>
+        <label className="text-sm font-semibold">Live Transcript:</label>
         <div className="p-4 bg-gray-50 rounded min-h-24 border border-gray-200">
           <p className="text-gray-700">{transcript || '(waiting for speech...)'}</p>
         </div>
@@ -111,10 +113,10 @@ export function AudioStreamDemo() {
 
       {/* AI Feedback */}
       <div className="space-y-2">
-        <label className="text-sm font-semibold">🤖 AI Feedback:</label>
+        <label className="text-sm font-semibold">AI Feedback:</label>
         <div className="p-4 bg-amber-50 rounded min-h-24 border border-amber-200">
           {isLoadingAI ? (
-            <p className="text-amber-600">⏳ Generating feedback...</p>
+            <p className="text-amber-600">Generating feedback...</p>
           ) : (
             <p className="text-gray-700">{aiResponse || '(feedback will appear here)'}</p>
           )}

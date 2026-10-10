@@ -711,9 +711,9 @@ function SpeechCertificateModal({
   onClose: () => void;
 }) {
   const currentUser = getCurrentUser();
-  const candidateName = currentUser?.name && currentUser.name !== 'Candidate' 
-    ? currentUser.name 
-    : (session.candidateName || 'Verified Speaker');
+  const candidateName = (currentUser?.name && currentUser.name !== 'Candidate')
+    ? currentUser.name
+    : 'Verified Speaker';
 
   const confidence = getConfidence(session);
   const eye = getEyeContact(session);

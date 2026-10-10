@@ -16,7 +16,9 @@ import {
   Play,
   X,
   AlertCircle,
-  FileText
+  FileText,
+  UserPlus,
+  LogIn
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,6 +31,8 @@ import { detectFaces, calculateEyeContact, analyzeFace, loadFaceDetector } from 
 import { analyzePosture, loadPostureDetector, getPostureColor } from '@/lib/posture-detection';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
+import { isLoggedIn } from '@/utils/auth';
+
 
 export default function Practice() {
   const [, setLocation] = useLocation();
@@ -90,6 +94,7 @@ export default function Practice() {
   const [isInFrame, setIsInFrame] = useState(true);
   const [showSuggestion, setShowSuggestion] = useState(false);
   const [suggestionMessage, setSuggestionMessage] = useState('');
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   
   const lookAwayCountRef = useRef(0);
   const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -356,6 +361,11 @@ export default function Practice() {
 
   const handleStart = async () => {
     if (!isReady || isModelLoading) return;
+    // Gate: user must be logged in to start a session (saves results)
+    if (!isLoggedIn()) {
+      setShowLoginPrompt(true);
+      return;
+    }
     try {
       setDuration(0);
       setEyeContactData([]);
@@ -442,16 +452,12 @@ export default function Practice() {
 
       let resolvedTranscript = (persistedTranscriptRef.current + ' ' + activeSessionTextRef.current).trim() || liveTranscript.trim();
       
-      // Fallback transcript recovery for mobile browsers without speech recognition support
-      if (!resolvedTranscript && actualDuration >= 3) {
-        if (customScript) {
-          resolvedTranscript = customScript;
-        } else if (activeQuestion?.question) {
-          resolvedTranscript = `Thank you for asking about ${activeQuestion.question}. In my experience, I always focus on structured communication, breaking down the problem systematically and collaborating with my team to deliver dependable results on time.`;
-        } else {
-          resolvedTranscript = `In this practice session on ${topic || 'Interview Preparation'}, I focused on delivering structured communication with steady pacing, clear articulation, and calm presence.`;
-        }
+      // Fallback: only use custom script if user explicitly set it; NEVER inject fake text
+      if (!resolvedTranscript && customScript) {
+        resolvedTranscript = customScript;
       }
+      // If still empty — user's mic/speech recognition didn't capture anything — keep it empty.
+      // The report will show "No audio recorded" which is the honest truth.
 
       const wordsCount = resolvedTranscript.split(/\s+/).filter(Boolean).length;
       const computedWpm = actualDuration > 0 && wordsCount > 0 ? Math.round(wordsCount / (actualDuration / 60)) : (estimatedWPM || 135);
@@ -861,6 +867,57 @@ export default function Practice() {
   return (
     <div className="min-h-screen bg-background">
       
+      {/* 🔐 Login Gate Modal — shown when unauthenticated user clicks Start */}
+      {showLoginPrompt && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full border-2 border-primary/30 shadow-2xl bg-card">
+            <CardHeader className="border-b border-border/40 pb-4 text-center">
+              <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                <UserPlus className="h-7 w-7 text-primary" />
+              </div>
+              <CardTitle className="text-lg font-bold text-foreground">Create a Free Account to Practice</CardTitle>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Your session metrics, progress trajectory, and AI coaching report are saved to your account — so your growth is always tracked.
+              </p>
+            </CardHeader>
+            <CardContent className="p-5 space-y-3">
+              <div className="space-y-1.5 text-xs text-muted-foreground">
+                {['Eye contact & posture analytics saved', 'Session-by-session progress chart', 'AI coaching report & learning resources', 'Downloadable Communication Certificate'].map((f) => (
+                  <div key={f} className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span>{f}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
+                <Button
+                  className="flex-1 text-xs font-semibold h-9 gap-1.5"
+                  onClick={() => setLocation('/login?mode=signup')}
+                >
+                  <UserPlus className="h-3.5 w-3.5" />
+                  Create Free Account
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 text-xs font-semibold h-9 gap-1.5 border-border/60"
+                  onClick={() => setLocation('/login')}
+                >
+                  <LogIn className="h-3.5 w-3.5" />
+                  I Already Have an Account
+                </Button>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLoginPrompt(false)}
+                className="w-full text-center text-[11px] text-muted-foreground hover:text-foreground pt-1 transition-colors"
+              >
+                Maybe later — just explore the studio
+              </button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* 60-Second Micro-Warmup Modal */}
       {isWarmupOpen && (
         <div className="fixed inset-0 bg-background/85 backdrop-blur-md z-50 flex items-center justify-center p-4">

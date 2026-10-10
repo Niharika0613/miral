@@ -23,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Session } from '@shared/schema';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { getCurrentUser } from '@/utils/auth';
+import { getCurrentUser, isLoggedIn } from '@/utils/auth';
 
 // Safe metric extraction helper supporting both camelCase and snake_case API serialization
 const getConfidence = (s: any): number => Math.round(s?.confidenceScore ?? s?.confidence_score ?? 0);
@@ -38,6 +38,12 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const user = getCurrentUser();
   const userId = sessionStorage.getItem('userId') || user?.id;
+
+  // Auth guard — redirect unauthenticated visitors immediately
+  if (!isLoggedIn()) {
+    setLocation('/login');
+    return null;
+  }
   
   const { data: sessions, isLoading } = useQuery<Session[]>({
     queryKey: ['/api/sessions', userId],

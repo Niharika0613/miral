@@ -13,15 +13,15 @@ from config import settings
 app = create_app()
 
 if __name__ == "__main__":
-    """
-    Run FastAPI server
-    Matches: server/index-dev.ts behavior
-    """
+    import os
+    port = int(os.environ.get("PORT", getattr(settings, "port", 8000) or 8000))
+    host = os.environ.get("HOST", "0.0.0.0")
+    print(f"[MIRAL] Starting server on {host}:{port} ...", flush=True)
     uvicorn.run(
         "main:app",
-        host=settings.host,
-        port=settings.port,
-        reload=True,
+        host=host,
+        port=port,
+        reload=False,
         log_level="info",
-        access_log=False  # Suppress 404 logs for favicon, etc.
+        access_log=True
     )

@@ -1419,7 +1419,12 @@ function SpeechCertificateModal({
   const eye = getEyeContact(session);
   const posture = getPosture(session);
   const wpm = getWpm(session);
-  const fillers = getFillers(session);
+  const storedFillers = getFillers(session);
+  const detectedFillers = useMemo(() => 
+    detectFillersAndHesitations(session?.transcript || ''),
+    [session?.transcript]
+  );
+  const fillers = Math.max(storedFillers, detectedFillers.totalCount);
 
   const certId = useMemo(() => {
     const rawId = (session.id || 'PILOT').replace(/[^a-zA-Z0-9]/g, '').slice(0, 8).toUpperCase();
@@ -1554,16 +1559,13 @@ function SpeechCertificateModal({
               <p className="text-xs text-slate-600 max-w-lg mx-auto leading-relaxed pt-2">
                 For completing dedicated speaking practice sessions and calibrating vocal delivery, pacing rhythm, and camera focus in:
               </p>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <p className="text-sm font-bold text-slate-800 bg-slate-50 inline-block px-4 py-1.5 rounded-lg border border-slate-200">
                   "{session.topic || 'General Practice Track'}"
                 </p>
-                {eligibility && eligibility.count > 0 && (
-                  <p className="text-[11px] text-slate-500 font-medium">
-                    {eligibility.count} Practice Session{eligibility.count > 1 ? 's' : ''} Completed
-                    {eligibility.improvement !== undefined && eligibility.improvement > 0 ? ` • Progress Trajectory: ${eligibility.firstScore} → ${eligibility.bestScore} pts (+${eligibility.improvement})` : ''}
-                  </p>
-                )}
+                <p className="text-[11px] text-indigo-700 font-semibold tracking-wider uppercase">
+                  Verified Speech Practice Milestone • Multi-Modal Delivery Calibration
+                </p>
               </div>
             </div>
 

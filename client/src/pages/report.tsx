@@ -1961,53 +1961,39 @@ export default function Report() {
     ? "Competent Communicator — Strong Delivery Foundation"
     : "Developing Communicator — Practice & Refinement Track";
 
-  // Certificate eligibility: accurately aggregates sessions across database, local cache, and current session
+  // Certificate eligibility: strictly aggregates sessions for the current user
   const certEligibility = useMemo(() => {
     const currentUserId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
     const userKey = currentUserId ? `miral_completed_sessions_${currentUserId}` : 'miral_completed_sessions_guest';
 
     const sessionMap = new Map<string, any>();
 
-    // 1. All sessions from server API
-    if (Array.isArray(allUserSessions)) {
+    // 1. Filter server sessions strictly for this current user (do NOT include other users or null)
+    if (currentUserId && Array.isArray(allUserSessions)) {
       allUserSessions.forEach((s: any) => {
-        if (s && s.id && getDuration(s) >= 10) {
+        if (s && s.id && s.userId === currentUserId && getDuration(s) >= 10) {
           sessionMap.set(s.id, s);
         }
       });
     }
 
-    // 2. All sessions from user-isolated and guest localStorage
-    const localKeys = [userKey, 'miral_completed_sessions_guest', 'miral_completed_sessions'];
-    localKeys.forEach(key => {
-      try {
-        const stored = localStorage.getItem(key);
-        const parsed = stored ? JSON.parse(stored) : [];
-        if (Array.isArray(parsed)) {
-          parsed.forEach((s: any) => {
-            if (s && s.id && getDuration(s) >= 10 && !sessionMap.has(s.id)) {
-              sessionMap.set(s.id, s);
-            }
-          });
-        }
-      } catch {}
-    });
+    // 2. This user's isolated local completed sessions
+    try {
+      const stored = localStorage.getItem(userKey);
+      const parsed = stored ? JSON.parse(stored) : [];
+      if (Array.isArray(parsed)) {
+        parsed.forEach((s: any) => {
+          if (s && s.id && getDuration(s) >= 10) {
+            sessionMap.set(s.id, s);
+          }
+        });
+      }
+    } catch {}
 
-    // 3. Active session on screen
+    // 3. Current active session
     if (activeSession && activeSession.id && getDuration(activeSession) >= 10) {
       sessionMap.set(activeSession.id, activeSession);
     }
-
-    // 4. Last completed session in sessionStorage
-    try {
-      const lastCompleted = sessionStorage.getItem('last_completed_session');
-      if (lastCompleted) {
-        const parsed = JSON.parse(lastCompleted);
-        if (parsed && parsed.id && getDuration(parsed) >= 10 && !sessionMap.has(parsed.id)) {
-          sessionMap.set(parsed.id, parsed);
-        }
-      }
-    } catch {}
 
     const validSessions = Array.from(sessionMap.values());
     const count = validSessions.length;

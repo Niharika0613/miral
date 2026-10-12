@@ -52,8 +52,8 @@ export const getUserPlan = () => {
     proUntil,
     isPro,
     isPilotActive,
-    badgeText: "Pilot mein free, 31 Oct tak",
-    englishBadge: "Free in Pilot • Until 31 Oct",
+    badgeText: "Free in Campus Pilot • Until Oct 31",
+    englishBadge: "Free in Campus Pilot • Until Oct 31",
   };
 };
 

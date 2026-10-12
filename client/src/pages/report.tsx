@@ -486,7 +486,7 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
             <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20">
-              Pro • Pilot mein free, 31 Oct tak
+              Pro • Free Campus Pilot (Until Oct 31)
             </Badge>
             <Badge variant="outline" className={`text-[10px] ${hasDetectedWords ? 'border-emerald-500/40 text-emerald-600 bg-emerald-500/5 font-medium' : 'border-primary/30 text-primary'}`}>
               {hasDetectedWords ? "Audio Matched" : "Scenario Recommended"}
@@ -657,7 +657,7 @@ function RecommendedLearningSection({ session }: { session: Session }) {
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20">
-              Pro Hub • Pilot mein free, 31 Oct tak
+              Pro Hub • Free Campus Pilot (Until Oct 31)
             </Badge>
             <Link href="/learning">
               <Button variant="ghost" size="sm" className="text-xs text-primary gap-1 h-7 px-2">

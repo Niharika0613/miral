@@ -25,16 +25,16 @@ import {
 
 export default function Pricing() {
   return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="container max-w-6xl mx-auto px-4 sm:px-6 space-y-14">
+    <div className="min-h-screen bg-background py-14 sm:py-20">
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6 space-y-16">
 
         {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary px-3.5 py-1 rounded-full bg-primary/10 border border-primary/20">
             <Sparkles className="h-3.5 w-3.5" />
             <span>Transparent Plans & Institutional Licensing</span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground">
             Simple, High-Impact Pricing for Candidates & Universities
           </h1>
           <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
@@ -43,20 +43,20 @@ export default function Pricing() {
         </div>
 
         {/* Pilot Waiver Banner */}
-        <div className="p-4 sm:p-5 rounded-2xl border-2 border-primary/40 bg-primary/5 text-foreground flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+        <div className="p-5 sm:p-6 rounded-2xl border-2 border-primary/40 bg-primary/5 text-foreground flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
           <div className="space-y-1 text-center sm:text-left">
             <div className="flex items-center justify-center sm:justify-start gap-2">
               <Badge className="bg-primary text-primary-foreground text-xs font-bold">
                 Wave 1 Pilot Active
               </Badge>
-              <span className="text-xs font-bold text-foreground">100% Free Campus Access</span>
+              <span className="text-xs sm:text-sm font-bold text-foreground">100% Free Campus Access</span>
             </div>
             <p className="text-xs text-muted-foreground">
               All candidate practice tracks, live teleprompters, and AI speech diagnostics are currently unlocked at zero cost for participating college students.
             </p>
           </div>
           <Link href="/practice" className="shrink-0">
-            <Button className="text-xs font-semibold h-9 px-5 gap-2">
+            <Button className="text-xs font-semibold h-9 px-5 gap-2 shadow-xs">
               <Video className="h-3.5 w-3.5" />
               <span>Launch Free Practice</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -65,10 +65,10 @@ export default function Pricing() {
         </div>
 
         {/* 3 Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
 
           {/* Tier 1: Free Candidate Starter */}
-          <Card className="border border-border/60 shadow-xs bg-card flex flex-col justify-between">
+          <Card className="rounded-2xl border border-border/60 shadow-xs bg-card flex flex-col justify-between">
             <CardHeader className="pb-4 border-b border-border/30">
               <Badge variant="outline" className="w-fit text-[10px] font-semibold border-border/70 text-muted-foreground mb-2">
                 Candidate Starter
@@ -120,9 +120,9 @@ export default function Pricing() {
           </Card>
 
           {/* Tier 2: Pro Placement Pass (Highlighted) */}
-          <Card className="border-2 border-primary shadow-lg bg-card relative flex flex-col justify-between">
+          <Card className="rounded-2xl border-2 border-primary shadow-lg bg-card relative flex flex-col justify-between">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider py-0.5 px-3">
+              <Badge className="bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider py-0.5 px-3 shadow-xs">
                 Covers Full Placement Season
               </Badge>
             </div>
@@ -132,8 +132,8 @@ export default function Pricing() {
                 <Badge variant="outline" className="text-[10px] font-semibold border-primary/40 text-primary">
                   Placement Intensive
                 </Badge>
-                <Badge className="bg-gradient-to-r from-amber-500 to-indigo-600 text-white text-[10px] font-bold">
-                  Pilot mein free, 31 Oct tak
+                <Badge className="bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-[10px] font-bold px-2.5 py-0.5">
+                  Free Campus Pilot • Until Oct 31
                 </Badge>
               </div>
               <CardTitle className="text-xl font-bold text-foreground">Pro Placement Pass</CardTitle>
@@ -189,7 +189,7 @@ export default function Pricing() {
               </ul>
 
               <Link href="/practice" className="w-full">
-                <Button className="w-full text-xs font-semibold h-9 gap-1.5">
+                <Button className="w-full text-xs font-semibold h-9 gap-1.5 shadow-xs">
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>Unlocked in Pilot (Free)</span>
                 </Button>
@@ -198,7 +198,7 @@ export default function Pricing() {
           </Card>
 
           {/* Tier 3: University & TPO License */}
-          <Card className="border border-border/60 shadow-xs bg-card flex flex-col justify-between">
+          <Card className="rounded-2xl border border-border/60 shadow-xs bg-card flex flex-col justify-between">
             <CardHeader className="pb-4 border-b border-border/30">
               <Badge variant="outline" className="w-fit text-[10px] font-semibold border-border/70 text-muted-foreground mb-2">
                 Plug-and-Play Module

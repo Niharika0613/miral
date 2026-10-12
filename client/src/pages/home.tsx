@@ -277,28 +277,28 @@ export default function Home() {
       </section>
 
       {/* ===================== PRACTICE SCENARIOS SECTION ===================== */}
-      <section className="py-8 sm:py-10 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
+      <section className="py-14 sm:py-20 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
         <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                 Choose what you want to practice
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                 Select any scenario below or paste your custom script to start.
               </p>
             </div>
             <Link href="/scenarios">
-              <Button variant="ghost" size="sm" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 gap-1 h-8 px-2.5">
+              <Button variant="ghost" size="sm" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 gap-1.5 h-8 px-3">
                 <span>View all scenarios</span>
                 <ChevronRight className="h-3.5 w-3.5" />
               </Button>
             </Link>
           </div>
 
-          {/* Cards Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          {/* Cards Grid: Spacious 3-column layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
             {categories.map((cat, idx) => {
               const Icon = cat.icon;
               const isSelected = selectedCategoryIdx === idx;
@@ -306,21 +306,29 @@ export default function Home() {
                 <div
                   key={cat.id}
                   onClick={() => setSelectedCategoryIdx(idx)}
-                  className={`p-3.5 rounded-xl border transition-all cursor-pointer text-left flex flex-col justify-between min-h-[110px] ${
+                  className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer text-left flex items-start gap-3.5 ${
                     isSelected
-                      ? 'bg-indigo-50/90 dark:bg-indigo-950/40 border-indigo-400 dark:border-indigo-500 shadow-xs'
-                      : 'bg-slate-50/80 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                      ? 'bg-indigo-50/80 dark:bg-indigo-950/50 border-indigo-500 ring-2 ring-indigo-500/25 shadow-xs'
+                      : 'bg-slate-50/70 dark:bg-slate-900/60 border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100/70 dark:hover:bg-slate-800/50 shadow-2xs'
                   }`}
                 >
-                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center mb-2 ${
+                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
                     isSelected 
-                      ? 'bg-indigo-600 text-white dark:bg-indigo-500/20 dark:text-indigo-400' 
+                      ? 'bg-indigo-600 text-white shadow-xs' 
                       : 'bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                   }`}>
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <div>
-                    <h3 className="text-xs font-bold text-slate-900 dark:text-white leading-snug">{cat.title}</h3>
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">{cat.title}</h3>
+                      {isSelected && (
+                        <span className="h-2 w-2 rounded-full bg-indigo-600 dark:bg-indigo-400 shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                      {cat.tagline}
+                    </p>
                   </div>
                 </div>
               );
@@ -328,18 +336,18 @@ export default function Home() {
           </div>
 
           {/* Selected Scenario Preview Card */}
-          <div className="mt-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 p-4 sm:p-5 text-left">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-800">
+          <div className="mt-6 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 p-5 sm:p-7 text-left shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-slate-800">
               <div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/40 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-[10px]">
+                  <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/40 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-[10px] font-semibold">
                     Active Practice Mode
                   </Badge>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">
+                  <span className="text-sm font-bold text-slate-900 dark:text-white">
                     {categories[selectedCategoryIdx].title}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   {categories[selectedCategoryIdx].tagline}
                 </p>
               </div>
@@ -347,7 +355,7 @@ export default function Home() {
               <Button
                 onClick={() => handleLaunchCategory(categories[selectedCategoryIdx])}
                 size="sm"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-4 h-9 gap-1.5 shrink-0 shadow-xs"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-5 h-9 gap-2 shrink-0 shadow-xs"
               >
                 <Play className="h-3 w-3 fill-current" />
                 <span>Practice This Scenario</span>
@@ -355,7 +363,7 @@ export default function Home() {
             </div>
 
             {/* Prompt */}
-            <div className="my-3 p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
+            <div className="my-4 p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200/90 dark:border-slate-800 border-l-4 border-l-indigo-600 shadow-2xs">
               <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block mb-1">
                 Sample Practice Question / Prompt:
               </span>
@@ -365,16 +373,16 @@ export default function Home() {
             </div>
 
             {/* Benchmark Targets */}
-            <div className="grid grid-cols-3 gap-2">
-              <div className="p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-950">
                 <span className="text-[10px] text-slate-400 font-medium block">Target Gaze Focus</span>
                 <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{categories[selectedCategoryIdx].targetEye}</span>
               </div>
-              <div className="p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900">
+              <div className="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-950">
                 <span className="text-[10px] text-slate-400 font-medium block">Optimal Pace</span>
                 <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">{categories[selectedCategoryIdx].targetWpm}</span>
               </div>
-              <div className="p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900">
+              <div className="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-950">
                 <span className="text-[10px] text-slate-400 font-medium block">Body Posture</span>
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{categories[selectedCategoryIdx].targetPosture}</span>
               </div>
@@ -486,60 +494,63 @@ export default function Home() {
       </section>
 
       {/* ===================== WHAT MIRAL ANALYZES IN REAL TIME ===================== */}
-      <section className="py-8 sm:py-12 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
+      <section className="py-16 sm:py-24 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
         <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           
-          <div className="text-center max-w-2xl mx-auto mb-8 space-y-1.5">
-            <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-2.5 py-0.5">
+          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-2.5">
+            <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-3 py-0.5 font-semibold">
               Multimodal Speaking Intelligence
             </Badge>
-            <h2 className="text-xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Real-time feedback on how you look and sound.
             </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
+              In-browser computer vision and acoustic metrics measure your delivery with sub-second latency.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
             
             {/* Feature 1 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
-              <div className="h-9 w-9 rounded-lg bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 flex items-center justify-center">
-                <Eye className="h-4 w-4" />
+            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all">
+              <div className="h-11 w-11 rounded-xl bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 flex items-center justify-center">
+                <Eye className="h-5 w-5" />
               </div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Eye Gaze Engagement</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Eye Gaze Engagement</h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 60 FPS in-browser iris detection checks if you maintain steady eye engagement with the camera lens or look away.
               </p>
             </div>
 
             {/* Feature 2 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
-              <div className="h-9 w-9 rounded-lg bg-violet-100 dark:bg-violet-500/15 text-violet-700 dark:text-violet-400 flex items-center justify-center">
-                <Activity className="h-4 w-4" />
+            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all">
+              <div className="h-11 w-11 rounded-xl bg-violet-100 dark:bg-violet-500/15 text-violet-700 dark:text-violet-400 flex items-center justify-center">
+                <Activity className="h-5 w-5" />
               </div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Posture Alignment</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Posture Alignment</h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Detects slouching, leaning, or downward head tilt in real time so your physical presence projects confidence.
               </p>
             </div>
 
             {/* Feature 3 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
-              <div className="h-9 w-9 rounded-lg bg-cyan-100 dark:bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 flex items-center justify-center">
-                <Gauge className="h-4 w-4" />
+            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all">
+              <div className="h-11 w-11 rounded-xl bg-cyan-100 dark:bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 flex items-center justify-center">
+                <Gauge className="h-5 w-5" />
               </div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Speaking Pace (WPM)</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Speaking Pace (WPM)</h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Measures words per minute live to keep your cadence in the ideal 130–155 WPM conversational clarity zone.
               </p>
             </div>
 
             {/* Feature 4 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-4 space-y-2 hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all">
-              <div className="h-9 w-9 rounded-lg bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 flex items-center justify-center">
-                <FileText className="h-4 w-4" />
+            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all">
+              <div className="h-11 w-11 rounded-xl bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 flex items-center justify-center">
+                <FileText className="h-5 w-5" />
               </div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Smart Teleprompter</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Smart Teleprompter</h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Paste any custom speech, pitch notes, or presentation outline and read naturally while on camera.
               </p>
             </div>
@@ -550,43 +561,43 @@ export default function Home() {
       </section>
 
       {/* ===================== HOW IT WORKS (3 Simple Steps) ===================== */}
-      <section className="py-8 sm:py-12 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#0b0f19]">
+      <section className="py-16 sm:py-24 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#0b0f19]">
         <div className="container max-w-5xl mx-auto px-4 sm:px-6">
           
-          <div className="text-center max-w-xl mx-auto mb-8 space-y-1.5">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+          <div className="text-center max-w-xl mx-auto mb-12 sm:mb-16 space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Three simple steps to speaking mastery.
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
               No software installation required. Runs directly in your browser.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 text-left">
             
             {/* Step 1 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-5 space-y-2">
-              <div className="text-2xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">01</div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Pick a Scenario or Write a Script</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-7 sm:p-8 space-y-3.5 shadow-xs hover:shadow-md transition-shadow">
+              <div className="text-3xl sm:text-4xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">01</div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Pick a Scenario or Write a Script</h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Choose a pre-built practice scenario or paste your own custom speech notes into the teleprompter.
               </p>
             </div>
 
             {/* Step 2 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-5 space-y-2">
-              <div className="text-2xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">02</div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Practice with Live Visual Cues</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-7 sm:p-8 space-y-3.5 shadow-xs hover:shadow-md transition-shadow">
+              <div className="text-3xl sm:text-4xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">02</div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Practice with Live Visual Cues</h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Speak on camera. Miral monitors your eye contact, posture, and speaking tempo with gentle on-screen cues.
               </p>
             </div>
 
             {/* Step 3 */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-5 space-y-2">
-              <div className="text-2xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">03</div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Review Diagnostic Scorecard</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-7 sm:p-8 space-y-3.5 shadow-xs hover:shadow-md transition-shadow">
+              <div className="text-3xl sm:text-4xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">03</div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Review Diagnostic Scorecard</h3>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Get an instant breakdown of your confidence score, pacing, filler words, and personalized delivery advice.
               </p>
             </div>

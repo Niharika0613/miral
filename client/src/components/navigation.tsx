@@ -70,8 +70,8 @@ export function Navigation() {
                 <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 text-foreground font-medium">
                   <User className="h-3.5 w-3.5 text-primary" />
                   <span className="hidden sm:inline">{user.name}</span>
-                  <Badge variant="secondary" className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20 py-0 px-1.5 hidden md:inline-flex">
-                    Pro • 31 Oct tak
+                  <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/25 py-0.5 px-2 hidden md:inline-flex">
+                    Pro Pilot • Free until Oct 31
                   </Badge>
                 </Button>
               </Link>

@@ -3,22 +3,44 @@ import re
 from typing import List, Dict
 
 
-FILLER_WORDS = ['um', 'uh', 'like', 'you know', 'basically', 'actually', 'literally', 'so', 'well']
+FILLER_WORDS = [
+    'um', 'uh', 'uhm', 'er', 'ah', 'ahm', 'hmm', 'huh',
+    'you know', 'i mean', 'kind of', 'kinda', 'sort of',
+    'basically', 'actually', 'literally', 'essentially',
+    'at the end of the day', 'you see', 'to be honest',
+    'so yeah', 'and all that', 'something like that',
+    'matlab', 'yaani', 'aur kya', 'hai na',
+    'like', 'so', 'well'
+]
 
 def detect_filler_words(transcript: str) -> List[Dict[str, any]]:
     """
-    Detect filler words in transcript
-    Matches: detectFillerWords() from audio-utils.ts
+    Detect filler words, speech repetitions, and hesitation crutches in transcript
     """
+    if not transcript:
+        return []
+
     lower_transcript = transcript.lower()
     results = []
     
+    # 1. Standard filler words and phrases
     for filler in FILLER_WORDS:
         pattern = r'\b' + re.escape(filler) + r'\b'
         matches = re.findall(pattern, lower_transcript, re.IGNORECASE)
         count = len(matches)
         if count > 0:
             results.append({"word": filler, "count": count})
+            
+    # 2. Repeated word disfluencies (e.g. "hello hello", "I I", "good morning good morning")
+    rep_matches = re.findall(r'\b([a-zA-Z]{2,})\s+\1\b', lower_transcript)
+    if rep_matches:
+        for rep in set(rep_matches):
+            c = rep_matches.count(rep)
+            results.append({"word": f"{rep} {rep}", "count": c})
+
+    # 3. Hesitation connectors like "because good morning"
+    if re.search(r'\bbecause\s+(good morning|my name|hello|hi)\b', lower_transcript):
+        results.append({"word": "hesitation 'because'", "count": 1})
     
     return results
 

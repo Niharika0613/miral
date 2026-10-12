@@ -187,10 +187,13 @@ export default function Practice() {
             }
 
             const fillerRules = [
-              /\b(um+|uh+|uhm+|er+|ah+|ahm+)\b/gi,
-              /\b(you know|i mean|kind of|sort of|at the end of the day)\b/gi,
-              /\b(basically|actually|literally|essentially)\b/gi,
-              /\b(matlab|yaani|aur kya|and all that)\b/gi,
+              /\b(um+|uh+|uhm+|er+|ah+|ahm+|hmm+|huh+)\b/gi,
+              /\b(you know|i mean|kind of|kinda|sort of|at the end of the day|to be honest|you see)\b/gi,
+              /\b(basically|actually|literally|essentially|practically)\b/gi,
+              /\b(matlab|yaani|aur kya|and all that|something like that|hai na)\b/gi,
+              /\b(so yeah|anyway|anyways)\b/gi,
+              /\b([a-zA-Z]{2,})\s+\1\b/gi,
+              /\bbecause\s+(good morning|my name|hello|hi)\b/gi,
               /\b(like)\b/gi
             ];
             let count = 0;
@@ -518,8 +521,31 @@ export default function Practice() {
 
       const activeTopic = topic || 'General Practice Session';
       
+      // Re-scan resolved transcript with full filler rules to catch any late or missed disfluencies
+      let computedFillers = fillerWordsCount;
+      if (resolvedTranscript) {
+        const transcriptLower = resolvedTranscript.toLowerCase();
+        const postRules = [
+          /\b(um+|uh+|uhm+|er+|ah+|ahm+|hmm+|huh+)\b/gi,
+          /\b(you know|i mean|kind of|kinda|sort of|at the end of the day|to be honest|you see)\b/gi,
+          /\b(basically|actually|literally|essentially|practically)\b/gi,
+          /\b(matlab|yaani|aur kya|and all that|something like that|hai na)\b/gi,
+          /\b(so yeah|anyway|anyways)\b/gi,
+          /\b([a-zA-Z]{2,})\s+\1\b/gi,
+          /\bbecause\s+(good morning|my name|hello|hi)\b/gi,
+          /\b(like)\b/gi
+        ];
+        let found = 0;
+        postRules.forEach(pattern => {
+          const matches = transcriptLower.match(pattern);
+          if (matches) found += matches.length;
+        });
+        computedFillers = Math.max(fillerWordsCount, found);
+      }
+      const finalFillerCount = computedFillers;
+
       const pacingFactor = finalWPM >= 120 && finalWPM <= 165 ? 100 : (finalWPM > 0 ? Math.max(20, 100 - Math.abs(finalWPM - 140) * 1.5) : 30);
-      const fillerPenalty = Math.min(25, fillerWordsCount * 4);
+      const fillerPenalty = Math.min(25, finalFillerCount * 4);
       const vocalScore = Math.max(10, Math.round(pacingFactor - fillerPenalty));
       
       const confidenceCalc = Math.min(100, Math.max(10, Math.round((finalEyeContact * 0.40) + (finalPosture * 0.35) + (vocalScore * 0.25))));
@@ -550,12 +576,12 @@ export default function Practice() {
         localImprovements.push(`Pacing was rapid (${finalWPM} WPM). Insert deliberate pauses between key points`);
       }
 
-      if (fillerWordsCount === 0) {
+      if (finalFillerCount === 0) {
         localStrengths.push("Disciplined articulation with zero filler crutches detected");
-      } else if (fillerWordsCount <= 2) {
-        localStrengths.push(`Clean verbal delivery with minimal fillers (${fillerWordsCount} noted)`);
+      } else if (finalFillerCount <= 2) {
+        localStrengths.push(`Clean verbal delivery with minimal fillers (${finalFillerCount} noted)`);
       } else {
-        localImprovements.push(`Replace reflexive sounds (${fillerWordsCount} fillers detected) with silent 1-second pauses`);
+        localImprovements.push(`Replace reflexive sounds (${finalFillerCount} fillers detected) with silent 1-second pauses`);
       }
 
       if (scenarioLower.includes('hr') || scenarioLower.includes('placement') || scenarioLower.includes('interview')) {
@@ -580,7 +606,7 @@ export default function Practice() {
         eyeContactPercentage: finalEyeContact,
         postureScore: finalPosture,
         wordsPerMinute: finalWPM,
-        fillerWordsCount,
+        fillerWordsCount: finalFillerCount,
         confidenceScore: confidenceCalc,
         transcript: resolvedTranscript || '',
         eyeContactData,
@@ -609,7 +635,7 @@ export default function Practice() {
       formData.append('eyeContactPercentage', finalEyeContact.toString());
       formData.append('postureScore', finalPosture.toString());
       formData.append('wordsPerMinute', finalWPM.toString());
-      formData.append('fillerWordsCount', fillerWordsCount.toString());
+      formData.append('fillerWordsCount', finalFillerCount.toString());
       formData.append('confidenceScore', confidenceCalc.toString());
       formData.append('transcript', resolvedTranscript || '');
       formData.append('eyeContactData', JSON.stringify(eyeContactData));

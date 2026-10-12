@@ -1,6 +1,15 @@
-export const FILLER_WORDS = ['um', 'uh', 'like', 'you know', 'basically', 'actually', 'literally', 'so', 'well'];
+export const FILLER_WORDS = [
+  'um', 'uh', 'uhm', 'er', 'ah', 'ahm', 'hmm', 'huh',
+  'you know', 'i mean', 'kind of', 'kinda', 'sort of',
+  'basically', 'actually', 'literally', 'essentially',
+  'at the end of the day', 'you see', 'to be honest',
+  'so yeah', 'and all that', 'something like that',
+  'matlab', 'yaani', 'aur kya', 'hai na',
+  'like', 'so', 'well'
+];
 
 export function detectFillerWords(transcript: string): { word: string; count: number }[] {
+  if (!transcript) return [];
   const lowerTranscript = transcript.toLowerCase();
   const results: { word: string; count: number }[] = [];
   
@@ -12,6 +21,23 @@ export function detectFillerWords(transcript: string): { word: string; count: nu
       results.push({ word: filler, count });
     }
   });
+
+  // Repetition disfluency ("hello hello", "I I")
+  const repMatches = lowerTranscript.match(/\b([a-zA-Z]{2,})\s+\1\b/gi);
+  if (repMatches) {
+    const counts: Record<string, number> = {};
+    repMatches.forEach(rep => {
+      counts[rep.toLowerCase()] = (counts[rep.toLowerCase()] || 0) + 1;
+    });
+    Object.entries(counts).forEach(([word, count]) => {
+      results.push({ word, count });
+    });
+  }
+
+  // Hesitation connector ("because good morning")
+  if (/\bbecause\s+(good morning|my name|hello|hi)\b/i.test(lowerTranscript)) {
+    results.push({ word: "hesitation 'because'", count: 1 });
+  }
   
   return results;
 }

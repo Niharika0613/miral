@@ -394,11 +394,12 @@ async def complete_session(
         # Always prefer live transcript over audio transcription
         if session_transcript:
             transcript = session_transcript
-            # Recalculate WPM from transcript if we have it
             if transcript:
                 filler_words = detect_filler_words(transcript)
                 filler_words_count = sum(fw['count'] for fw in filler_words)
-                words_per_minute = calculate_words_per_minute(transcript, duration)
+                # Keep active-speaking WPM measured during speech intervals; only fallback to total duration if missing
+                if not words_per_minute or words_per_minute <= 0:
+                    words_per_minute = calculate_words_per_minute(transcript, duration)
         
         # Ensure we have valid values
         eye_contact_percentage = max(0, min(100, eye_contact_percentage))
@@ -421,39 +422,58 @@ async def complete_session(
             duration
         )
 
-        # === AI feedback via Ollama Gemma:2b (DISABLED for speed) ===
-        # Skip Ollama to make processing instant - use rule-based feedback
+        # === Smart Multi-Modal & Scenario-Aware AI Coaching Feedback ===
+        session_topic_str = (session.topic if session and session.topic else "General Practice Session")
+        topic_lower = session_topic_str.lower()
         strengths = []
         improvements = []
         
-        # Generate rule-based feedback
-        if eye_contact_percentage >= 70:
-            strengths.append("Excellent eye contact - very engaging!")
+        # 1. Visual & Gaze Presence
+        if eye_contact_percentage >= 75:
+            strengths.append(f"Commanding camera gaze ({eye_contact_percentage:.0f}%), establishing authoritative virtual executive presence.")
+        elif eye_contact_percentage >= 60:
+            strengths.append(f"Steady eye contact maintained ({eye_contact_percentage:.0f}%) with natural gaze transitions.")
         else:
-            improvements.append(f"Improve eye contact (current: {eye_contact_percentage:.0f}%)")
-        
-        if 130 <= words_per_minute <= 160:
-            strengths.append("Perfect speaking pace")
-        elif words_per_minute < 120:
-            improvements.append("Speak slightly faster for better engagement")
-        elif words_per_minute > 160:
-            improvements.append("Slow down for better clarity")
-        
-        if posture_score >= 70:
-            strengths.append("Good posture maintained")
+            improvements.append(f"Elevate camera gaze ({eye_contact_percentage:.0f}% recorded). Look directly into the webcam lens to connect with your audience.")
+            
+        # 2. Posture & Physical Energy
+        if posture_score >= 75:
+            strengths.append(f"Upright spinal alignment ({posture_score:.0f}%), projecting confidence and strong diaphragm breath support.")
         else:
-            improvements.append("Maintain better posture")
-        
-        if filler_words_count < 5:
-            strengths.append("Minimal filler words - great!")
+            improvements.append(f"Address occasional slouching ({posture_score:.0f}% recorded). Roll shoulders back to enhance chest resonance.")
+
+        # 3. Vocal Cadence & Pacing
+        if 125 <= words_per_minute <= 165:
+            strengths.append(f"Optimal executive speaking cadence ({words_per_minute:.0f} WPM), balancing clarity and persuasive momentum.")
+        elif 0 < words_per_minute < 125:
+            improvements.append(f"Speaking rate was deliberate ({words_per_minute:.0f} WPM). Aim for 130–155 WPM in competitive interviews to project prompt fluency.")
+        elif words_per_minute > 165:
+            improvements.append(f"Rapid vocal delivery ({words_per_minute:.0f} WPM). Insert deliberate pauses between key points to ensure listeners absorb complex ideas.")
+
+        # 4. Articulation & Fillers
+        if filler_words_count == 0:
+            strengths.append("Disciplined articulation with zero filler crutches ('um', 'like', 'basically') detected.")
+        elif filler_words_count <= 2:
+            strengths.append(f"High verbal fluency with only {filler_words_count} minor filler phrase(s) noted.")
         else:
-            improvements.append(f"Reduce filler words ({filler_words_count} detected)")
-        
-        # Ensure we have at least some feedback
-        if not strengths:
-            strengths = ["Completed the practice session"]
-        if not improvements:
-            improvements = ["Keep practicing to improve"]
+            improvements.append(f"Replace reflexive hesitation sounds ({filler_words_count} filler words detected) with a calm 1-second silent pause.")
+
+        # 5. Scenario-Specific Strategic Mastery
+        if any(k in topic_lower for k in ['hr', 'placement', 'interview', 'behavioral']):
+            strengths.append("Professional interview composure suited for campus and corporate placement panels.")
+            improvements.append("Structure behavioral responses using the STAR method (Situation -> Task -> Action -> Measurable Result).")
+        elif any(k in topic_lower for k in ['tech', 'viva', 'defense', 'project', 'architecture', 'coding']):
+            strengths.append("Focused technical communication directed at project implementation.")
+            improvements.append("Lead with high-level system architecture trade-offs before diving into code, and quantify database/API performance bottlenecks.")
+        elif any(k in topic_lower for k in ['gd', 'discussion', 'debate', 'panel']):
+            strengths.append("Assertive vocal energy ready for collaborative group discussion turn-taking.")
+            improvements.append("Use diplomatic transition hooks ('Building upon that perspective...', 'To present an alternative empirical view...') before presenting counter-arguments.")
+        elif any(k in topic_lower for k in ['pitch', 'startup', 'investor', 'demo']):
+            strengths.append("Engaging forward energy suitable for executive elevator pitches.")
+            improvements.append("Hook the listener within the first 15 seconds by articulating the core customer pain point, followed by concrete traction numbers and a clear CTA.")
+        else:
+            strengths.append("Clear vocal delivery and engagement throughout the session.")
+            improvements.append("Structure core arguments using the Rule of Three (Point 1 -> Point 2 -> Point 3) and close with a definitive summary.")
         
         # Update session - use live transcript if available, otherwise use transcribed audio
         final_transcript = session_transcript if session_transcript else (transcript if transcript else None)

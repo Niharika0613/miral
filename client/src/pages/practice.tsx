@@ -11,6 +11,7 @@ import {
   RotateCcw, 
   Wind, 
   Mic2, 
+  Mic,
   Heart, 
   CheckCircle2,
   Play,
@@ -105,130 +106,142 @@ export default function Practice() {
   const activeSessionTextRef = useRef('');
   // Active speech interval timestamps to calculate speaking-only WPM
   const speechIntervalsRef = useRef<{ start: number; end: number }[]>([]);
+  const transcriptScrollRef = useRef<HTMLDivElement>(null);
 
-  // Speech Recognition Stream & Mobile Mic Handler with Chunk Accumulation
+  // Auto-scroll transcript container smoothly to bottom as new speech streams in
+  useEffect(() => {
+    if (transcriptScrollRef.current) {
+      transcriptScrollRef.current.scrollTop = transcriptScrollRef.current.scrollHeight;
+    }
+  }, [liveTranscript]);
+
+  // Speech Recognition Stream & Mobile Mic Handler with Resilient Fresh-Instance Auto-Restart
   const startAudioStream = useCallback(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setIsAudioStreaming(false);
       return;
     }
-    
-    try {
-      if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch {}
+
+    const initRecognitionSession = () => {
+      if (!isRecordingRef.current) {
+        setIsAudioStreaming(false);
+        return;
       }
 
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.maxAlternatives = 1;
-      
-      // Auto-detect browser/regional English dialect
-      const userLang = navigator.language || 'en-US';
-      recognition.lang = userLang.toLowerCase().includes('in') ? 'en-IN' : 'en-US';
-      
-      recognition.onstart = () => {
-        setIsAudioStreaming(true);
-      };
-      
-      recognition.onresult = (event: any) => {
-        let currentChunk = '';
-        for (let i = 0; i < event.results.length; i++) {
-          currentChunk += event.results[i][0].transcript + ' ';
+      try {
+        if (recognitionRef.current) {
+          try { recognitionRef.current.abort(); } catch {}
+          recognitionRef.current = null;
         }
-        activeSessionTextRef.current = currentChunk.trim();
 
-        const combined = (persistedTranscriptRef.current + ' ' + activeSessionTextRef.current).trim();
-        if (combined) {
-          setLiveTranscript(combined);
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
 
-          // Track active speaking interval (extend if within 2.2s of last utterance, else start new chunk)
-          const now = Date.now();
-          const intervals = speechIntervalsRef.current;
-          if (intervals.length > 0 && (now - intervals[intervals.length - 1].end) < 2200) {
-            intervals[intervals.length - 1].end = now;
-          } else {
-            intervals.push({ start: now, end: now + 800 });
+        // Auto-detect browser/regional English dialect (e.g. en-IN for Indian speakers)
+        const userLang = navigator.language || 'en-US';
+        recognition.lang = userLang.toLowerCase().includes('in') ? 'en-IN' : 'en-US';
+
+        recognition.onstart = () => {
+          if (isRecordingRef.current) {
+            setIsAudioStreaming(true);
           }
+        };
 
-          const words = combined.split(/\s+/).filter(Boolean);
-          // Calculate speaking time ONLY while actively speaking (not total elapsed idle time)
-          const rawActiveSpeakingSecs = intervals.reduce(
-            (sum, inv) => sum + Math.max(0.6, (inv.end - inv.start) / 1000), 
-            0
-          );
-          // Upper speed guard (~190 WPM max ceiling so 1-2 words don't explode WPM)
-          const activeSpeakingSeconds = Math.max(words.length * 0.31, rawActiveSpeakingSecs);
-          
-          if (words.length > 0 && activeSpeakingSeconds >= 1.5) {
-            const rawWpm = Math.round(words.length / (activeSpeakingSeconds / 60));
-            setEstimatedWPM(Math.min(210, Math.max(50, rawWpm)));
-          } else if (words.length > 0) {
-            setEstimatedWPM(135);
+        recognition.onresult = (event: any) => {
+          let currentChunk = '';
+          for (let i = 0; i < event.results.length; i++) {
+            currentChunk += event.results[i][0].transcript + ' ';
           }
+          activeSessionTextRef.current = currentChunk.trim();
 
-          const fillerRules = [
-            /\b(um+|uh+|uhm+|er+|ah+|ahm+)\b/gi,
-            /\b(you know|i mean|kind of|sort of|at the end of the day)\b/gi,
-            /\b(basically|actually|literally|essentially)\b/gi,
-            /\b(matlab|yaani|aur kya|and all that)\b/gi,
-            /\b(like)\b/gi
-          ];
-          let count = 0;
-          fillerRules.forEach(pattern => {
-            const matches = combined.match(pattern);
-            if (matches) count += matches.length;
-          });
-          setFillerWordsCount(count);
-        }
-      };
-      
-      recognition.onerror = (e: any) => {
-        // Silently handle transient errors on mobile (e.g. no-speech, network timeout)
-        if (isRecordingRef.current && e?.error !== 'not-allowed') {
-          setTimeout(() => {
-            if (isRecordingRef.current && recognitionRef.current) {
-              try { recognitionRef.current.start(); } catch {}
+          const combined = (persistedTranscriptRef.current + ' ' + activeSessionTextRef.current).trim();
+          if (combined) {
+            setLiveTranscript(combined);
+
+            // Track active speaking interval (extend if within 2.2s of last utterance, else start new chunk)
+            const now = Date.now();
+            const intervals = speechIntervalsRef.current;
+            if (intervals.length > 0 && (now - intervals[intervals.length - 1].end) < 2200) {
+              intervals[intervals.length - 1].end = now;
+            } else {
+              intervals.push({ start: now, end: now + 800 });
             }
-          }, 200);
-        }
-      };
 
-      recognition.onend = () => {
-        if (activeSessionTextRef.current) {
-          persistedTranscriptRef.current = (persistedTranscriptRef.current + ' ' + activeSessionTextRef.current).trim();
-          activeSessionTextRef.current = '';
-        }
+            const words = combined.split(/\s+/).filter(Boolean);
+            // Calculate speaking time ONLY while actively speaking (not total elapsed idle time)
+            const rawActiveSpeakingSecs = intervals.reduce(
+              (sum, inv) => sum + Math.max(0.6, (inv.end - inv.start) / 1000), 
+              0
+            );
+            // Upper speed guard (~190 WPM max ceiling so 1-2 words don't explode WPM)
+            const activeSpeakingSeconds = Math.max(words.length * 0.31, rawActiveSpeakingSecs);
+            
+            if (words.length > 0 && activeSpeakingSeconds >= 1.5) {
+              const rawWpm = Math.round(words.length / (activeSpeakingSeconds / 60));
+              setEstimatedWPM(Math.min(210, Math.max(50, rawWpm)));
+            } else if (words.length > 0) {
+              setEstimatedWPM(135);
+            }
 
+            const fillerRules = [
+              /\b(um+|uh+|uhm+|er+|ah+|ahm+)\b/gi,
+              /\b(you know|i mean|kind of|sort of|at the end of the day)\b/gi,
+              /\b(basically|actually|literally|essentially)\b/gi,
+              /\b(matlab|yaani|aur kya|and all that)\b/gi,
+              /\b(like)\b/gi
+            ];
+            let count = 0;
+            fillerRules.forEach(pattern => {
+              const matches = combined.match(pattern);
+              if (matches) count += matches.length;
+            });
+            setFillerWordsCount(count);
+          }
+        };
+
+        recognition.onerror = (e: any) => {
+          // Log transient browser warnings (no-speech, network timeout)
+          console.warn("Speech recognition notice:", e?.error);
+        };
+
+        recognition.onend = () => {
+          // Flush active session text into cumulative persisted transcript
+          if (activeSessionTextRef.current) {
+            persistedTranscriptRef.current = (persistedTranscriptRef.current + ' ' + activeSessionTextRef.current).trim();
+            activeSessionTextRef.current = '';
+          }
+
+          // Chromium disallows re-calling .start() on a finished SpeechRecognition instance.
+          // Creating a fresh instance guarantees uninterrupted transcription for sessions of any length.
+          if (isRecordingRef.current) {
+            setTimeout(() => {
+              if (isRecordingRef.current) {
+                initRecognitionSession();
+              }
+            }, 80);
+          } else {
+            setIsAudioStreaming(false);
+          }
+        };
+
+        recognitionRef.current = recognition;
+        recognition.start();
+      } catch (err) {
+        console.warn("Speech recognition initialization caught:", err);
         if (isRecordingRef.current) {
           setTimeout(() => {
-            if (isRecordingRef.current) {
-              try {
-                recognition.start();
-                setIsAudioStreaming(true);
-              } catch {
-                // If restart fails, retry once more
-                setTimeout(() => {
-                  if (isRecordingRef.current) {
-                    try { recognition.start(); } catch {}
-                  }
-                }, 400);
-              }
-            }
-          }, 100);
-        } else {
-          setIsAudioStreaming(false);
+            if (isRecordingRef.current) initRecognitionSession();
+          }, 250);
         }
-      };
-      
-      recognitionRef.current = recognition;
-      recognition.start();
-    } catch {
-      setIsAudioStreaming(false);
-    }
+      }
+    };
+
+    initRecognitionSession();
   }, []);
-  
+
   const stopAudioStream = useCallback(() => {
     isRecordingRef.current = false;
     if (activeSessionTextRef.current) {
@@ -237,7 +250,7 @@ export default function Practice() {
     }
     if (recognitionRef.current) {
       try {
-        recognitionRef.current.stop();
+        recognitionRef.current.abort();
       } catch {}
       recognitionRef.current = null;
       setIsAudioStreaming(false);
@@ -513,6 +526,52 @@ export default function Practice() {
 
       const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
 
+      const scenarioLower = activeTopic.toLowerCase();
+      const localStrengths: string[] = [];
+      const localImprovements: string[] = [];
+
+      if (finalEyeContact >= 75) {
+        localStrengths.push(`Direct camera gaze maintained (${finalEyeContact}%), projecting confident virtual authority`);
+      } else {
+        localImprovements.push(`Elevate laptop & hold camera lens gaze (achieved ${finalEyeContact}%, target 75%+)`);
+      }
+
+      if (finalPosture >= 75) {
+        localStrengths.push(`Upright spinal alignment (${finalPosture}%) supporting clear vocal projection`);
+      } else {
+        localImprovements.push(`Sit upright and square your shoulders (achieved ${finalPosture}%) to avoid slumping`);
+      }
+
+      if (finalWPM >= 125 && finalWPM <= 165) {
+        localStrengths.push(`Optimal executive speaking rhythm (${finalWPM} WPM) for clear idea retention`);
+      } else if (finalWPM > 0 && finalWPM < 125) {
+        localImprovements.push(`Pick up your speaking pace (${finalWPM} WPM). Aim for 130–155 WPM in competitive interviews`);
+      } else if (finalWPM > 165) {
+        localImprovements.push(`Pacing was rapid (${finalWPM} WPM). Insert deliberate pauses between key points`);
+      }
+
+      if (fillerWordsCount === 0) {
+        localStrengths.push("Disciplined articulation with zero filler crutches detected");
+      } else if (fillerWordsCount <= 2) {
+        localStrengths.push(`Clean verbal delivery with minimal fillers (${fillerWordsCount} noted)`);
+      } else {
+        localImprovements.push(`Replace reflexive sounds (${fillerWordsCount} fillers detected) with silent 1-second pauses`);
+      }
+
+      if (scenarioLower.includes('hr') || scenarioLower.includes('placement') || scenarioLower.includes('interview')) {
+        localStrengths.push("Professional composure aligned with campus placement expectations");
+        localImprovements.push("Structure behavioral answers using STAR (Situation -> Task -> Action -> Measurable Result)");
+      } else if (scenarioLower.includes('tech') || scenarioLower.includes('viva') || scenarioLower.includes('defense') || scenarioLower.includes('project')) {
+        localStrengths.push("Demonstrated direct technical focus on project architecture");
+        localImprovements.push("Quantify engineering trade-offs and bottleneck resolutions under load");
+      } else if (scenarioLower.includes('gd') || scenarioLower.includes('discussion') || scenarioLower.includes('debate')) {
+        localStrengths.push("Assertive vocal energy suited for group discussion turn-taking");
+        localImprovements.push("Use diplomatic intervention hooks: 'Building on that perspective, another dimension is...'");
+      } else if (scenarioLower.includes('pitch')) {
+        localStrengths.push("High energy hook suitable for elevator and venture presentations");
+        localImprovements.push("State your customer pain-point in the first 15 seconds, backed by traction numbers");
+      }
+
       const localBackup = {
         id: targetSessionId,
         topic: activeTopic,
@@ -527,8 +586,8 @@ export default function Practice() {
         eyeContactData,
         postureData,
         createdAt: new Date().toISOString(),
-        strengths: ["Completed the practice session", finalEyeContact >= 70 ? "Consistent eye gaze engagement" : "Solid vocal delivery"],
-        improvements: ["Maintain steady 130-155 WPM conversational pacing", "Keep practicing to eliminate fillers"]
+        strengths: localStrengths.length > 0 ? localStrengths : ["Completed the practice session", "Composed delivery"],
+        improvements: localImprovements.length > 0 ? localImprovements : ["Maintain steady 130-155 WPM conversational pacing", "Keep practicing to eliminate fillers"]
       };
 
       sessionStorage.setItem(`session_data_${targetSessionId}`, JSON.stringify(localBackup));
@@ -668,27 +727,57 @@ export default function Practice() {
     </Card>
   );
 
-  const renderTranscriptCard = () => (
-    <Card className="border border-border/60 bg-card shadow-xs">
-      <CardHeader className="pb-2 border-b border-border/40 flex flex-row items-center justify-between">
-        <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Live Spoken Transcript
-        </CardTitle>
-        <Badge variant="outline" className="text-[10px] text-primary border-primary/30">
-          Daily Cap: {dailyUsage.count}/{dailyUsage.limit} • {userPlan.badgeText}
-        </Badge>
-      </CardHeader>
-      <CardContent className="p-3">
-        <div className="h-36 overflow-y-auto font-mono text-[11px] text-foreground/90 leading-relaxed bg-muted/20 p-2.5 rounded border border-border/30">
-          {liveTranscript || (
-            <span className="text-muted-foreground italic">
-              Start speaking into your microphone to view live speech transcription...
-            </span>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const renderTranscriptCard = () => {
+    const liveWordCount = liveTranscript ? liveTranscript.split(/\s+/).filter(Boolean).length : 0;
+
+    return (
+      <Card className="border border-border/60 bg-card shadow-xs">
+        <CardHeader className="pb-2 border-b border-border/40 flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Live Spoken Transcript
+            </CardTitle>
+            {isAudioStreaming ? (
+              <Badge variant="secondary" className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 py-0 gap-1 flex items-center">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
+                <span>Listening Live</span>
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/40 py-0">
+                Mic Idle
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Badge variant="secondary" className="text-[10px] font-mono font-medium">
+              {liveWordCount} words
+            </Badge>
+            <Badge variant="outline" className="text-[10px] text-primary border-primary/30">
+              Daily Cap: {dailyUsage.count}/{dailyUsage.limit}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="p-3">
+          <div 
+            ref={transcriptScrollRef}
+            className="h-36 overflow-y-auto font-mono text-[11px] text-foreground/90 leading-relaxed bg-muted/20 p-2.5 rounded border border-border/30 scroll-smooth"
+          >
+            {liveTranscript ? (
+              <p className="whitespace-pre-wrap break-words">
+                {liveTranscript}
+                <span className="inline-block w-1.5 h-3.5 bg-primary ml-1 animate-pulse align-middle" />
+              </p>
+            ) : (
+              <span className="text-muted-foreground italic flex items-center gap-1.5">
+                <Mic className="h-3.5 w-3.5 text-primary animate-pulse shrink-0" />
+                Start speaking into your microphone. Transcription will stream and auto-scroll here in real-time...
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   const renderPrompterAndPrompt = () => (
     <>

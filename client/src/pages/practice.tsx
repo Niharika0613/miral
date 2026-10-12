@@ -752,8 +752,8 @@ export default function Practice() {
             <Badge variant="secondary" className="text-[10px] font-mono font-medium">
               {liveWordCount} words
             </Badge>
-            <Badge variant="outline" className="text-[10px] text-primary border-primary/30">
-              Daily Cap: {dailyUsage.count}/{dailyUsage.limit}
+            <Badge variant="outline" className="text-[10px] text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/5">
+              Campus Pilot • Unlimited
             </Badge>
           </div>
         </CardHeader>

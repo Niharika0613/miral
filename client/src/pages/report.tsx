@@ -714,94 +714,141 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
 
     const detectedOnly = compiled.filter(c => c.isDetected);
 
-    // Spoken Sentence Transformation Logic
+    // Real Spoken Speech Polish & Grammar Correction Engine
     let sentenceTransform: {
       originalSpoken: string;
-      issue: string;
-      executivePolish: string;
-      whyItConverts: string;
+      correctedVersion: string;
+      corrections: string[];
       isRealTranscript: boolean;
     } | null = null;
 
-    if (text.length > 25) {
-      // Split into candidate spoken sentences
+    if (text.length > 8) {
+      // Find spoken sentence
       const rawSentences = text
         .split(/(?<=[.?!])\s+|\n+/)
         .map(s => s.trim())
-        .filter(s => s.split(/\s+/).length >= 5);
+        .filter(Boolean);
 
-      if (rawSentences.length > 0) {
-        // Find sentence with informal indicators
-        const targetSentence = rawSentences.find(s => 
-          /\b(actually|basically|myself|college|project|website|database|problem|slow|bug|passed out|fresher|hard work|lots|stuff|like)\b/i.test(s)
-        ) || rawSentences[0];
+      const targetSentence = rawSentences[0] || text;
 
-        if (targetSentence) {
-          // Construct intelligent corporate executive upgrade
-          let upgraded = targetSentence
-            .replace(/\b(myself\s+[\w]+)/gi, "I am [Name], an engineer specializing in scalable systems")
-            .replace(/\b(passed out in\s+\d{4}|passout|passed out)\b/gi, "graduated with technical distinction")
-            .replace(/\b(actually|basically)\b/gi, "specifically")
-            .replace(/\b(in my college|during college days)\b/gi, "throughout our academic capstone coursework")
-            .replace(/\b(made a project|our project is|built a project)\b/gi, "architected and deployed a production-ready system")
-            .replace(/\b(made a website|made an app)\b/gi, "engineered a full-stack platform")
-            .replace(/\b(used database|stored data)\b/gi, "implemented normalized schema design and optimized query indexing")
-            .replace(/\b(it was slow|speed problem)\b/gi, "we identified compute latency bottlenecks under load")
-            .replace(/\b(fixed the bug|solved the error|solved it)\b/gi, "diagnosed the root-cause defect and deployed targeted hotfixes")
-            .replace(/\b(big problem|huge problem)\b/gi, "a critical architectural bottleneck")
-            .replace(/\b(lots of|a lot of)\b/gi, "substantial volumes of")
-            .replace(/\b(hardworking|do hard work)\b/gi, "demonstrate high execution rigor");
+      // Smart Speech & Grammar Polisher
+      let cleaned = targetSentence.trim();
+      const correctionsList: string[] = [];
 
-          // Clean up capitalization
-          upgraded = upgraded.charAt(0).toUpperCase() + upgraded.slice(1);
-          if (!upgraded.endsWith('.')) upgraded += '.';
-
-          sentenceTransform = {
-            originalSpoken: `"${targetSentence}"`,
-            issue: "Contains casual conversational colloquialisms, passive phrasing, or lacks quantified technical ownership.",
-            executivePolish: `"${upgraded}"`,
-            whyItConverts: "Demonstrates engineering leadership, active voice, and professional communication standards expected at top tech firms.",
-            isRealTranscript: true
-          };
-        }
+      // 1. Remove stuttered / repeated words
+      if (/\b(hello\s+hello|hi\s+hi|yes\s+yes)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\b(hello\s+hello|hi\s+hi)\b/gi, "Hello");
+        correctionsList.push("Removed duplicate greeting stutter ('hello hello' → 'Hello')");
       }
-    }
-
-    // Benchmark fallback if no transcript was recorded or audio was too brief
-    if (!sentenceTransform) {
-      if (cleanTopic.includes('tech') || cleanTopic.includes('viva') || cleanTopic.includes('defense') || cleanTopic.includes('project')) {
-        sentenceTransform = {
-          originalSpoken: `"Basically we made a website with react and used database, but it was slow so we fixed the bug and solved it."`,
-          issue: "Informal phrasing ('basically made', 'used database', 'solved it') lacks architectural depth and root-cause specifics.",
-          executivePolish: `"We engineered a responsive React platform backed by a normalized PostgreSQL database; when query latency spiked under concurrent load, we implemented composite indexing to boost throughput by 40%."`,
-          whyItConverts: "Demonstrates root-cause analysis (RCA), quantified metrics, and senior engineering ownership.",
-          isRealTranscript: false
-        };
-      } else if (cleanTopic.includes('gd') || cleanTopic.includes('debate') || cleanTopic.includes('discussion')) {
-        sentenceTransform = {
-          originalSpoken: `"I don't agree with you, you are wrong because artificial intelligence will create big problems and take lots of jobs."`,
-          issue: "Aggressive confrontation ('you are wrong') and vague fear ('big problems') causes GD panel score deductions.",
-          executivePolish: `"While I appreciate the perspective on automated displacement, empirical data indicates that AI primarily automates repetitive tasks while creating a net demand for specialized system orchestrators."`,
-          whyItConverts: "Uses diplomatic consensus framing, active listening validation, and evidence-backed counter-argumentation.",
-          isRealTranscript: false
-        };
-      } else if (cleanTopic.includes('pitch')) {
-        sentenceTransform = {
-          originalSpoken: `"Our app is very good for students who want to speak English and have doubts, and we have lots of features."`,
-          issue: "Subjective compliments ('very good', 'lots of features') fail to articulate market pain, moat, or unit economics.",
-          executivePolish: `"We built an AI-powered multimodal communication coach that bridges the corporate articulation gap for 10M+ Indian graduates through real-time gaze, posture, and fluency diagnostics."`,
-          whyItConverts: "Clearly articulates the addressable market size, proprietary technological moat, and customer value proposition.",
-          isRealTranscript: false
-        };
-      } else {
-        sentenceTransform = {
-          originalSpoken: `"Myself Rahul, I passed out in 2024 and I am a hardworking fresher looking for a good company to do hard work."`,
-          issue: "Colloquial grammar errors ('Myself', 'passed out', 'hardworking fresher') immediately flag candidate as informal.",
-          executivePolish: `"I am Rahul, a 2024 computer science graduate specializing in scalable backend systems. I am eager to contribute high execution rigor and technical ownership to your core engineering initiatives."`,
-          whyItConverts: "Projects professional confidence, eliminates campus slang, and aligns candidate skills with company goals.",
-          isRealTranscript: false
-        };
+      if (/good\s+morning\b.*?\bgood\s+morning/i.test(cleaned)) {
+        cleaned = cleaned.replace(/good\s+morning\b.*?\bgood\s+morning/gi, "good morning");
+        correctionsList.push("Removed repeated greeting phrase ('good morning ... good morning')");
       }
+      if (/\b(because\s+good\s+morning|so\s+good\s+morning)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\b(because\s+good\s+morning|so\s+good\s+morning)\b/gi, "Good morning");
+        correctionsList.push("Removed awkward filler word before greeting ('because good morning')");
+      }
+
+      // 2. Fix self-introduction phrasing
+      if (/\bmy\s+name\s+is\s+hi\s+([a-zA-Z]+)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\bmy\s+name\s+is\s+hi\s+([a-zA-Z]+)\b/gi, "my name is $1");
+        correctionsList.push("Cleaned up spoken intro ('my name is hi ...' → 'my name is ...')");
+      }
+      if (/\bmyself\s+([a-zA-Z]+)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\bmyself\s+([a-zA-Z]+)\b/gi, "I am $1");
+        correctionsList.push("Replaced colloquial intro ('Myself ...' → 'I am ...')");
+      }
+
+      // 3. Fix verb tense mistakes
+      if (/\bi\s+am\s+currently\s+completed\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\bi\s+am\s+currently\s+completed\b/gi, "I have completed");
+        correctionsList.push("Corrected verb tense ('I am currently completed' → 'I have completed')");
+      } else if (/\bi\s+am\s+completed\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\bi\s+am\s+completed\b/gi, "I have completed");
+        correctionsList.push("Corrected auxiliary verb ('I am completed' → 'I have completed')");
+      }
+
+      if (/\b(passed\s+out|passout)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\b(passed\s+out|passout)\b/gi, "graduated");
+        correctionsList.push("Replaced slang ('passed out' → 'graduated')");
+      }
+
+      // 4. Fix degree / syllabus phrasing
+      if (/\b(my\s+degree\s+science\s+syllabus|science\s+syllabus)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\b(my\s+degree\s+science\s+syllabus|science\s+syllabus)\b/gi, "my degree in Science");
+        correctionsList.push("Polished academic description ('degree science syllabus' → 'degree in Science')");
+      }
+      if (/\b(degree\s+cs\s+syllabus|computer\s+science\s+syllabus)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\b(degree\s+cs\s+syllabus|computer\s+science\s+syllabus)\b/gi, "my degree in Computer Science");
+        correctionsList.push("Polished academic description ('CS syllabus' → 'degree in Computer Science')");
+      }
+
+      // 5. Fix common conversational crutches
+      if (/\b(actually\s+basically|basically\s+actually)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\b(actually\s+basically|basically\s+actually)\b/gi, "specifically");
+        correctionsList.push("Removed filler repetition ('actually basically')");
+      }
+      if (/\b(cope\s+up\s+with)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\b(cope\s+up\s+with)\b/gi, "cope with");
+        correctionsList.push("Corrected preposition redundancy ('cope up with' → 'cope with')");
+      }
+      if (/\b(revert\s+back)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\b(revert\s+back)\b/gi, "reply");
+        correctionsList.push("Removed redundant word ('revert back' → 'reply')");
+      }
+      if (/\b(have\s+a\s+doubt)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\b(have\s+a\s+doubt)\b/gi, "have a question");
+        correctionsList.push("Framed inquiry clearly ('have a doubt' → 'have a question')");
+      }
+      if (/\b(made\s+a\s+project|did\s+a\s+project)\b/i.test(cleaned)) {
+        cleaned = cleaned.replace(/\b(made\s+a\s+project|did\s+a\s+project)\b/gi, "developed a project");
+        correctionsList.push("Elevated project phrasing ('made a project' → 'developed a project')");
+      }
+
+      // Format sentence capitalization and punctuation
+      cleaned = cleaned.replace(/\s+/g, ' ').trim();
+      cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+      if (!/[.?!]$/.test(cleaned)) cleaned += '.';
+
+      // Handle common greeting flow: "Good morning. My name is..."
+      cleaned = cleaned.replace(/^(Good morning|Good afternoon|Good evening|Hello)\s+([A-Z])/i, "$1. $2");
+
+      if (correctionsList.length === 0) {
+        correctionsList.push("Cleaned sentence flow, capitalization, and punctuation");
+      }
+
+      sentenceTransform = {
+        originalSpoken: `"${targetSentence}"`,
+        correctedVersion: `"${cleaned}"`,
+        corrections: correctionsList,
+        isRealTranscript: true
+      };
+    } else {
+      // Clear benchmark model for the scenario if audio was too brief
+      let modelOriginal = `"Myself Rahul, I passed out in 2024 and I am completed my degree science syllabus."`;
+      let modelCorrected = `"Good morning. My name is Rahul. I graduated in 2024 with a degree in Science, and I am eager to contribute to your team."`;
+      let modelFixes = [
+        "Replaced colloquial intro ('Myself' → 'My name is')",
+        "Corrected verb tense ('am completed' → 'graduated / have completed')",
+        "Polished academic phrasing ('degree science syllabus' → 'degree in Science')"
+      ];
+
+      if (cleanTopic.includes('tech') || cleanTopic.includes('viva') || cleanTopic.includes('project')) {
+        modelOriginal = `"Basically we made a website with react and used database, but it was having lots of problem and slow."`;
+        modelCorrected = `"We engineered a full-stack React application backed by a database; when query latency increased, we resolved the bottleneck."`;
+        modelFixes = [
+          "Removed filler starter ('Basically')",
+          "Elevated technical vocabulary ('made a website' → 'engineered a full-stack application')",
+          "Framed challenges professionally ('having lots of problem and slow' → 'resolved the bottleneck')"
+        ];
+      }
+
+      sentenceTransform = {
+        originalSpoken: modelOriginal,
+        correctedVersion: modelCorrected,
+        corrections: modelFixes,
+        isRealTranscript: false
+      };
     }
 
     return {
@@ -833,16 +880,16 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
             <BookOpen className="h-4 w-4 text-primary shrink-0" />
             <div>
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground">
-                Corporate English & Vocabulary Upgrade (ESL Bridge)
+                Speech Polish & Phrasing Improvements
               </CardTitle>
               <span className="text-[11px] text-muted-foreground block">
-                Transforms campus slang, Indianisms, and informal speech into polished boardroom English
+                Direct grammar fixes, clearer phrasing, and vocabulary upgrades based on your speech
               </span>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20">
-              Pro Hub • Free Campus Pilot (Until Oct 31)
+            <Badge variant="secondary" className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
+              Campus Pilot • Unlimited
             </Badge>
             {detectedUpgrades.length > 0 ? (
               <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 font-semibold">
@@ -861,10 +908,10 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
           {[
             { id: 'all', label: 'All Recommendations' },
             { id: 'detected', label: `Detected in Audio (${detectedUpgrades.length})` },
-            { id: 'intro', label: 'Introductions & Campus' },
-            { id: 'esl', label: 'Indianisms & ESL Redundancies' },
-            { id: 'tech', label: 'Technical Defense & Viva' },
-            { id: 'gd', label: 'GD & Debate Diplomacy' },
+            { id: 'intro', label: 'Introductions & Background' },
+            { id: 'esl', label: 'Common Slang & Grammar Slips' },
+            { id: 'tech', label: 'Projects & Technical Viva' },
+            { id: 'gd', label: 'Group Discussions & Debates' },
           ].map(cat => (
             <button
               key={cat.id}
@@ -883,45 +930,54 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
       </CardHeader>
 
       <CardContent className="p-4 sm:p-5 space-y-5">
-        {/* Real Spoken Sentence Transformation Spotlight */}
+        {/* Real Spoken Sentence Polish Spotlight */}
         {spokenSentenceUpgrade && (
           <div className="p-4 rounded-xl border border-indigo-500/30 bg-gradient-to-r from-indigo-500/[0.04] via-muted/20 to-card space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>Executive Sentence Rephrase Engine</span>
+                <span>Spoken Sentence Polish & Grammar Correction</span>
               </div>
               <Badge variant="secondary" className="text-[9px] bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                {spokenSentenceUpgrade.isRealTranscript ? "Transcribed From Your Audio" : "High-Stakes Benchmark Model"}
+                {spokenSentenceUpgrade.isRealTranscript ? "From Your Spoken Audio" : "Practice Model Benchmark"}
               </Badge>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
               {/* Spoken original */}
-              <div className="p-3 rounded-lg bg-red-500/[0.03] border border-red-500/20 space-y-1">
+              <div className="p-3.5 rounded-lg bg-red-500/[0.03] border border-red-500/20 space-y-1.5">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 block">
-                  Original Spoken Version
+                  What You Said (Spoken Audio)
                 </span>
-                <p className="text-xs font-mono text-foreground/80 leading-relaxed italic">
+                <p className="text-xs font-mono text-foreground/80 leading-relaxed italic break-words">
                   {spokenSentenceUpgrade.originalSpoken}
-                </p>
-                <p className="text-[10px] text-muted-foreground pt-1 border-t border-red-500/10">
-                  <strong className="text-foreground">Tone Gap:</strong> {spokenSentenceUpgrade.issue}
                 </p>
               </div>
 
-              {/* Polished executive */}
-              <div className="p-3 rounded-lg bg-emerald-500/[0.04] border border-emerald-500/20 space-y-1">
+              {/* Polished version */}
+              <div className="p-3.5 rounded-lg bg-emerald-500/[0.04] border border-emerald-500/20 space-y-1.5">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block">
-                  Executive Corporate Upgrade
+                  Clean & Polished Version
                 </span>
-                <p className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold leading-relaxed">
-                  {spokenSentenceUpgrade.executivePolish}
-                </p>
-                <p className="text-[10px] text-muted-foreground pt-1 border-t border-emerald-500/10">
-                  <strong className="text-foreground">Why It Converts:</strong> {spokenSentenceUpgrade.whyItConverts}
+                <p className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold leading-relaxed break-words">
+                  {spokenSentenceUpgrade.correctedVersion}
                 </p>
               </div>
+            </div>
+
+            {/* List of corrections */}
+            <div className="p-3 rounded-lg bg-card/60 border border-border/40 space-y-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                Key Corrections Made:
+              </span>
+              <ul className="space-y-1 text-xs text-foreground/90">
+                {spokenSentenceUpgrade.corrections.map((corr, idx) => (
+                  <li key={idx} className="flex items-start gap-1.5 text-[11px] leading-relaxed">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mt-0.5 shrink-0" />
+                    <span>{corr}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         )}
@@ -930,60 +986,32 @@ function VocabularyUpgradeSection({ transcript, topic }: { transcript: string; t
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {filteredUpgrades.map((item, idx) => (
             <div key={idx} className="p-3.5 rounded-lg bg-muted/20 border border-border/40 text-xs space-y-2">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[10px] text-muted-foreground uppercase font-semibold">
                   <span className="flex items-center gap-1.5">
-                    <span>Informal / Spoken</span>
+                    <span>Informal / Slang</span>
                     {item.isDetected && (
                       <Badge variant="secondary" className="text-[9px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 py-0 px-1.5 font-bold">
                         In Your Audio
                       </Badge>
                     )}
                   </span>
-                  <span className="text-primary font-bold">Recommended Upgrade</span>
+                  <span className="text-primary font-bold">Better Alternative</span>
                 </div>
-                <div className="flex items-center justify-between p-2 rounded bg-muted/40 font-mono text-xs gap-2">
-                  <span className="text-muted-foreground line-through truncate max-w-[45%]">{item.from}</span>
-                  <ArrowRight className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span className="text-primary font-bold text-right truncate max-w-[50%]">{item.to}</span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded bg-muted/40 font-mono text-xs gap-1.5 border border-border/30">
+                  <span className="text-muted-foreground line-through break-words flex-1">{item.from}</span>
+                  <ArrowRight className="h-3.5 w-3.5 text-primary shrink-0 hidden sm:block" />
+                  <span className="text-primary font-bold break-words flex-1 text-left sm:text-right">{item.to}</span>
                 </div>
               </div>
               {item.detectedContext && (
-                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 p-1.5 rounded border border-emerald-500/10 italic">
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 p-1.5 rounded border border-emerald-500/10 italic break-words">
                   Detected in audio: {item.detectedContext}
                 </p>
               )}
               <p className="text-[11px] text-muted-foreground leading-relaxed pt-0.5">{item.explanation}</p>
             </div>
           ))}
-        </div>
-
-        {/* ESL Indian English Phonetics & Delivery Rules */}
-        <div className="p-4 rounded-xl bg-muted/30 border border-border/40 space-y-3">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-foreground uppercase tracking-wider">
-            <Lightbulb className="h-4 w-4 text-amber-500" />
-            <span>Core Fluency Rules for Indian English Speakers</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="p-3 rounded-lg bg-card border border-border/40 space-y-1">
-              <span className="text-xs font-bold text-foreground block">1. Stress-Timed English Cadence</span>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Indian languages are <em>syllable-timed</em> (equal length per syllable). Professional global English is <em>stress-timed</em>: elongate key nouns and action verbs, and say structural prepositions quickly.
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-card border border-border/40 space-y-1">
-              <span className="text-xs font-bold text-foreground block">2. The 1-Second Silent Pause</span>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Never hold the floor with filler crutches (<em>"matlab", "basically", "you know"</em>). Close your mouth and breathe for 1 second. Silence projects executive composure and high status.
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-card border border-border/40 space-y-1">
-              <span className="text-xs font-bold text-foreground block">3. Clear /v/ vs. /w/ Articulation</span>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Distinguish between <strong>/v/</strong> (press upper teeth against lower lip, as in <em>value, very</em>) and <strong>/w/</strong> (round lips with zero teeth contact, as in <em>work, website</em>).
-              </p>
-            </div>
-          </div>
         </div>
       </CardContent>
     </Card>

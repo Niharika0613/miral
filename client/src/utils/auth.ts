@@ -70,14 +70,15 @@ export const getDailyAnalysisUsage = () => {
     count = 0;
   }
 
-  const limit = 10; // Daily cap for transcript analyses
-  const remaining = Math.max(0, limit - count);
+  // During the campus pilot, all students and users have unlimited practice & analysis
+  const limit = 999;
+  const remaining = 999;
 
   return {
     count,
     limit,
     remaining,
-    isCapped: count >= limit,
+    isCapped: false,
     recordAnalysis: () => {
       const next = count + 1;
       try {

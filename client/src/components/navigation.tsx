@@ -1,6 +1,6 @@
 // client/src/components/navigation.tsx
 import { Link, useLocation } from "wouter";
-import { Video, LayoutDashboard, User, LogOut, LogIn, Sparkles, Compass, Menu, X, ShieldCheck, HelpCircle, Mail, Tag } from "lucide-react";
+import { Video, LayoutDashboard, User, LogOut, LogIn, Sparkles, Compass, Menu, X, ShieldCheck, HelpCircle, Mail, Tag, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -20,6 +20,7 @@ export function Navigation() {
 
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/tpo", label: "TPO Portal", icon: Building2 },
     { path: "/practice", label: "Practice", icon: Video },
     { path: "/scenarios", label: "Scenarios", icon: Compass },
     { path: "/pricing", label: "Plans", icon: Tag },

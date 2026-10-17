@@ -13,6 +13,20 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class GoogleAuthRequest(BaseModel):
+    email: EmailStr
+    name: Optional[str] = None
+    googleId: Optional[str] = None
+    credential: Optional[str] = None
+
+class PhoneOtpRequest(BaseModel):
+    phone: str
+
+class PhoneVerifyRequest(BaseModel):
+    phone: str
+    otp: str
+    name: Optional[str] = None
+
 class UserResponse(BaseModel):
     id: str
     email: str

@@ -22,6 +22,7 @@ import Contact from "@/pages/contact";
 import FAQ from "@/pages/faq";
 import Pricing from "@/pages/pricing";
 import VerifyCertificate from "@/pages/verify";
+import TPO from "@/pages/tpo";
 import NotFound from "@/pages/not-found";
 import { getCurrentUser } from "@/utils/auth";
 
@@ -29,6 +30,7 @@ function AppRouter() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/tpo" component={TPO} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/practice" component={Practice} />
       <Route path="/scenarios" component={Scenarios} />

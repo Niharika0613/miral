@@ -1,6 +1,6 @@
 # server-fastapi/storage.py
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func
 from sqlalchemy.sql import desc
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -122,14 +122,15 @@ class DatabaseStorage:
         name: Optional[str],
         db: AsyncSession
     ) -> User:
-        """Create new user with hashed password"""
+        """Create new user with hashed password and normalized email"""
+        clean_email = email.strip().lower()
         hashed_password = hash_password(password)
         
         new_user = User(
             id=str(uuid.uuid4()),
-            email=email,
+            email=clean_email,
             password=hashed_password,
-            name=name,
+            name=name.strip() if name else None,
             plan="free",
             pro_until=datetime(2026, 10, 31, 23, 59, 59)
         )
@@ -140,9 +141,12 @@ class DatabaseStorage:
         return new_user
     
     async def get_user(self, email: str, db: AsyncSession) -> Optional[User]:
-        """Get user by email"""
+        """Get user by email (case-insensitive and trimmed)"""
+        if not email:
+            return None
+        clean_email = email.strip().lower()
         result = await db.execute(
-            select(User).where(User.email == email)
+            select(User).where(func.lower(User.email) == clean_email)
         )
         return result.scalar_one_or_none()
     

@@ -280,21 +280,21 @@ export default function Home() {
       <section className="py-14 sm:py-20 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
         <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                Choose what you want to practice
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Select any scenario below or paste your custom script to start.
-              </p>
+          <div className="text-center max-w-2xl mx-auto mb-10 space-y-2.5">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Choose what you want to practice
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              Select any scenario below or paste your custom script to start.
+            </p>
+            <div className="pt-1 flex items-center justify-center">
+              <Link href="/scenarios">
+                <Button variant="outline" size="sm" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/60 bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 gap-1.5 h-8 px-4 rounded-full transition-all">
+                  <span>View all scenarios</span>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+              </Link>
             </div>
-            <Link href="/scenarios">
-              <Button variant="ghost" size="sm" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 gap-1.5 h-8 px-3">
-                <span>View all scenarios</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
-            </Link>
           </div>
 
           {/* Cards Grid: Spacious 3-column layout */}

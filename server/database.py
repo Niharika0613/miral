@@ -10,8 +10,10 @@ from config import settings
 
 Base = declarative_base()
 
-# 1. Prepare SQLite Local Fallback Engine
-SQLITE_URL = "sqlite+aiosqlite:///./miral.db"
+# 1. Prepare SQLite Local Fallback Engine (Anchored to Project Root)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SQLITE_DB_PATH = os.path.join(BASE_DIR, "miral.db").replace("\\", "/")
+SQLITE_URL = f"sqlite+aiosqlite:///{SQLITE_DB_PATH}"
 sqlite_engine = create_async_engine(
     SQLITE_URL,
     echo=False,
@@ -101,16 +103,22 @@ AsyncSessionLocal = PrimarySessionLocal or SqliteSessionLocal
 
 async def init_db_tables():
     """Initializes tables on both primary and fallback engines safely"""
-    # 1. Initialize primary
+    # Import all models to ensure metadata is populated
+    from models import User, Session, PasswordResetToken, Feedback
     try:
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        print("[DATABASE] Primary database tables initialized successfully.")
-    except Exception as e:
-        print(f"[DATABASE] Primary DB table init failed ({e}). Initializing SQLite fallback...")
         async with sqlite_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
         print("[DATABASE] SQLite fallback tables ready.")
+    except Exception as e:
+        print(f"[DATABASE] SQLite init error: {e}")
+
+    if primary_engine and primary_engine != sqlite_engine:
+        try:
+            async with primary_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            print("[DATABASE] Primary database tables initialized successfully.")
+        except Exception as e:
+            print(f"[DATABASE] Primary DB table init skipped/failed ({e}). Using SQLite fallback.")
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """Dependency that yields a working database session with automatic failover"""

@@ -1609,6 +1609,21 @@ export default function Report() {
 
   const localBackupSession = useMemo(() => {
     try {
+      if (sessionId === 'sample') {
+        return {
+          id: 'sample',
+          topic: 'Placement Technical Interview',
+          duration: 120,
+          eyeContactPercentage: 88,
+          postureScore: 90,
+          wordsPerMinute: 142,
+          fillerWordsCount: 2,
+          confidenceScore: 88,
+          transcript: "Good morning. I would like to walk you through our approach to building scalable web applications. During our final year project, we designed a microservices-based communication module that handled concurrent client requests with minimal latency. By profiling the network bottlenecks early, we reduced peak response times substantially.",
+          strengths: ["Maintained steady eye contact with the camera lens", "Cadence remained within the 130–150 WPM target range"],
+          improvements: ["Reduce transitional filler words when introducing new concepts", "Maintain upright posture during technical queries"]
+        };
+      }
       if (sessionId) {
         const stored = sessionStorage.getItem(`session_data_${sessionId}`);
         if (stored) return JSON.parse(stored);

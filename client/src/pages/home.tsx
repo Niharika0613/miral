@@ -2,36 +2,21 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { 
-  Sparkles, 
-  Eye, 
-  Activity, 
-  ArrowRight, 
-  CheckCircle2, 
   ShieldCheck, 
-  Play, 
-  Zap, 
-  Compass, 
-  Flame, 
   Check, 
-  LogIn, 
-  UserPlus,
-  Mic, 
-  Gauge, 
-  FileCheck2, 
-  Lock, 
+  ChevronDown, 
   Users,
   Briefcase,
   Mic2,
   Presentation,
   Scale,
-  FileText,
-  ChevronDown,
-  ChevronRight,
-  TrendingUp,
+  Compass,
   BarChart3,
-  Layers,
-  Monitor,
-  Video
+  TrendingUp,
+  Video,
+  Building2,
+  FileText,
+  Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -57,64 +42,64 @@ export default function Home() {
   // Practice Scenarios (Covering speeches, pitches, interviews, debates, meetings, presentations)
   const categories = [
     {
-      id: "public-speaking",
-      title: "Public Speaking & Keynotes",
-      icon: Mic2,
-      tagline: "Overcome stage nervousness, project your voice clearly, and connect with your audience.",
-      samplePrompt: "Deliver a 2-minute opening talk on how curiosity drives breakthrough innovation in modern technology.",
-      targetEye: "90% Direct Focus",
-      targetWpm: "135–150 WPM",
-      targetPosture: "Upright & Confident"
+      id: "job-interviews",
+      title: "Campus placement interviews",
+      icon: Briefcase,
+      tagline: "Practice behavioral questions, project walkthroughs, and HR self-introductions.",
+      samplePrompt: "Tell me about a time you had to deliver a complex project under tight deadlines with shifting requirements.",
+      targetEye: "88% direct focus",
+      targetWpm: "130–145 wpm",
+      targetPosture: "Professional and engaged"
     },
     {
-      id: "job-interviews",
-      title: "Job & Placement Interviews",
-      icon: Briefcase,
-      tagline: "Practice behavioral questions, project walkthroughs, and executive self-introductions.",
-      samplePrompt: "Tell me about a time you had to deliver a complex project under tight deadlines with shifting requirements.",
-      targetEye: "88% Direct Focus",
-      targetWpm: "130–145 WPM",
-      targetPosture: "Professional & Engaged"
+      id: "public-speaking",
+      title: "Public speaking and keynotes",
+      icon: Mic2,
+      tagline: "Overcome stage nervousness, project your voice clearly, and connect with your audience.",
+      samplePrompt: "Deliver a two-minute opening talk on how curiosity drives breakthrough innovation in modern technology.",
+      targetEye: "90% direct focus",
+      targetWpm: "135–150 wpm",
+      targetPosture: "Upright and steady"
     },
     {
       id: "startup-pitches",
-      title: "Startup & Project Pitches",
-      icon: Flame,
+      title: "Startup and project pitches",
+      icon: Presentation,
       tagline: "Pitch your ideas, hackathon projects, and business proposals with clarity and energy.",
-      samplePrompt: "Present your project's unique value proposition in 60 seconds and explain why existing alternatives fail.",
-      targetEye: "94% Direct Focus",
-      targetWpm: "140–155 WPM",
-      targetPosture: "Dynamic & Upright"
+      samplePrompt: "Present your project's value proposition in 60 seconds and explain why existing alternatives fail.",
+      targetEye: "92% direct focus",
+      targetWpm: "140–155 wpm",
+      targetPosture: "Dynamic and upright"
     },
     {
       id: "debates-mun",
-      title: "Debates & Model UN",
+      title: "Debates and Model UN",
       icon: Scale,
-      tagline: "Deliver persuasive arguments, rebuttals, and structured points under time pressure.",
+      tagline: "Deliver persuasive arguments, structured rebuttals, and counter-points under time limits.",
       samplePrompt: "Present a 90-second opening statement arguing for ethical AI governance in higher education.",
-      targetEye: "92% Direct Focus",
-      targetWpm: "145–160 WPM",
-      targetPosture: "Steadfast & Direct"
+      targetEye: "92% direct focus",
+      targetWpm: "145–160 wpm",
+      targetPosture: "Steadfast and direct"
     },
     {
       id: "team-presentations",
-      title: "Presentations & Meetings",
-      icon: Presentation,
+      title: "Presentations and meetings",
+      icon: FileText,
       tagline: "Practice slide commentary, weekly team updates, and stakeholder briefings.",
-      samplePrompt: "Walk your leadership team through quarterly progress, key roadblocks, and next priorities.",
-      targetEye: "88% Direct Focus",
-      targetWpm: "130–142 WPM",
-      targetPosture: "Calm & Natural"
+      samplePrompt: "Walk your project team through sprint progress, key roadblocks, and upcoming delivery priorities.",
+      targetEye: "88% direct focus",
+      targetWpm: "130–142 wpm",
+      targetPosture: "Calm and natural"
     },
     {
       id: "group-discussions",
-      title: "Group Discussions (GD)",
+      title: "Group discussions",
       icon: Users,
       tagline: "Practice entering discussions smoothly, structuring points, and summarizing arguments.",
       samplePrompt: "Initiate a group discussion on remote work culture versus in-office collaboration.",
-      targetEye: "90% Direct Focus",
-      targetWpm: "135–148 WPM",
-      targetPosture: "Attentive & Open"
+      targetEye: "90% direct focus",
+      targetWpm: "135–148 wpm",
+      targetPosture: "Attentive and open"
     }
   ];
 
@@ -130,39 +115,39 @@ export default function Home() {
   const previewTabs = [
     {
       id: 'practice' as const,
-      label: 'Live Practice Studio',
+      label: 'Live practice studio',
       icon: Video,
       image: '/images/practice-preview-v3.png',
-      badge: 'Real-Time In-Browser Feedback',
-      heading: 'Live Eye Gaze, Posture & Transcript Analysis',
-      description: 'Practice directly on camera. Miral calculates your real-time eye gaze percentage, upright posture stability, speaking tempo (WPM), and live speech transcript with 100% in-browser WebAssembly.'
+      badge: 'In-browser analysis',
+      heading: 'Live eye contact, posture, and speech cadence',
+      description: 'Practice directly in front of your camera. VaniDarpan measures camera gaze, spinal alignment, speaking speed (WPM), and filler words directly on your device.'
     },
     {
       id: 'scenarios' as const,
-      label: 'Curated Scenarios',
+      label: 'Curated scenarios',
       icon: Compass,
       image: '/images/scenarios-preview-v3.png',
-      badge: '100+ Pre-Built Prompts',
-      heading: '1-Click Launch Across Placement & Speaking Tracks',
-      description: 'Choose from Campus HR rounds, Technical Project Defenses, Group Discussions, and MUN Debates. Each track comes with curated questions and benchmark focus targets.'
+      badge: 'Prompt library',
+      heading: 'Structured practice across placement and speaking tracks',
+      description: 'Choose from campus HR rounds, technical project defenses, group discussions, and debates. Each track comes with curated questions and benchmark focus targets.'
     },
     {
       id: 'dashboard' as const,
-      label: 'Analytics Dashboard',
+      label: 'Analytics dashboard',
       icon: BarChart3,
       image: '/images/dashboard-preview-v3.png',
-      badge: 'Personalized Scorecard',
-      heading: 'Comparative Analytics: Baseline vs Current Session',
-      description: 'Review your total practice sessions, composite confidence score (0-100), time invested, and comparative improvements across eye contact, posture, and pacing.'
+      badge: 'Student progress',
+      heading: 'Session comparisons and delivery scorecards',
+      description: 'Review your total practice sessions, composite confidence score, time invested, and comparative improvements across eye contact, posture, and pacing.'
     },
     {
       id: 'trajectory' as const,
-      label: 'Session Trajectory Curve',
+      label: 'Progress trajectory',
       icon: TrendingUp,
       image: '/images/trajectory-preview-v3.png',
-      badge: 'Progress Visualization',
-      heading: 'Historical Multi-Metric Improvement Trajectory',
-      description: 'Visualize your progress over time with interactive growth curves tracking your eye contact stability and composite confidence across all completed mock sessions.'
+      badge: 'Growth curve',
+      heading: 'Historical multi-session improvement curves',
+      description: 'Visualize your progress over time with clean trendlines tracking your eye contact stability and composite confidence across all completed mock sessions.'
     }
   ];
 
@@ -170,135 +155,227 @@ export default function Home() {
 
   const faqs = [
     {
-      q: "What is Miral and who is it built for?",
-      a: "Miral is an AI practice mirror for anyone who wants to speak with confidence. Whether you are preparing for a public speech, a college debate, a startup pitch, a job interview, or a team presentation, Miral gives you real-time visual and audio feedback on how you look and sound."
+      q: "What is VaniDarpan and who is it built for?",
+      a: "VaniDarpan is a private AI practice mirror for public speaking and interviews. Built for Indian college students and placement cells, it helps speakers see what they cannot see themselves: eye contact, posture, pace, and filler words."
     },
     {
-      q: "How does the real-time AI eye contact and posture tracking work?",
-      a: "Miral runs lightweight computer vision models directly inside your browser using WebAssembly. It tracks your facial orientation, eye gaze direction towards the camera lens, and posture alignment at 60 FPS in real time with zero latency."
+      q: "How does the real-time eye contact and posture tracking work?",
+      a: "VaniDarpan runs lightweight computer vision models directly inside your browser. It tracks facial orientation, camera lens gaze direction, and posture alignment in real time with sub-second feedback."
     },
     {
       q: "Are my camera video or audio recordings uploaded to any server?",
-      a: "No. All camera processing and vision inference happen 100% locally on your own computer or phone. Video frames never leave your device, ensuring complete privacy while you practice."
+      a: "No. Your video is analysed on your device and is not uploaded. Camera frames never leave your computer or phone, ensuring complete privacy during every practice session."
     },
     {
       q: "Why should I create a free account?",
-      a: "Creating a free account allows Miral to save your practice history, track your improvement over time on your personal dashboard, and preserve your past session scorecards and custom speech scripts."
+      a: "Creating an account lets you save your practice history, track your improvement over time on your dashboard, and preserve past session scorecards and custom speech scripts."
     },
     {
       q: "Can I practice my own custom speeches or scripts?",
-      a: "Yes! Miral includes a built-in smart teleprompter. You can paste any speech, pitch deck notes, or interview script, adjust the font size, and practice reading while maintaining direct eye contact with the camera."
+      a: "Yes. VaniDarpan includes a built-in teleprompter. You can paste any speech, pitch outline, or interview answer, adjust the font size, and practice speaking while maintaining eye contact with the camera."
     },
     {
       q: "What is the recommended speaking speed (WPM)?",
-      a: "For impactful public speaking, presentations, and interviews, the optimal conversational pacing is between 130 and 155 Words Per Minute (WPM). Speaking faster than 170 WPM often sounds rushed, while speaking below 115 WPM can lead to disengagement."
+      a: "For interviews and presentations, the recommended conversational pacing is between 130 and 150 words per minute. Pacing faster than 160 words per minute can sound rushed, while pacing below 120 words per minute may feel hesitant."
     }
   ];
 
+  // College placement readiness heatmap sample data
+  const heatmapData = [
+    { branch: "Computer Science", eye: 84, pace: 88, posture: 82, clarity: 86, overall: 85 },
+    { branch: "Information Technology", eye: 82, pace: 80, posture: 79, clarity: 84, overall: 81 },
+    { branch: "Electronics & Comm.", eye: 76, pace: 74, posture: 78, clarity: 75, overall: 76 },
+    { branch: "Mechanical Engineering", eye: 68, pace: 70, posture: 72, clarity: 69, overall: 70 },
+    { branch: "Civil Engineering", eye: 62, pace: 65, posture: 66, clarity: 64, overall: 64 },
+  ];
+
+  const getHeatmapColor = (score: number) => {
+    if (score >= 85) return 'bg-[#1F4FBF] text-white';
+    if (score >= 80) return 'bg-[#5280D8] text-white';
+    if (score >= 70) return 'bg-[#8FB0EC] text-ink';
+    if (score >= 60) return 'bg-[#C5D6F6] text-ink';
+    return 'bg-[#EAF0FC] text-ink';
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50/70 dark:bg-[#0b0f19] text-slate-900 dark:text-slate-100 font-sans transition-colors">
-      
-      {/* Top Announcement Bar */}
-      <div className="border-b border-indigo-100 dark:border-indigo-900/40 bg-indigo-50/70 dark:bg-indigo-950/30 py-2 px-4 text-center">
-        <p className="text-xs sm:text-sm font-medium text-indigo-700 dark:text-indigo-300 flex items-center justify-center gap-1.5">
-          <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-          <span className="font-semibold">Live AI Practice Mirror:</span> 
-          <span>Real-time feedback on your eye contact, posture, speaking pace, and clarity — 100% private in your browser.</span>
-        </p>
-      </div>
+    <div className="flex flex-col min-h-screen bg-surface text-text font-sans antialiased">
 
       {/* ===================== HERO SECTION ===================== */}
-      <section className="relative pt-10 pb-12 sm:pt-14 sm:pb-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
-        <div className="container max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
-          
-          {/* Tagline Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
-            <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-            <span>AI Practice Mirror for Speeches, Pitches, Interviews & Debates</span>
-          </div>
+      <section className="py-16 md:py-24 bg-surface border-b border-hairline">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Column: Headline, subtext, actions */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              <h1 className="text-3xl sm:text-5xl lg:text-[44px] font-semibold tracking-[-0.01em] text-ink leading-[1.14]">
+                Practice speaking in front of the camera, with feedback you can trust.
+              </h1>
 
-          {/* Main Headline */}
-          <div className="space-y-3.5">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.12]">
-              Everything you need to <span className="text-indigo-600 dark:text-indigo-400">speak with impact</span> and confidence.
-            </h1>
-            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-normal max-w-2xl mx-auto leading-relaxed">
-              Level up your public speaking, project pitches, job interviews, and debates with instant AI feedback on your eye contact, body posture, pacing (WPM), and speech clarity.
+              <p className="text-base sm:text-lg text-text max-w-xl leading-relaxed">
+                VaniDarpan tracks eye contact, posture, pace, and filler words on your device so you speak with confidence in interviews, pitches, and presentations.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link href="/practice">
+                  <Button className="h-10 px-6 text-sm font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover border-transparent transition-colors">
+                    Start practice
+                  </Button>
+                </Link>
+                <Link href="/report/sample">
+                  <Button variant="outline" className="h-10 px-6 text-sm font-medium rounded-md bg-paper border-hairline text-ink hover:bg-surface transition-colors">
+                    See a sample report
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Factual Privacy Reassurance */}
+              <div className="flex items-center gap-2 pt-2 text-sm text-muted">
+                <ShieldCheck className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                <span>Your video is analysed on your device and is not uploaded.</span>
+              </div>
+            </div>
+
+            {/* Right Column: The Mirror Frame with 3 metric chips */}
+            <div className="lg:col-span-5">
+              <div className="relative bg-studio rounded-lg border border-hairline p-5 sm:p-6 shadow-sm aspect-[4/3] flex flex-col justify-between overflow-hidden">
+                
+                {/* Mirror Frame Viewfinder Markings */}
+                <div className="absolute inset-0 pointer-events-none">
+                  {/* Top tick */}
+                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-darpan-blue/80" />
+                  {/* Bottom tick */}
+                  <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-darpan-blue/80" />
+                  {/* Left tick */}
+                  <div className="absolute top-1/2 left-2.5 -translate-y-1/2 w-0.5 h-4 bg-darpan-blue/80" />
+                  {/* Right tick */}
+                  <div className="absolute top-1/2 right-2.5 -translate-y-1/2 w-0.5 h-4 bg-darpan-blue/80" />
+                  
+                  {/* Corner viewfinder brackets */}
+                  <div className="absolute top-4 left-4 w-3 h-3 border-t-2 border-l-2 border-white/20" />
+                  <div className="absolute top-4 right-4 w-3 h-3 border-t-2 border-r-2 border-white/20" />
+                  <div className="absolute bottom-4 left-4 w-3 h-3 border-b-2 border-l-2 border-white/20" />
+                  <div className="absolute bottom-4 right-4 w-3 h-3 border-b-2 border-r-2 border-white/20" />
+
+                  {/* Center subtle focal ring */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full border border-white/10 flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-darpan-blue/80" />
+                  </div>
+                </div>
+
+                {/* Top Row: Camera Active Indicator */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#1B1F26] border border-[#262B35] text-xs text-slate-200">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Camera active</span>
+                  </div>
+
+                  {/* Metric Chip 1: Eye Contact */}
+                  <div className="bg-paper text-ink rounded-md border border-hairline px-3 py-2 text-left shadow-sm">
+                    <div className="text-[11px] text-muted">Eye contact</div>
+                    <div className="text-sm font-semibold tabular-nums text-success flex items-center gap-1">
+                      <span>88%</span>
+                      <span className="text-[10px] text-muted font-normal">target met</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Center Speaker Outline (Quiet Silhouette) */}
+                <div className="relative z-0 flex flex-col items-center justify-center my-auto opacity-75">
+                  <div className="w-16 h-16 rounded-full border border-white/15 bg-white/5 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-white/10" />
+                  </div>
+                  <div className="w-32 h-10 mt-1 rounded-t-full bg-white/5 border-t border-white/15" />
+                </div>
+
+                {/* Bottom Row: Pace & Fillers Metric Chips */}
+                <div className="relative z-10 flex items-center justify-between gap-3">
+                  {/* Metric Chip 2: Pace */}
+                  <div className="bg-paper text-ink rounded-md border border-hairline px-3 py-2 text-left shadow-sm">
+                    <div className="text-[11px] text-muted">Pace</div>
+                    <div className="text-sm font-semibold tabular-nums text-ink">
+                      142 wpm
+                    </div>
+                  </div>
+
+                  {/* Metric Chip 3: Fillers */}
+                  <div className="bg-paper text-ink rounded-md border border-hairline px-3 py-2 text-left shadow-sm">
+                    <div className="text-[11px] text-muted">Fillers</div>
+                    <div className="text-sm font-semibold tabular-nums text-caution">
+                      2 detected
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== HOW A SESSION WORKS ===================== */}
+      <section className="py-20 md:py-24 bg-paper border-b border-hairline">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          
+          <div className="max-w-2xl text-left mb-12 space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
+              How a session works
+            </h2>
+            <p className="text-sm sm:text-base text-muted">
+              Three steps from launch to diagnostic report. Everything runs in your browser.
             </p>
           </div>
 
-          {/* Call to Actions */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
-            {user ? (
-              <Link href="/practice">
-                <Button size="lg" className="w-full sm:w-auto text-sm font-semibold h-11 px-8 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20">
-                  <Play className="h-4 w-4 fill-current" />
-                  <span>Launch Practice Studio</span>
-                  <ArrowRight className="h-4 w-4 ml-0.5" />
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link href="/login">
-                  <Button size="lg" className="w-full sm:w-auto text-sm font-semibold h-11 px-8 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20">
-                    <UserPlus className="h-4 w-4" />
-                    <span>Create Free Account</span>
-                    <ArrowRight className="h-4 w-4 ml-0.5" />
-                  </Button>
-                </Link>
-                <Link href="/practice">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto text-sm font-semibold h-11 px-6 gap-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800">
-                    <Play className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400 fill-current" />
-                    <span>Try Instant Practice Session</span>
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            
+            {/* Step 1 */}
+            <div className="bg-surface border border-hairline rounded-lg p-6 space-y-3">
+              <div className="text-sm font-semibold text-darpan-blue tabular-nums">01</div>
+              <h3 className="text-base font-semibold text-ink">Choose a scenario</h3>
+              <p className="text-sm text-text leading-relaxed">
+                Select a placement interview, campus debate, startup pitch, or paste a custom script into the teleprompter.
+              </p>
+            </div>
 
-          {/* Privacy & Feature Guarantees */}
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 dark:text-slate-400">
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="font-medium text-slate-700 dark:text-slate-300">100% In-Browser Privacy</span>
-              <span>(Zero video stored on servers)</span>
+            {/* Step 2 */}
+            <div className="bg-surface border border-hairline rounded-lg p-6 space-y-3">
+              <div className="text-sm font-semibold text-darpan-blue tabular-nums">02</div>
+              <h3 className="text-base font-semibold text-ink">Speak to the camera</h3>
+              <p className="text-sm text-text leading-relaxed">
+                Deliver your speech. Real-time on-device vision and acoustic analysis measures gaze, posture, and pacing.
+              </p>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Zap className="h-4 w-4 text-amber-500" />
-              <span className="font-medium text-slate-700 dark:text-slate-300">Real-Time Camera Cues</span>
+
+            {/* Step 3 */}
+            <div className="bg-surface border border-hairline rounded-lg p-6 space-y-3">
+              <div className="text-sm font-semibold text-darpan-blue tabular-nums">03</div>
+              <h3 className="text-base font-semibold text-ink">Read your report</h3>
+              <p className="text-sm text-text leading-relaxed">
+                Review an objective breakdown of your filler words, cadence curve, and a single concrete next step to improve.
+              </p>
             </div>
-            <div className="flex items-center gap-1.5">
-              <BarChart3 className="h-4 w-4 text-indigo-500" />
-              <span className="font-medium text-slate-700 dark:text-slate-300">Personal Progress Dashboard</span>
-            </div>
+
           </div>
 
         </div>
       </section>
 
       {/* ===================== PRACTICE SCENARIOS SECTION ===================== */}
-      <section className="py-14 sm:py-20 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
-        <div className="container max-w-6xl mx-auto px-4 sm:px-6">
+      <section className="py-20 md:py-24 bg-surface border-b border-hairline">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           
-          <div className="text-center max-w-2xl mx-auto mb-10 space-y-2.5">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Choose what you want to practice
+          <div className="max-w-2xl text-left mb-10 space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
+              Practice scenarios
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              Select any scenario below or paste your custom script to start.
+            <p className="text-sm sm:text-base text-muted">
+              Choose a scenario below to load recommended benchmarks and practice prompts.
             </p>
-            <div className="pt-1 flex items-center justify-center">
-              <Link href="/scenarios">
-                <Button variant="outline" size="sm" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/60 bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 gap-1.5 h-8 px-4 rounded-full transition-all">
-                  <span>View all scenarios</span>
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </Button>
-              </Link>
-            </div>
           </div>
 
-          {/* Cards Grid: Spacious 3-column layout */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+          {/* Cards Grid: 6 cards in a 3-column layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {categories.map((cat, idx) => {
               const Icon = cat.icon;
               const isSelected = selectedCategoryIdx === idx;
@@ -306,27 +383,22 @@ export default function Home() {
                 <div
                   key={cat.id}
                   onClick={() => setSelectedCategoryIdx(idx)}
-                  className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer text-left flex items-start gap-3.5 ${
+                  className={`p-5 rounded-lg border transition-all cursor-pointer text-left flex items-start gap-4 ${
                     isSelected
-                      ? 'bg-indigo-50/80 dark:bg-indigo-950/50 border-indigo-500 ring-2 ring-indigo-500/25 shadow-xs'
-                      : 'bg-slate-50/70 dark:bg-slate-900/60 border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100/70 dark:hover:bg-slate-800/50 shadow-2xs'
+                      ? 'bg-paper border-darpan-blue ring-1 ring-darpan-blue'
+                      : 'bg-paper border-hairline hover:border-gray-300'
                   }`}
                 >
-                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
+                  <div className={`h-10 w-10 rounded-md flex items-center justify-center shrink-0 ${
                     isSelected 
-                      ? 'bg-indigo-600 text-white shadow-xs' 
-                      : 'bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                      ? 'bg-darpan-blue-tint text-darpan-blue' 
+                      : 'bg-surface text-muted'
                   }`}>
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-5 w-5" strokeWidth={1.75} />
                   </div>
                   <div className="space-y-1 min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-1.5">
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">{cat.title}</h3>
-                      {isSelected && (
-                        <span className="h-2 w-2 rounded-full bg-indigo-600 dark:bg-indigo-400 shrink-0" />
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                    <h3 className="text-sm font-semibold text-ink truncate">{cat.title}</h3>
+                    <p className="text-xs text-muted line-clamp-2 leading-relaxed">
                       {cat.tagline}
                     </p>
                   </div>
@@ -336,80 +408,81 @@ export default function Home() {
           </div>
 
           {/* Selected Scenario Preview Card */}
-          <div className="mt-6 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 p-5 sm:p-7 text-left shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-slate-800">
-              <div>
+          <div className="mt-6 rounded-lg border border-hairline bg-paper p-6 text-left">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-hairline">
+              <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/40 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-[10px] font-semibold">
-                    Active Practice Mode
-                  </Badge>
-                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                  <span className="text-xs font-medium text-darpan-blue bg-darpan-blue-tint px-2 py-0.5 rounded-md">
+                    Selected scenario
+                  </span>
+                  <span className="text-sm font-semibold text-ink">
                     {categories[selectedCategoryIdx].title}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-xs text-muted">
                   {categories[selectedCategoryIdx].tagline}
                 </p>
               </div>
 
               <Button
                 onClick={() => handleLaunchCategory(categories[selectedCategoryIdx])}
-                size="sm"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-5 h-9 gap-2 shrink-0 shadow-xs"
+                className="h-10 px-5 text-sm font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover shrink-0 transition-colors"
               >
-                <Play className="h-3 w-3 fill-current" />
-                <span>Practice This Scenario</span>
+                Practice this scenario
               </Button>
             </div>
 
             {/* Prompt */}
-            <div className="my-4 p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200/90 dark:border-slate-800 border-l-4 border-l-indigo-600 shadow-2xs">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block mb-1">
-                Sample Practice Question / Prompt:
+            <div className="my-5 p-4 rounded-md bg-surface border border-hairline">
+              <span className="text-xs text-muted block mb-1 font-medium">
+                Sample prompt
               </span>
-              <p className="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200 leading-relaxed italic">
+              <p className="text-sm text-ink leading-relaxed">
                 "{categories[selectedCategoryIdx].samplePrompt}"
               </p>
             </div>
 
             {/* Benchmark Targets */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-950">
-                <span className="text-[10px] text-slate-400 font-medium block">Target Gaze Focus</span>
-                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{categories[selectedCategoryIdx].targetEye}</span>
+              <div className="p-3 rounded-md border border-hairline bg-surface">
+                <span className="text-xs text-muted block">Target gaze focus</span>
+                <span className="text-sm font-semibold text-ink tabular-nums">{categories[selectedCategoryIdx].targetEye}</span>
               </div>
-              <div className="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-950">
-                <span className="text-[10px] text-slate-400 font-medium block">Optimal Pace</span>
-                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">{categories[selectedCategoryIdx].targetWpm}</span>
+              <div className="p-3 rounded-md border border-hairline bg-surface">
+                <span className="text-xs text-muted block">Optimal pace</span>
+                <span className="text-sm font-semibold text-ink tabular-nums">{categories[selectedCategoryIdx].targetWpm}</span>
               </div>
-              <div className="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-950">
-                <span className="text-[10px] text-slate-400 font-medium block">Body Posture</span>
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{categories[selectedCategoryIdx].targetPosture}</span>
+              <div className="p-3 rounded-md border border-hairline bg-surface">
+                <span className="text-xs text-muted block">Body posture</span>
+                <span className="text-sm font-semibold text-ink">{categories[selectedCategoryIdx].targetPosture}</span>
               </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-hairline flex justify-end">
+              <Link href="/scenarios" className="text-xs font-medium text-darpan-blue hover:underline">
+                Browse all scenarios
+              </Link>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* ===================== REAL PRODUCT APP PREVIEWS (Engaging & Visual) ===================== */}
-      <section className="py-10 sm:py-14 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-[#090b10]">
-        <div className="container max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
+      {/* ===================== REPORT PREVIEWS WITH SCREENSHOTS ===================== */}
+      <section className="py-20 md:py-24 bg-paper border-b border-hairline">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-3 py-0.5">
-              Inside Miral
-            </Badge>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              See the actual practice studio in action.
+          <div className="max-w-2xl text-left mb-10 space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
+              Objective feedback on how you speak
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-              Explore real screenshots of the practice studio, scenario libraries, and performance dashboards.
+            <p className="text-sm sm:text-base text-muted">
+              Review actual measurements from the practice studio and diagnostic report.
             </p>
           </div>
 
-          {/* Interactive Showcase Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          {/* Tab Navigation */}
+          <div className="flex flex-wrap gap-2 border-b border-hairline pb-4 mb-6">
             {previewTabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activePreviewTab === tab.id;
@@ -417,70 +490,64 @@ export default function Home() {
                 <button
                   key={tab.id}
                   onClick={() => setActivePreviewTab(tab.id)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-md text-sm font-medium transition-colors border ${
                     isActive
-                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm'
-                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
+                      ? 'bg-darpan-blue border-darpan-blue text-white'
+                      : 'bg-surface border-hairline text-text hover:text-ink hover:bg-gray-100'
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4" strokeWidth={1.75} />
                   <span>{tab.label}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* Showcase Display Card with Browser Chrome Frame */}
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0e1322] shadow-xl overflow-hidden text-left">
+          {/* Preview Container */}
+          <div className="rounded-lg border border-hairline bg-paper overflow-hidden text-left">
             
-            {/* Top Window Bar */}
-            <div className="px-4 py-3 bg-slate-100/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            {/* Window Bar */}
+            <div className="px-4 py-3 bg-surface border-b border-hairline flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 <div className="flex gap-1.5">
-                  <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-gray-300" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-gray-300" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-gray-300" />
                 </div>
-                <span className="text-xs font-mono text-slate-500 ml-2">
-                  miral.app/{activePreviewTab}
+                <span className="text-xs text-muted font-medium">
+                  vanidarpan.app/{activePreviewTab}
                 </span>
               </div>
-              <Badge variant="outline" className="border-indigo-200 dark:border-indigo-900 text-indigo-700 dark:text-indigo-300 text-[10px]">
+              <span className="text-xs text-muted bg-paper border border-hairline px-2 py-0.5 rounded-md">
                 {activePreview.badge}
-              </Badge>
+              </span>
             </div>
 
-            {/* Main Screenshot & Description Grid */}
-            <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* Content Grid */}
+            <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               
-              {/* Image Preview Container */}
-              <div className="lg:col-span-8 rounded-xl border border-slate-200/90 dark:border-slate-800/90 overflow-hidden shadow-sm bg-slate-950">
+              <div className="lg:col-span-8 rounded-lg border border-hairline overflow-hidden bg-studio">
                 <img 
                   src={activePreview.image} 
                   alt={activePreview.heading} 
-                  className="w-full h-auto object-cover transform hover:scale-[1.01] transition-transform duration-300"
+                  className="w-full h-auto object-cover"
                 />
               </div>
 
-              {/* Explanatory Details */}
               <div className="lg:col-span-4 space-y-4">
-                <div className="space-y-1.5">
-                  <Badge variant="secondary" className="bg-indigo-100/70 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-mono">
-                    {activePreview.label}
-                  </Badge>
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-snug">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-semibold text-ink leading-snug">
                     {activePreview.heading}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  <p className="text-sm text-text leading-relaxed">
                     {activePreview.description}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="pt-2">
                   <Link href={activePreviewTab === 'scenarios' ? '/scenarios' : activePreviewTab === 'dashboard' ? '/dashboard' : '/practice'}>
-                    <Button size="sm" className="w-full text-xs font-semibold gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white">
-                      <span>Open {activePreview.label}</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
+                    <Button variant="outline" className="h-10 text-sm font-medium rounded-md bg-paper border-hairline text-ink hover:bg-surface">
+                      Open {activePreview.label.toLowerCase()}
                     </Button>
                   </Link>
                 </div>
@@ -493,66 +560,122 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===================== WHAT MIRAL ANALYZES IN REAL TIME ===================== */}
-      <section className="py-16 sm:py-24 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
-        <div className="container max-w-6xl mx-auto px-4 sm:px-6">
+      {/* ===================== FOR COLLEGES INSTITUTIONAL BAND ===================== */}
+      <section className="py-20 md:py-24 bg-surface border-b border-hairline">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           
-          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-2.5">
-            <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-3 py-0.5 font-semibold">
-              Multimodal Speaking Intelligence
-            </Badge>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Real-time feedback on how you look and sound.
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
-              In-browser computer vision and acoustic metrics measure your delivery with sub-second latency.
-            </p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div className="space-y-2 text-left max-w-2xl">
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
+                  For colleges and placement cells
+                </h2>
+                <Badge variant="outline" className="border-hairline bg-paper text-muted text-xs font-normal px-2 py-0.5">
+                  Sample data
+                </Badge>
+              </div>
+              <p className="text-sm sm:text-base text-muted">
+                See how ready a batch is before campus drives begin. Identify students who need support and track progress across branches.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <Link href="/tpo">
+                <Button className="h-10 px-5 text-sm font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover transition-colors">
+                  Open college overview
+                </Button>
+              </Link>
+              <Link href="/contact?type=pilot">
+                <Button variant="outline" className="h-10 px-5 text-sm font-medium rounded-md bg-paper border-hairline text-ink hover:bg-surface transition-colors">
+                  Request a pilot
+                </Button>
+              </Link>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
-            
-            {/* Feature 1 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all">
-              <div className="h-11 w-11 rounded-xl bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 flex items-center justify-center">
-                <Eye className="h-5 w-5" />
+          {/* Readiness Heatmap Card */}
+          <div className="bg-paper border border-hairline rounded-lg p-6 text-left space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-hairline">
+              <div>
+                <h3 className="text-base font-semibold text-ink">Placement readiness by branch and skill</h3>
+                <p className="text-xs text-muted mt-0.5">Aggregated metrics from recent student practice sessions</p>
               </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">Eye Gaze Engagement</h3>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                60 FPS in-browser iris detection checks if you maintain steady eye engagement with the camera lens or look away.
-              </p>
+              <div className="text-xs text-muted font-medium">Batch of 2026</div>
             </div>
 
-            {/* Feature 2 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all">
-              <div className="h-11 w-11 rounded-xl bg-violet-100 dark:bg-violet-500/15 text-violet-700 dark:text-violet-400 flex items-center justify-center">
-                <Activity className="h-5 w-5" />
-              </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">Posture Alignment</h3>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                Detects slouching, leaning, or downward head tilt in real time so your physical presence projects confidence.
-              </p>
+            {/* Heatmap Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr className="border-b border-hairline text-xs font-medium text-muted">
+                    <th className="py-2.5 px-3">Branch</th>
+                    <th className="py-2.5 px-3 text-right">Eye contact</th>
+                    <th className="py-2.5 px-3 text-right">Pace</th>
+                    <th className="py-2.5 px-3 text-right">Posture</th>
+                    <th className="py-2.5 px-3 text-right">Clarity</th>
+                    <th className="py-2.5 px-3 text-right">Overall readiness</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-hairline">
+                  {heatmapData.map((row, idx) => (
+                    <tr key={idx} className="hover:bg-surface transition-colors">
+                      <td className="py-3 px-3 font-medium text-ink">{row.branch}</td>
+                      <td className="py-3 px-3 text-right">
+                        <span className={`inline-block w-14 py-1 text-center rounded-sm text-xs font-medium tabular-nums ${getHeatmapColor(row.eye)}`}>
+                          {row.eye}%
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <span className={`inline-block w-14 py-1 text-center rounded-sm text-xs font-medium tabular-nums ${getHeatmapColor(row.pace)}`}>
+                          {row.pace}%
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <span className={`inline-block w-14 py-1 text-center rounded-sm text-xs font-medium tabular-nums ${getHeatmapColor(row.posture)}`}>
+                          {row.posture}%
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <span className={`inline-block w-14 py-1 text-center rounded-sm text-xs font-medium tabular-nums ${getHeatmapColor(row.clarity)}`}>
+                          {row.clarity}%
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <span className={`inline-block w-14 py-1 text-center rounded-sm text-xs font-medium tabular-nums ${getHeatmapColor(row.overall)}`}>
+                          {row.overall}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            {/* Feature 3 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all">
-              <div className="h-11 w-11 rounded-xl bg-cyan-100 dark:bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 flex items-center justify-center">
-                <Gauge className="h-5 w-5" />
+            {/* Heatmap Legend */}
+            <div className="pt-3 border-t border-hairline flex flex-wrap items-center justify-between gap-4 text-xs text-muted">
+              <span className="font-medium">Readiness scale:</span>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-sm bg-[#EAF0FC] border border-hairline" />
+                  <span>&lt;60% Needs support</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-sm bg-[#C5D6F6]" />
+                  <span>60–70% Developing</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-sm bg-[#8FB0EC]" />
+                  <span>70–80% Competent</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-sm bg-[#5280D8]" />
+                  <span>80–90% Ready</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-sm bg-[#1F4FBF]" />
+                  <span>90%+ Outstanding</span>
+                </div>
               </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">Speaking Pace (WPM)</h3>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                Measures words per minute live to keep your cadence in the ideal 130–155 WPM conversational clarity zone.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all">
-              <div className="h-11 w-11 rounded-xl bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 flex items-center justify-center">
-                <FileText className="h-5 w-5" />
-              </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">Smart Teleprompter</h3>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                Paste any custom speech, pitch notes, or presentation outline and read naturally while on camera.
-              </p>
             </div>
 
           </div>
@@ -560,84 +683,186 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===================== HOW IT WORKS (3 Simple Steps) ===================== */}
-      <section className="py-16 sm:py-24 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#0b0f19]">
-        <div className="container max-w-5xl mx-auto px-4 sm:px-6">
+      {/* ===================== PLANS IN THREE COLUMNS ===================== */}
+      <section className="py-20 md:py-24 bg-paper border-b border-hairline">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           
-          <div className="text-center max-w-xl mx-auto mb-12 sm:mb-16 space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Three simple steps to speaking mastery.
+          <div className="max-w-2xl text-left mb-12 space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
+              Plans and access
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              No software installation required. Runs directly in your browser.
+            <p className="text-sm sm:text-base text-muted">
+              Individual practice for students, and batch analytics for universities.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
             
-            {/* Step 1 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-7 sm:p-8 space-y-3.5 shadow-xs hover:shadow-md transition-shadow">
-              <div className="text-3xl sm:text-4xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">01</div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Pick a Scenario or Write a Script</h3>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                Choose a pre-built practice scenario or paste your own custom speech notes into the teleprompter.
-              </p>
+            {/* Free Candidate */}
+            <div className="bg-paper border border-hairline rounded-lg p-6 flex flex-col justify-between space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold text-ink">Free candidate</h3>
+                  <p className="text-xs text-muted">For students starting self-practice.</p>
+                </div>
+
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-semibold text-ink tabular-nums">₹0</span>
+                  <span className="text-xs text-muted">/ free</span>
+                </div>
+
+                <ul className="space-y-2.5 text-xs text-text pt-2 border-t border-hairline">
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>3 practice sessions per month</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>Real-time eye contact tracking</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>Posture stability alerts</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>Pacing gauge (WPM)</span>
+                  </li>
+                </ul>
+              </div>
+
+              <Link href="/practice">
+                <Button variant="outline" className="w-full h-10 text-sm font-medium rounded-md bg-paper border-hairline text-ink hover:bg-surface">
+                  Start practice
+                </Button>
+              </Link>
             </div>
 
-            {/* Step 2 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-7 sm:p-8 space-y-3.5 shadow-xs hover:shadow-md transition-shadow">
-              <div className="text-3xl sm:text-4xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">02</div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Practice with Live Visual Cues</h3>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                Speak on camera. Miral monitors your eye contact, posture, and speaking tempo with gentle on-screen cues.
-              </p>
+            {/* Student Pro */}
+            <div className="bg-paper border-2 border-darpan-blue rounded-lg p-6 flex flex-col justify-between space-y-6 relative shadow-xs">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-ink">Student Pro</h3>
+                  <span className="text-[11px] font-semibold text-brass bg-[#FDF1DC] border border-[#F5E6CC] px-2 py-0.5 rounded-sm">
+                    Pro
+                  </span>
+                </div>
+                <p className="text-xs text-muted">For thorough placement and interview preparation.</p>
+
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-semibold text-ink tabular-nums">₹499</span>
+                  <span className="text-xs text-muted">/ month</span>
+                </div>
+
+                <ul className="space-y-2.5 text-xs text-text pt-2 border-t border-hairline">
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>Unlimited practice sessions</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>Full filler word analysis and transcript</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>Historical progress curves</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>Verifiable completion certificate</span>
+                  </li>
+                </ul>
+              </div>
+
+              <Link href="/pricing">
+                <Button className="w-full h-10 text-sm font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover">
+                  Choose Student Pro
+                </Button>
+              </Link>
             </div>
 
-            {/* Step 3 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-7 sm:p-8 space-y-3.5 shadow-xs hover:shadow-md transition-shadow">
-              <div className="text-3xl sm:text-4xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">03</div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Review Diagnostic Scorecard</h3>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                Get an instant breakdown of your confidence score, pacing, filler words, and personalized delivery advice.
-              </p>
+            {/* College Campus Pilot */}
+            <div className="bg-paper border border-hairline rounded-lg p-6 flex flex-col justify-between space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold text-ink">College campus pilot</h3>
+                  <p className="text-xs text-muted">For placement cells, HODs, and faculty.</p>
+                </div>
+
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-semibold text-ink">Custom</span>
+                  <span className="text-xs text-muted">/ institutional</span>
+                </div>
+
+                <ul className="space-y-2.5 text-xs text-text pt-2 border-t border-hairline">
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>Department readiness heatmaps</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>Students needing support lists</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>Batch CSV exports</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
+                    <span>Dedicated onboarding and pilot review</span>
+                  </li>
+                </ul>
+              </div>
+
+              <Link href="/contact?type=pilot">
+                <Button variant="outline" className="w-full h-10 text-sm font-medium rounded-md bg-paper border-hairline text-ink hover:bg-surface">
+                  Request campus pilot
+                </Button>
+              </Link>
             </div>
 
+          </div>
+
+          <div className="mt-8 text-center">
+            <Link href="/pricing" className="text-xs font-medium text-darpan-blue hover:underline">
+              View detailed pricing comparison
+            </Link>
           </div>
 
         </div>
       </section>
 
-      {/* ===================== FAQ SECTION ===================== */}
-      <section className="py-8 sm:py-12 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
-        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
+      {/* ===================== FAQ ACCORDION ===================== */}
+      <section className="py-20 md:py-24 bg-surface border-b border-hairline">
+        <div className="max-w-[800px] mx-auto px-4 sm:px-6">
           
-          <div className="text-center mb-8 space-y-1.5">
-            <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-2.5 py-0.5">
-              Frequently Asked Questions
-            </Badge>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-              Everything you need to know about Miral.
+          <div className="text-left mb-10 space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
+              Frequently asked questions
             </h2>
+            <p className="text-sm sm:text-base text-muted">
+              Common questions about on-device analysis, privacy, and practice modes.
+            </p>
           </div>
 
-          <div className="space-y-2.5 text-left">
+          <div className="space-y-3 text-left">
             {faqs.map((faq, idx) => {
               const isOpen = openFaq === idx;
               return (
                 <div 
                   key={idx}
-                  className="rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-[#090b12] overflow-hidden transition-all"
+                  className="rounded-lg border border-hairline bg-paper overflow-hidden"
                 >
                   <button
                     type="button"
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
-                    className="w-full p-3.5 sm:p-4 flex items-center justify-between text-left font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-white"
+                    className="w-full p-4 sm:p-5 flex items-center justify-between text-left font-medium text-sm text-ink hover:text-darpan-blue transition-colors"
                   >
                     <span>{faq.q}</span>
-                    <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 shrink-0 ml-2 ${isOpen ? 'rotate-180 text-indigo-600 dark:text-indigo-400' : ''}`} />
+                    <ChevronDown className={`h-4 w-4 text-muted transition-transform duration-200 shrink-0 ml-3 ${isOpen ? 'rotate-180 text-darpan-blue' : ''}`} strokeWidth={1.75} />
                   </button>
                   {isOpen && (
-                    <div className="px-3.5 pb-3.5 sm:px-4 sm:pb-4 text-xs text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800/80 pt-2.5">
+                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-sm text-text leading-relaxed border-t border-hairline pt-3">
                       {faq.a}
                     </div>
                   )}
@@ -649,55 +874,34 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===================== FINAL CALL TO ACTION ===================== */}
-      <section className="py-10 sm:py-14 bg-slate-50/70 dark:bg-[#0b0f19] relative overflow-hidden">
-        <div className="container max-w-3xl mx-auto px-4 sm:px-6">
+      {/* ===================== READY TO PRACTICE CTA ===================== */}
+      <section className="py-20 md:py-24 bg-paper text-center">
+        <div className="max-w-[800px] mx-auto px-4 sm:px-6 space-y-6">
           
-          <div className="rounded-2xl border border-indigo-200 dark:border-indigo-500/30 bg-gradient-to-b from-indigo-50/80 via-white to-white dark:from-indigo-950/20 dark:via-[#0e1322] dark:to-[#0b0f19] p-6 sm:p-10 text-center space-y-4 shadow-sm">
-            
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-indigo-300 dark:border-indigo-500/40 bg-indigo-100/60 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
-              <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-              <span>Ready for your next speech or interview?</span>
-            </div>
-
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight max-w-xl mx-auto">
-              Speak with confidence every single time.
+          <div className="space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
+              Start your first practice session
             </h2>
-
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto leading-relaxed">
-              Create your free account to track your speaking progress and save your session diagnostic history.
+            <p className="text-sm sm:text-base text-muted max-w-lg mx-auto">
+              Practice in front of the camera and get instant feedback on eye contact, posture, and pacing.
             </p>
+          </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
-              {user ? (
-                <Link href="/practice">
-                  <Button size="lg" className="w-full sm:w-auto text-sm font-semibold h-11 px-7 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20">
-                    <Play className="h-4 w-4 fill-current" />
-                    <span>Launch Practice Studio</span>
-                  </Button>
-                </Link>
-              ) : (
-                <Link href="/login">
-                  <Button size="lg" className="w-full sm:w-auto text-sm font-semibold h-11 px-7 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20">
-                    <UserPlus className="h-4 w-4" />
-                    <span>Create Free Account</span>
-                  </Button>
-                </Link>
-              )}
-              <Link href="/scenarios">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto text-sm font-semibold h-11 px-5 gap-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
-                  <Compass className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                  <span>Browse All Scenarios</span>
-                </Button>
-              </Link>
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link href="/practice">
+              <Button className="h-10 px-6 text-sm font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover transition-colors">
+                Start practice
+              </Button>
+            </Link>
+            <Link href="/report/sample">
+              <Button variant="outline" className="h-10 px-6 text-sm font-medium rounded-md bg-paper border-hairline text-ink hover:bg-surface transition-colors">
+                See a sample report
+              </Button>
+            </Link>
+          </div>
 
-            <div className="pt-2 flex flex-wrap items-center justify-center gap-5 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-              <span className="flex items-center gap-1.5"><Check className="h-3 w-3 text-indigo-500" /> Free Account</span>
-              <span className="flex items-center gap-1.5"><Check className="h-3 w-3 text-indigo-500" /> Save Progress History</span>
-              <span className="flex items-center gap-1.5"><Check className="h-3 w-3 text-indigo-500" /> Instant Browser Launch</span>
-            </div>
-
+          <div className="pt-2 text-xs text-muted">
+            Your video is analysed on your device and is not uploaded.
           </div>
 
         </div>

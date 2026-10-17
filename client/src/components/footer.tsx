@@ -1,89 +1,120 @@
 // client/src/components/footer.tsx
 import { Link } from "wouter";
-import { ShieldCheck, Lock, Activity, ArrowRight, Heart } from "lucide-react";
-import { MiralLogo } from "@/components/miral-logo";
+import { VaniDarpanLogo } from "@/components/miral-logo";
 
 export function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="border-t border-border/60 bg-muted/20 text-foreground transition-colors print:hidden">
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-16 space-y-12">
+    <footer className="border-t border-hairline bg-surface text-text transition-colors print:hidden">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-12 md:py-16 space-y-12">
         
-        {/* Main Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+        {/* Main Grid: 5 columns */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-12">
           
-          {/* Brand & Mission */}
-          <div className="col-span-2 space-y-3">
-            <div className="flex items-center">
-              <MiralLogo width={120} height={31} />
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
-              The real-time multimodal communication mirror and speech mastery platform. Empowering students, job seekers, and debaters with objective computer vision and vocal pacing diagnostics.
+          {/* Brand & Purpose (2 cols wide on desktop) */}
+          <div className="col-span-2 space-y-3.5 pr-0 md:pr-4">
+            <Link href="/" className="inline-block">
+              <VaniDarpanLogo height={32} />
+            </Link>
+            
+            <p className="text-sm text-text leading-relaxed max-w-sm font-normal">
+              A private practice mirror for speaking. Students practise in front of the camera and see what they cannot see themselves: eye contact, posture, pace, and speech clarity.
             </p>
-            <div className="flex items-center gap-2 text-[11px] text-muted-foreground pt-1">
-              <ShieldCheck className="h-4 w-4 text-primary" />
-              <span>In-Browser 3D Facial Landmark & Speech Analytics</span>
+
+            <div className="pt-1 text-xs text-muted leading-normal">
+              Your video is analysed on your device and is not uploaded.
             </div>
           </div>
 
-          {/* Product Tracks */}
+          {/* Student Practice */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Practice Tracks</h4>
-            <ul className="space-y-2 text-xs text-muted-foreground">
+            <h4 className="text-sm font-semibold text-ink">
+              Practice
+            </h4>
+            <ul className="space-y-2 text-sm text-muted">
               <li>
-                <Link href="/scenarios#campus-placement-hr" className="hover:text-primary transition-colors">Campus Placement HR</Link>
+                <Link href="/practice" className="hover:text-ink transition-colors">
+                  Practice studio
+                </Link>
               </li>
               <li>
-                <Link href="/scenarios#group-discussion-gd" className="hover:text-primary transition-colors">Group Discussion (GD)</Link>
+                <Link href="/scenarios" className="hover:text-ink transition-colors">
+                  Scenarios
+                </Link>
               </li>
               <li>
-                <Link href="/scenarios#technical-project-defense" className="hover:text-primary transition-colors">Technical SDE Walkthrough</Link>
+                <Link href="/dashboard" className="hover:text-ink transition-colors">
+                  Progress
+                </Link>
               </li>
               <li>
-                <Link href="/scenarios#debate-public-speaking" className="hover:text-primary transition-colors">Debate & Public Speaking</Link>
+                <Link href="/learning" className="hover:text-ink transition-colors">
+                  Learn
+                </Link>
               </li>
               <li>
-                <Link href="/scenarios#executive-pitch" className="hover:text-primary transition-colors">Executive Keynote Pitch</Link>
-              </li>
-              <li>
-                <Link href="/scenarios#team-presentation" className="hover:text-primary transition-colors">Team Meetings & Presentations</Link>
+                <Link href="/pricing" className="hover:text-ink transition-colors">
+                  Plans
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Platform & Resources */}
+          {/* Institutions & Colleges */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Platform</h4>
-            <ul className="space-y-2 text-xs text-muted-foreground">
+            <h4 className="text-sm font-semibold text-ink">
+              Colleges
+            </h4>
+            <ul className="space-y-2 text-sm text-muted">
               <li>
-                <Link href="/dashboard" className="hover:text-primary transition-colors">Analytics Dashboard</Link>
+                <Link href="/tpo" className="hover:text-ink transition-colors font-medium text-darpan-blue">
+                  For colleges
+                </Link>
               </li>
               <li>
-                <Link href="/practice" className="hover:text-primary transition-colors">Practice Studio</Link>
+                <Link href="/tpo" className="hover:text-ink transition-colors">
+                  Readiness heatmap
+                </Link>
               </li>
               <li>
-                <Link href="/pricing" className="hover:text-primary transition-colors">Pricing & Institutional Plans</Link>
+                <Link href="/contact" className="hover:text-ink transition-colors">
+                  Request a pilot
+                </Link>
               </li>
               <li>
-                <Link href="/learning" className="hover:text-primary transition-colors">Learning Resources</Link>
-              </li>
-              <li>
-                <Link href="/faq" className="hover:text-primary transition-colors">Frequently Asked Questions</Link>
+                <Link href="/verify" className="hover:text-ink transition-colors">
+                  Verify certificate
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Trust & Legal */}
+          {/* Support & Legal (FAQ, Contact, Privacy, Terms) */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Trust & Legal</h4>
-            <ul className="space-y-2 text-xs text-muted-foreground">
+            <h4 className="text-sm font-semibold text-ink">
+              Support & legal
+            </h4>
+            <ul className="space-y-2 text-sm text-muted">
               <li>
-                <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+                <Link href="/faq" className="hover:text-ink transition-colors">
+                  FAQ
+                </Link>
               </li>
               <li>
-                <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+                <Link href="/contact" className="hover:text-ink transition-colors">
+                  Contact
+                </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-primary transition-colors">Contact & Campus Pilot</Link>
+                <Link href="/privacy" className="hover:text-ink transition-colors">
+                  Privacy policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="hover:text-ink transition-colors">
+                  Terms of service
+                </Link>
               </li>
             </ul>
           </div>
@@ -91,15 +122,23 @@ export function Footer() {
         </div>
 
         {/* Bottom Sub-Bar */}
-        <div className="border-t border-border/40 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} MIRAL AI Platform. All rights reserved.</p>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1">
-              <Lock className="h-3 w-3 text-green-600" />
-              Client-Side Local Vision Engine
-            </span>
+        <div className="border-t border-hairline pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
+          <p>
+            © {currentYear} VaniDarpan (वाणीदर्पण). Built for students and institutions.
+          </p>
+          
+          <div className="flex items-center gap-4 text-xs text-muted">
+            <Link href="/tpo" className="hover:text-ink transition-colors">
+              For colleges
+            </Link>
             <span>•</span>
-            <Link href="/contact" className="hover:underline">University TPO Inquiries</Link>
+            <Link href="/faq" className="hover:text-ink transition-colors">
+              FAQ
+            </Link>
+            <span>•</span>
+            <Link href="/contact" className="hover:text-ink transition-colors">
+              Contact
+            </Link>
           </div>
         </div>
 

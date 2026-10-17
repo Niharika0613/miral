@@ -1,63 +1,65 @@
 // client/src/components/miral-logo.tsx
-import { useId } from 'react';
+import React from 'react';
 
-interface MiralLogoProps {
+interface LogoProps {
   width?: number;
   height?: number;
   className?: string;
+  showHindi?: boolean;
 }
 
-export function MiralLogo({ width = 140, height = 36, className }: MiralLogoProps) {
-  // useId ensures unique gradient IDs when the logo renders multiple times on the same page
-  const uid = useId().replace(/:/g, '');
-  const gradId = `mg-${uid}`;
+export function VaniDarpanLogo({ height = 36, className, showHindi = true }: LogoProps) {
+  const markSize = Math.max(28, Math.round(height * 0.88));
 
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 158 40"
-      width={width}
-      height={height}
-      className={className}
-      aria-label="MIRAL"
-      role="img"
-    >
-      <defs>
-        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#1d4ed8" />
-          <stop offset="100%" stopColor="#0891b2" />
-        </linearGradient>
-      </defs>
-
-      {/* ── Badge background: rounded-square app-icon style ── */}
-      <rect x="1" y="1" width="38" height="38" rx="10" fill={`url(#${gradId})`} />
-
-      {/* ── Geometric M — clean line-drawn, no fill, white stroke ── */}
-      {/*   Left foot → left peak → valley dot → right peak → right foot   */}
-      <path
-        d="M10,30 L10,12 L20,23 L30,12 L30,30"
+    <div className={`inline-flex items-center gap-2.5 select-none ${className || ''}`}>
+      {/* Mirror Frame Mark (rounded camera frame with fine gaze & posture marks per DESIGN.md) */}
+      <svg
+        width={markSize}
+        height={markSize}
+        viewBox="0 0 32 32"
         fill="none"
-        stroke="white"
-        strokeWidth="3.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-
-      {/* ── Focal dot at M valley — represents the AI "iris" / mic core ── */}
-      <circle cx="20" cy="23" r="2.2" fill="white" opacity="0.9" />
-
-      {/* ── Wordmark ── */}
-      <text
-        x="50"
-        y="28"
-        fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-        fontSize="22"
-        fontWeight="800"
-        fill="currentColor"
-        letterSpacing="-0.6"
+        xmlns="http://www.w3.org/2000/svg"
+        className="shrink-0"
+        aria-hidden="true"
       >
-        MIRAL
-      </text>
-    </svg>
+        {/* Outer rounded camera frame (6px radius) */}
+        <rect
+          x="1.5"
+          y="1.5"
+          width="29"
+          height="29"
+          rx="6"
+          stroke="#1F4FBF"
+          strokeWidth="2"
+          fill="#EAF0FC"
+        />
+        
+        {/* Fine vertical & horizontal posture alignment ticks */}
+        <line x1="16" y1="4.5" x2="16" y2="7.5" stroke="#1F4FBF" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="16" y1="24.5" x2="16" y2="27.5" stroke="#1F4FBF" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="4.5" y1="16" x2="7.5" y2="16" stroke="#1F4FBF" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="24.5" y1="16" x2="27.5" y2="16" stroke="#1F4FBF" strokeWidth="1.5" strokeLinecap="round" />
+        
+        {/* Center gaze focal ring & core iris */}
+        <circle cx="16" cy="16" r="4.25" stroke="#1F4FBF" strokeWidth="1.5" fill="#FFFFFF" />
+        <circle cx="16" cy="16" r="1.75" fill="#1F4FBF" />
+      </svg>
+
+      {/* Institutional Wordmark */}
+      <div className="flex flex-col justify-center leading-none">
+        <span className="font-sans font-semibold text-ink text-[17px] tracking-[-0.01em]">
+          VaniDarpan
+        </span>
+        {showHindi && (
+          <span className="font-devanagari text-muted text-[10px] tracking-normal mt-0.5 font-medium">
+            वाणीदर्पण
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
+
+// Backward compatibility export
+export const MiralLogo = VaniDarpanLogo;

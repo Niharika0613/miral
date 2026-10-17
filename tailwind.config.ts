@@ -6,12 +6,45 @@ export default {
   theme: {
     extend: {
       borderRadius: {
-        lg: ".5625rem", /* 9px */
-        md: ".375rem", /* 6px */
-        sm: ".1875rem", /* 3px */
+        lg: "10px", /* 10px for cards per DESIGN.md */
+        md: "6px",  /* 6px for buttons and inputs per DESIGN.md */
+        sm: "4px",
       },
       colors: {
-        // Flat / base colors (regular buttons)
+        // VaniDarpan DESIGN.md tokens
+        ink: "var(--ink)",
+        text: "var(--text)",
+        hairline: "var(--hairline)",
+        surface: "var(--surface)",
+        paper: "var(--paper)",
+        "darpan-blue": {
+          DEFAULT: "var(--darpan-blue)",
+          hover: "var(--darpan-blue-hover)",
+          tint: "var(--darpan-blue-tint)",
+        },
+        brass: "var(--brass)",
+        success: {
+          DEFAULT: "var(--success)",
+          tint: "var(--success-tint)",
+        },
+        caution: {
+          DEFAULT: "var(--caution)",
+          tint: "var(--caution-tint)",
+        },
+        risk: {
+          DEFAULT: "var(--risk)",
+          tint: "var(--risk-tint)",
+        },
+        studio: "var(--studio)",
+        heatmap: {
+          1: "var(--heatmap-1)",
+          2: "var(--heatmap-2)",
+          3: "var(--heatmap-3)",
+          4: "var(--heatmap-4)",
+          5: "var(--heatmap-5)",
+        },
+
+        // shadcn ui mappings
         background: "hsl(var(--background) / <alpha-value>)",
         foreground: "hsl(var(--foreground) / <alpha-value>)",
         border: "hsl(var(--border) / <alpha-value>)",
@@ -37,7 +70,7 @@ export default {
           border: "var(--secondary-border)",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted) / <alpha-value>)",
+          DEFAULT: "hsl(var(--muted-hsl, var(--muted)) / <alpha-value>)",
           foreground: "hsl(var(--muted-foreground) / <alpha-value>)",
           border: "var(--muted-border)",
         },
@@ -53,11 +86,11 @@ export default {
         },
         ring: "hsl(var(--ring) / <alpha-value>)",
         chart: {
-          "1": "hsl(var(--chart-1) / <alpha-value>)",
-          "2": "hsl(var(--chart-2) / <alpha-value>)",
-          "3": "hsl(var(--chart-3) / <alpha-value>)",
-          "4": "hsl(var(--chart-4) / <alpha-value>)",
-          "5": "hsl(var(--chart-5) / <alpha-value>)",
+          "1": "hsl(var(--chart-1, 222 72% 44%) / <alpha-value>)",
+          "2": "hsl(var(--chart-2, 152 61% 30%) / <alpha-value>)",
+          "3": "hsl(var(--chart-3, 38 73% 38%) / <alpha-value>)",
+          "4": "hsl(var(--chart-4, 4 76% 40%) / <alpha-value>)",
+          "5": "hsl(var(--chart-5, 218 46% 10%) / <alpha-value>)",
         },
         sidebar: {
           ring: "hsl(var(--sidebar-ring) / <alpha-value>)",
@@ -76,16 +109,19 @@ export default {
           border: "var(--sidebar-accent-border)"
         },
         status: {
-          online: "rgb(34 197 94)",
-          away: "rgb(245 158 11)",
-          busy: "rgb(239 68 68)",
-          offline: "rgb(156 163 175)",
+          online: "var(--success)",
+          away: "var(--caution)",
+          busy: "var(--risk)",
+          offline: "var(--muted)",
         },
       },
+      boxShadow: {
+        institutional: "0 8px 24px rgba(14, 23, 38, 0.12)",
+      },
       fontFamily: {
-        sans: ["Inter", "var(--font-sans)", "sans-serif"],
-        serif: ["var(--font-serif)"],
-        mono: ["JetBrains Mono", "var(--font-mono)", "monospace"],
+        sans: ["'IBM Plex Sans'", "'IBM Plex Sans Devanagari'", "system-ui", "-apple-system", "sans-serif"],
+        devanagari: ["'IBM Plex Sans Devanagari'", "'IBM Plex Sans'", "sans-serif"],
+        mono: ["'IBM Plex Sans'", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

@@ -35,8 +35,6 @@ def create_app() -> FastAPI:
         title="VaniDarpan API",
         description="Confidence Building & Public Speaking Practice Platform",
         version="2.0.0",
-        # Serialize responses using field aliases (snake_case -> camelCase)
-        response_model_by_alias=True,
     )
     
     # CORS middleware - FIX: Use get_cors_list() method

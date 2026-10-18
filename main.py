@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # Render passes PORT environment variable (typically 10000)
     port = int(os.environ.get("PORT", getattr(settings, "port", 8000) or 8000))
     host = os.environ.get("HOST", "0.0.0.0")
-    print(f"[MIRAL] Starting production server on {host}:{port} ...", flush=True)
+    print(f"[VaniDarpan] Starting production server on {host}:{port} ...", flush=True)
     uvicorn.run(
         "main:app",
         host=host,

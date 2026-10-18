@@ -14,9 +14,21 @@ import {
   BarChart3,
   TrendingUp,
   Video,
-  Building2,
   FileText,
-  Play
+  Play,
+  RotateCcw,
+  Sparkles,
+  ArrowRight,
+  Shuffle,
+  Eye,
+  Activity,
+  Target,
+  Award,
+  Zap,
+  CheckCircle2,
+  Volume2,
+  Gauge,
+  Sliders
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,8 +38,20 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const [user, setUser] = useState<{ id: string; name: string } | null>(null);
 
+  // Hero Interactive Coaching Simulator State (Yoodli & Blomma style)
+  const [simulatorTab, setSimulatorTab] = useState<'telemetry' | 'cues' | 'transcript' | 'scorecard'>('telemetry');
+  const [isSimulatingLive, setIsSimulatingLive] = useState(true);
+  const [simulatedWpm, setSimulatedWpm] = useState(138);
+  const [simulatedGaze, setSimulatedGaze] = useState(89);
+
+  // Blomma-style Sticky Scroll Step State
+  const [activeStep, setActiveStep] = useState<number>(1);
+
   // Selected Category / Scenario State
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState(0);
+
+  // Interactive 60-Second Table Topics / Impromptu Drill State (Yoodli style)
+  const [impromptuIdx, setImpromptuIdx] = useState(0);
 
   // Product Screenshot Showcase Tab
   const [activePreviewTab, setActivePreviewTab] = useState<'practice' | 'scenarios' | 'dashboard' | 'trajectory'>('practice');
@@ -39,76 +63,209 @@ export default function Home() {
     setUser(getCurrentUser());
   }, []);
 
-  // Practice Scenarios (Covering speeches, pitches, interviews, debates, meetings, presentations)
+  // Simulate realistic breathing telemetry in Hero Studio Mock
+  useEffect(() => {
+    if (!isSimulatingLive) return;
+    const interval = setInterval(() => {
+      setSimulatedWpm(prev => {
+        const delta = Math.floor(Math.random() * 7) - 3;
+        const next = prev + delta;
+        return next > 146 ? 142 : next < 132 ? 136 : next;
+      });
+      setSimulatedGaze(prev => {
+        const delta = Math.floor(Math.random() * 5) - 2;
+        const next = prev + delta;
+        return next > 94 ? 90 : next < 84 ? 86 : next;
+      });
+    }, 2400);
+    return () => clearInterval(interval);
+  }, [isSimulatingLive]);
+
+  // Practice Scenarios (Placement, Pitches, Keynotes, Debates, Presentations, GD)
   const categories = [
     {
       id: "job-interviews",
       title: "Campus placement interviews",
+      categoryName: "Placement HR & Technical",
       icon: Briefcase,
       tagline: "Practice behavioral questions, project walkthroughs, and HR self-introductions.",
       samplePrompt: "Tell me about a time you had to deliver a complex project under tight deadlines with shifting requirements.",
       targetEye: "88% direct focus",
       targetWpm: "130–145 wpm",
-      targetPosture: "Professional and engaged"
+      targetPosture: "Professional and engaged",
+      keyChecklist: [
+        "Frame using the STAR methodology (Situation, Task, Action, Result)",
+        "Highlight your specific contribution versus team efforts",
+        "Quantify the outcome with measurable performance metrics"
+      ],
+      curatedQuestions: [
+        "Tell me about a time you had to deliver a complex project under tight deadlines.",
+        "Why do you want to join our organization and how does your skill set align?",
+        "Describe a critical technical bug you encountered and how you diagnosed it."
+      ]
     },
     {
       id: "public-speaking",
       title: "Public speaking and keynotes",
+      categoryName: "Keynotes & Auditorium",
       icon: Mic2,
       tagline: "Overcome stage nervousness, project your voice clearly, and connect with your audience.",
       samplePrompt: "Deliver a two-minute opening talk on how curiosity drives breakthrough innovation in modern technology.",
       targetEye: "90% direct focus",
       targetWpm: "135–150 wpm",
-      targetPosture: "Upright and steady"
+      targetPosture: "Upright and steady",
+      keyChecklist: [
+        "Open with a compelling narrative hook in the first 15 seconds",
+        "Vary your vocal pitch between key points to hold audience attention",
+        "Conclude with a memorable call-to-action or thoughtful summary"
+      ],
+      curatedQuestions: [
+        "Deliver a two-minute opening talk on how curiosity drives breakthrough innovation.",
+        "Explain a difficult engineering concept in simple terms for a general audience.",
+        "Share an inspiring personal story that shaped your ethical values."
+      ]
     },
     {
       id: "startup-pitches",
       title: "Startup and project pitches",
+      categoryName: "Ventures & Hackathons",
       icon: Presentation,
       tagline: "Pitch your ideas, hackathon projects, and business proposals with clarity and energy.",
       samplePrompt: "Present your project's value proposition in 60 seconds and explain why existing alternatives fail.",
       targetEye: "92% direct focus",
       targetWpm: "140–155 wpm",
-      targetPosture: "Dynamic and upright"
+      targetPosture: "Dynamic and upright",
+      keyChecklist: [
+        "Articulate the customer pain point within 10 seconds",
+        "Demonstrate the unique technical moat or differentiation",
+        "State your traction, user feedback, and upcoming milestone"
+      ],
+      curatedQuestions: [
+        "Present your project's value proposition in 60 seconds.",
+        "How does your product solve unit economics better than incumbent solutions?",
+        "Pitch your hackathon prototype to an angel investor panel."
+      ]
     },
     {
       id: "debates-mun",
       title: "Debates and Model UN",
+      categoryName: "Parliamentary & MUN",
       icon: Scale,
       tagline: "Deliver persuasive arguments, structured rebuttals, and counter-points under time limits.",
       samplePrompt: "Present a 90-second opening statement arguing for ethical AI governance in higher education.",
       targetEye: "92% direct focus",
       targetWpm: "145–160 wpm",
-      targetPosture: "Steadfast and direct"
+      targetPosture: "Steadfast and direct",
+      keyChecklist: [
+        "Structure arguments into Assertion, Reasoning, and Empirical Evidence",
+        "Address opposing arguments proactively before concluding",
+        "Keep rhetorical pauses crisp to maximize timing efficiency"
+      ],
+      curatedQuestions: [
+        "Present a 90-second opening statement on ethical AI governance in education.",
+        "Deliver a counter-rebuttal against universal basic income in developing markets.",
+        "Argue whether space exploration should prioritize private or public funding."
+      ]
     },
     {
       id: "team-presentations",
       title: "Presentations and meetings",
+      categoryName: "Workplace & Standups",
       icon: FileText,
       tagline: "Practice slide commentary, weekly team updates, and stakeholder briefings.",
       samplePrompt: "Walk your project team through sprint progress, key roadblocks, and upcoming delivery priorities.",
       targetEye: "88% direct focus",
       targetWpm: "130–142 wpm",
-      targetPosture: "Calm and natural"
+      targetPosture: "Calm and natural",
+      keyChecklist: [
+        "State the bottom line and decisions required upfront",
+        "Briefly summarize progress before detailing technical blockers",
+        "Assign clear action items with owners and target dates"
+      ],
+      curatedQuestions: [
+        "Walk your project team through sprint progress, blockers, and next steps.",
+        "Brief department leaders on a proposed architectural refactor.",
+        "Present quarterly project accomplishments to non-technical stakeholders."
+      ]
     },
     {
       id: "group-discussions",
       title: "Group discussions",
+      categoryName: "Campus GD & Roundtables",
       icon: Users,
       tagline: "Practice entering discussions smoothly, structuring points, and summarizing arguments.",
       samplePrompt: "Initiate a group discussion on remote work culture versus in-office collaboration.",
       targetEye: "90% direct focus",
       targetWpm: "135–148 wpm",
-      targetPosture: "Attentive and open"
+      targetPosture: "Attentive and open",
+      keyChecklist: [
+        "Enter politely with acknowledgment: 'Building upon that perspective...'",
+        "Introduce fresh dimensions (socio-economic, technical, operational)",
+        "Maintain open posture and avoid interrupting aggressively"
+      ],
+      curatedQuestions: [
+        "Initiate a group discussion on remote work culture versus in-office collaboration.",
+        "Provide a balanced intervention on the role of social media in public discourse.",
+        "Summarize the consensus of a heated discussion in 60 seconds."
+      ]
     }
   ];
 
-  const handleLaunchCategory = (cat: typeof categories[0]) => {
+  // Quick 60-Second Impromptu Speech Prompts (Yoodli Table Topics style)
+  const impromptuPrompts = [
+    {
+      category: "Engineering & Innovation",
+      question: "Defend why failure is an essential prerequisite for breakthrough engineering innovation.",
+      roadmap: [
+        "Hook (0-15s): State your central thesis on how testing assumptions uncovers truth",
+        "Evidence (15-45s): Cite a real example (e.g., aerospace testing, compiler debugging)",
+        "Takeaway (45-60s): Conclude with how deliberate failure accelerates learning"
+      ]
+    },
+    {
+      category: "Placement Behavioral",
+      question: "Tell me about a time you handled a difficult disagreement with a team member.",
+      roadmap: [
+        "Situation (0-15s): Set up the technical disagreement without placing blame",
+        "Action (15-45s): Explain how you used data, benchmarks, or prototypes to align",
+        "Result (45-60s): Share the successful project delivery and preserved relationship"
+      ]
+    },
+    {
+      category: "Startup Elevator Pitch",
+      question: "Pitch your favorite open-source project to a developer in 60 seconds.",
+      roadmap: [
+        "Problem (0-15s): What developer frustration does it immediately solve?",
+        "Solution (15-40s): How does its architecture achieve superior speed or clarity?",
+        "Call to Action (40-60s): How can they install it or contribute today?"
+      ]
+    },
+    {
+      category: "Spontaneous Public Speaking",
+      question: "If you could teach one universal skill to every first-year engineering student, what would it be?",
+      roadmap: [
+        "Choice (0-15s): Name the skill clearly (e.g., clear communication, debugging)",
+        "Rationale (15-45s): Explain why technical talent fails without this capability",
+        "Vision (45-60s): Paint a picture of what university outcomes look like when mastered"
+      ]
+    }
+  ];
+
+  const handleLaunchCategory = (cat: typeof categories[0], promptText?: string) => {
     sessionStorage.setItem('practiceQuestion', JSON.stringify({
-      question: cat.samplePrompt,
-      outline: ["State your core premise clearly", "Provide 1-2 supporting examples", "Conclude with a memorable summary"]
+      question: promptText || cat.samplePrompt,
+      outline: cat.keyChecklist
     }));
     sessionStorage.setItem('preferredTopic', cat.title);
+    setLocation('/practice');
+  };
+
+  const handleLaunchImpromptu = (prompt: typeof impromptuPrompts[0]) => {
+    sessionStorage.setItem('practiceQuestion', JSON.stringify({
+      question: prompt.question,
+      outline: prompt.roadmap
+    }));
+    sessionStorage.setItem('preferredTopic', prompt.category);
     setLocation('/practice');
   };
 
@@ -198,113 +355,364 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface text-text font-sans antialiased">
+    <div className="flex flex-col min-h-screen bg-surface text-text font-sans antialiased selection:bg-darpan-blue-tint selection:text-darpan-blue">
 
       {/* ===================== HERO SECTION ===================== */}
-      <section className="py-16 md:py-24 bg-surface border-b border-hairline">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <section className="relative py-14 sm:py-20 lg:py-24 bg-surface border-b border-hairline overflow-hidden">
+        {/* Subtle grid background texture */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-[0.035]"
+          style={{
+            backgroundImage: `radial-gradient(#1F4FBF 1px, transparent 1px)`,
+            backgroundSize: '24px 24px'
+          }}
+        />
+
+        <div className="relative max-w-[1240px] mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
             {/* Left Column: Headline, subtext, actions */}
-            <div className="lg:col-span-7 space-y-6 text-left">
-              <h1 className="text-3xl sm:text-5xl lg:text-[44px] font-semibold tracking-[-0.01em] text-ink leading-[1.14]">
-                Practice speaking in front of the camera, with feedback you can trust.
+            <div className="lg:col-span-6 space-y-6 text-left">
+              
+              {/* Trust Badge Pill */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-paper border border-hairline shadow-xs">
+                <span className="h-2 w-2 rounded-full bg-darpan-blue animate-pulse shrink-0" />
+                <span className="text-xs font-medium text-ink">
+                  On-device AI speech mirror • Zero cloud video storage
+                </span>
+              </div>
+
+              {/* Headline */}
+              <h1 className="text-3xl sm:text-5xl lg:text-[46px] font-semibold tracking-[-0.015em] text-ink leading-[1.12]">
+                Speak with authority. Coached in real time.
               </h1>
 
+              {/* Subtitle */}
               <p className="text-base sm:text-lg text-text max-w-xl leading-relaxed">
-                VaniDarpan tracks eye contact, posture, pace, and filler words on your device so you speak with confidence in interviews, pitches, and presentations.
+                Practice campus interviews, pitches, and presentations in front of your camera. Get instant, objective feedback on eye contact, posture, pacing, and filler words — completely private on your device.
               </p>
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link href="/practice">
-                  <Button className="h-10 px-6 text-sm font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover border-transparent transition-colors">
-                    Start practice
+                  <Button className="h-11 px-6 text-sm font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover border-transparent transition-all shadow-xs flex items-center gap-2">
+                    <span>Start free practice</span>
+                    <ArrowRight className="h-4 w-4" strokeWidth={2} />
                   </Button>
                 </Link>
-                <Link href="/report/sample">
-                  <Button variant="outline" className="h-10 px-6 text-sm font-medium rounded-md bg-paper border-hairline text-ink hover:bg-surface transition-colors">
-                    See a sample report
+                <a href="#interactive-simulator">
+                  <Button variant="outline" className="h-11 px-5 text-sm font-medium rounded-md bg-paper border-hairline text-ink hover:bg-surface transition-colors flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-darpan-blue" />
+                    <span>Explore simulator</span>
                   </Button>
-                </Link>
+                </a>
               </div>
 
-              {/* Factual Privacy Reassurance */}
-              <div className="flex items-center gap-2 pt-2 text-sm text-muted">
-                <ShieldCheck className="h-4 w-4 text-darpan-blue shrink-0" strokeWidth={1.75} />
-                <span>Your video is analysed on your device and is not uploaded.</span>
+              {/* Value Badges */}
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-hairline max-w-lg">
+                <div className="space-y-0.5">
+                  <div className="text-xs font-semibold text-ink">100% On-device</div>
+                  <div className="text-[11px] text-muted">No video uploaded</div>
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-xs font-semibold text-ink">Sub-second</div>
+                  <div className="text-[11px] text-muted">Live coaching nudges</div>
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-xs font-semibold text-ink">Verifiable</div>
+                  <div className="text-[11px] text-muted">Progress scorecards</div>
+                </div>
               </div>
+
             </div>
 
-            {/* Right Column: The Mirror Frame with 3 metric chips */}
-            <div className="lg:col-span-5">
-              <div className="relative bg-studio rounded-lg border border-hairline p-5 sm:p-6 shadow-sm aspect-[4/3] flex flex-col justify-between overflow-hidden">
+            {/* Right Column: Interactive Coaching Studio Simulator (Yoodli & Blomma style) */}
+            <div id="interactive-simulator" className="lg:col-span-6">
+              <div className="rounded-xl border border-hairline bg-paper shadow-institutional overflow-hidden text-left">
                 
-                {/* Mirror Frame Viewfinder Markings */}
-                <div className="absolute inset-0 pointer-events-none">
-                  {/* Top tick */}
-                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-darpan-blue/80" />
-                  {/* Bottom tick */}
-                  <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-darpan-blue/80" />
-                  {/* Left tick */}
-                  <div className="absolute top-1/2 left-2.5 -translate-y-1/2 w-0.5 h-4 bg-darpan-blue/80" />
-                  {/* Right tick */}
-                  <div className="absolute top-1/2 right-2.5 -translate-y-1/2 w-0.5 h-4 bg-darpan-blue/80" />
+                {/* Simulator Mode Tabs Header */}
+                <div className="px-4 py-3 bg-surface border-b border-hairline flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 p-1 bg-paper border border-hairline rounded-lg">
+                    <button
+                      onClick={() => setSimulatorTab('telemetry')}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                        simulatorTab === 'telemetry' 
+                          ? 'bg-darpan-blue text-white' 
+                          : 'text-muted hover:text-ink'
+                      }`}
+                    >
+                      Live HUD
+                    </button>
+                    <button
+                      onClick={() => setSimulatorTab('cues')}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                        simulatorTab === 'cues' 
+                          ? 'bg-darpan-blue text-white' 
+                          : 'text-muted hover:text-ink'
+                      }`}
+                    >
+                      AI Cues
+                    </button>
+                    <button
+                      onClick={() => setSimulatorTab('transcript')}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                        simulatorTab === 'transcript' 
+                          ? 'bg-darpan-blue text-white' 
+                          : 'text-muted hover:text-ink'
+                      }`}
+                    >
+                      Fillers
+                    </button>
+                    <button
+                      onClick={() => setSimulatorTab('scorecard')}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                        simulatorTab === 'scorecard' 
+                          ? 'bg-darpan-blue text-white' 
+                          : 'text-muted hover:text-ink'
+                      }`}
+                    >
+                      Scorecard
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setIsSimulatingLive(!isSimulatingLive)}
+                      className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-ink transition-colors px-2 py-0.5 rounded border border-hairline bg-paper"
+                      title="Toggle live telemetry simulation"
+                    >
+                      <span className={`h-2 w-2 rounded-full ${isSimulatingLive ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400'}`} />
+                      <span className="tabular-nums">{isSimulatingLive ? 'Simulating' : 'Paused'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Studio Screen Display Area */}
+                <div className="relative bg-studio p-5 sm:p-6 text-white min-h-[340px] flex flex-col justify-between overflow-hidden">
                   
-                  {/* Corner viewfinder brackets */}
-                  <div className="absolute top-4 left-4 w-3 h-3 border-t-2 border-l-2 border-white/20" />
-                  <div className="absolute top-4 right-4 w-3 h-3 border-t-2 border-r-2 border-white/20" />
-                  <div className="absolute bottom-4 left-4 w-3 h-3 border-b-2 border-l-2 border-white/20" />
-                  <div className="absolute bottom-4 right-4 w-3 h-3 border-b-2 border-r-2 border-white/20" />
+                  {/* TAB 1: Live HUD Telemetry View */}
+                  {simulatorTab === 'telemetry' && (
+                    <div className="space-y-6 animate-fadeIn">
+                      {/* Top status bar */}
+                      <div className="flex items-center justify-between">
+                        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#1B1F26] border border-[#262B35] text-xs text-slate-200">
+                          <Eye className="h-3.5 w-3.5 text-darpan-blue" />
+                          <span>Iris gaze vector active</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xs text-slate-400 font-mono">01:42 / 03:00</span>
+                        </div>
+                      </div>
 
-                  {/* Center subtle focal ring */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full border border-white/10 flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 rounded-full bg-darpan-blue/80" />
-                  </div>
+                      {/* Center Viewfinder & Face Crosshair */}
+                      <div className="relative h-44 rounded-lg border border-white/10 bg-white/[0.02] flex items-center justify-center overflow-hidden">
+                        {/* Crosshairs */}
+                        <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 h-px bg-white/10" />
+                        <div className="absolute inset-y-8 left-1/2 -translate-x-1/2 w-px bg-white/10" />
+                        
+                        {/* Target Focal Ring */}
+                        <div className="relative w-24 h-24 rounded-full border border-darpan-blue/40 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-full border border-darpan-blue/80 flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-full bg-darpan-blue animate-ping" />
+                          </div>
+                        </div>
+
+                        {/* Floating live gaze score chip */}
+                        <div className="absolute top-3 right-3 bg-paper text-ink px-2.5 py-1 rounded text-xs font-semibold shadow-xs">
+                          Gaze: <span className="text-success tabular-nums">{simulatedGaze}%</span>
+                        </div>
+
+                        {/* Alignment guides */}
+                        <div className="absolute bottom-3 left-3 text-[11px] text-slate-400 bg-black/40 px-2 py-0.5 rounded border border-white/10">
+                          Shoulders: Level
+                        </div>
+                      </div>
+
+                      {/* Bottom Live Metrics Row */}
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-[#1B1F26] border border-[#262B35] rounded-md p-2.5 text-left">
+                          <div className="text-[10px] text-slate-400">Eye contact</div>
+                          <div className="text-sm font-semibold text-emerald-400 tabular-nums">
+                            {simulatedGaze}% target met
+                          </div>
+                        </div>
+                        <div className="bg-[#1B1F26] border border-[#262B35] rounded-md p-2.5 text-left">
+                          <div className="text-[10px] text-slate-400">Speaking pace</div>
+                          <div className="text-sm font-semibold text-slate-100 tabular-nums">
+                            {simulatedWpm} WPM
+                          </div>
+                        </div>
+                        <div className="bg-[#1B1F26] border border-[#262B35] rounded-md p-2.5 text-left">
+                          <div className="text-[10px] text-slate-400">Posture stability</div>
+                          <div className="text-sm font-semibold text-emerald-400 tabular-nums">
+                            94% upright
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 2: Real-Time AI Coach Cues */}
+                  {simulatorTab === 'cues' && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <div className="flex items-center justify-between text-xs text-slate-400 border-b border-white/10 pb-2">
+                        <span className="flex items-center gap-1.5">
+                          <Sparkles className="h-3.5 w-3.5 text-darpan-blue" />
+                          Sub-second coaching cues
+                        </span>
+                        <span>Non-intrusive HUD</span>
+                      </div>
+
+                      {/* Toast Cues Sequence */}
+                      <div className="space-y-2.5 py-2">
+                        <div className="bg-[#1B1F26] border border-emerald-500/40 rounded-lg p-3 flex items-start gap-3">
+                          <div className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs font-semibold">
+                            <Check className="h-3.5 w-3.5" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-semibold text-slate-100">Direct camera connection locked</div>
+                            <div className="text-[11px] text-slate-400">Eye contact steady at 89% for 45 consecutive seconds.</div>
+                          </div>
+                        </div>
+
+                        <div className="bg-[#1B1F26] border border-darpan-blue/40 rounded-lg p-3 flex items-start gap-3">
+                          <div className="h-6 w-6 rounded-full bg-darpan-blue/20 text-darpan-blue flex items-center justify-center shrink-0 text-xs font-semibold">
+                            <Gauge className="h-3.5 w-3.5" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-semibold text-slate-100">Conversational rhythm optimal</div>
+                            <div className="text-[11px] text-slate-400">Speaking at 138 WPM. Perfect for interviewer comprehension.</div>
+                          </div>
+                        </div>
+
+                        <div className="bg-[#1B1F26] border border-amber-500/40 rounded-lg p-3 flex items-start gap-3">
+                          <div className="h-6 w-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 text-xs font-semibold">
+                            <Volume2 className="h-3.5 w-3.5" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-semibold text-slate-100">Hesitation detected</div>
+                            <div className="text-[11px] text-slate-400">Repeated 'basically'. Insert a 1-second silent breath instead.</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 text-right">
+                        <span className="text-[11px] text-slate-400">Feedback runs locally with zero audio lag</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 3: Filler Words & Live Transcript */}
+                  {simulatorTab === 'transcript' && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-xs font-semibold text-slate-200">Live Speech Transcription</span>
+                        </div>
+                        <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded">
+                          2 fillers detected
+                        </span>
+                      </div>
+
+                      {/* Spoken Text Stream with Highlighted Fillers */}
+                      <div className="bg-[#1B1F26] rounded-lg p-3.5 border border-[#262B35] text-xs font-mono leading-relaxed text-slate-300">
+                        <p>
+                          "When approaching our capstone project, our primary goal was <span className="text-amber-400 underline decoration-amber-400 font-semibold bg-amber-500/10 px-1 rounded">basically</span> to reduce latency on distributed microservices. We chose Go and gRPC because, <span className="text-amber-400 underline decoration-amber-400 font-semibold bg-amber-500/10 px-1 rounded">like</span>, serialization overhead was causing bottlenecks in client responses..."
+                        </p>
+                      </div>
+
+                      {/* Filler Word Tag Breakdown */}
+                      <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div className="bg-[#1B1F26] p-2 rounded border border-[#262B35]">
+                          <div className="text-amber-400 font-bold tabular-nums">1</div>
+                          <div className="text-[10px] text-slate-400">'basically'</div>
+                        </div>
+                        <div className="bg-[#1B1F26] p-2 rounded border border-[#262B35]">
+                          <div className="text-amber-400 font-bold tabular-nums">1</div>
+                          <div className="text-[10px] text-slate-400">'like'</div>
+                        </div>
+                        <div className="bg-[#1B1F26] p-2 rounded border border-[#262B35]">
+                          <div className="text-emerald-400 font-bold tabular-nums">0</div>
+                          <div className="text-[10px] text-slate-400">'um' / 'uh'</div>
+                        </div>
+                      </div>
+
+                      <div className="text-[11px] text-slate-400">
+                        Filler frequency: 1.4% (Benchmark: below 3% is considered executive standard)
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 4: Post-Session Diagnostic Scorecard */}
+                  {simulatorTab === 'scorecard' && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                        <span className="text-xs font-semibold text-slate-200">Diagnostic Summary</span>
+                        <span className="text-xs font-semibold text-darpan-blue bg-darpan-blue-tint px-2 py-0.5 rounded">
+                          Session Verified
+                        </span>
+                      </div>
+
+                      {/* Composite Score Circle & Metrics */}
+                      <div className="flex items-center gap-6 py-2">
+                        <div className="relative w-20 h-20 rounded-full border-4 border-darpan-blue flex flex-col items-center justify-center shrink-0 bg-white/5">
+                          <span className="text-2xl font-bold text-white tabular-nums">87</span>
+                          <span className="text-[9px] uppercase tracking-wider text-slate-400">Score</span>
+                        </div>
+                        <div className="space-y-2 flex-1 text-xs">
+                          <div>
+                            <div className="flex justify-between text-slate-300 mb-1">
+                              <span>Camera Gaze</span>
+                              <span className="font-semibold text-emerald-400">89%</span>
+                            </div>
+                            <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                              <div className="h-full bg-emerald-400 w-[89%]" />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="flex justify-between text-slate-300 mb-1">
+                              <span>Pacing Stability</span>
+                              <span className="font-semibold text-slate-100">138 WPM</span>
+                            </div>
+                            <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                              <div className="h-full bg-darpan-blue w-[92%]" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Targeted Drill Recommendation */}
+                      <div className="bg-[#1B1F26] border border-[#262B35] rounded-lg p-3 text-left">
+                        <div className="text-[11px] font-semibold text-brass flex items-center gap-1.5">
+                          <Target className="h-3.5 w-3.5" />
+                          Recommended Next Drill:
+                        </div>
+                        <p className="text-xs text-slate-300 mt-1">
+                          "Practice 60s behavioral response using STAR framework with silent transitions."
+                        </p>
+                      </div>
+
+                      <div className="flex justify-end pt-1">
+                        <Link href="/report/sample" className="text-xs text-darpan-blue hover:underline">
+                          Inspect full interactive report
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
 
-                {/* Top Row: Camera Active Indicator */}
-                <div className="relative z-10 flex items-center justify-between">
-                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#1B1F26] border border-[#262B35] text-xs text-slate-200">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Camera active</span>
-                  </div>
-
-                  {/* Metric Chip 1: Eye Contact */}
-                  <div className="bg-paper text-ink rounded-md border border-hairline px-3 py-2 text-left shadow-sm">
-                    <div className="text-[11px] text-muted">Eye contact</div>
-                    <div className="text-sm font-semibold tabular-nums text-success flex items-center gap-1">
-                      <span>88%</span>
-                      <span className="text-[10px] text-muted font-normal">target met</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Center Speaker Outline (Quiet Silhouette) */}
-                <div className="relative z-0 flex flex-col items-center justify-center my-auto opacity-75">
-                  <div className="w-16 h-16 rounded-full border border-white/15 bg-white/5 flex items-center justify-center">
-                    <div className="w-8 h-8 rounded-full bg-white/10" />
-                  </div>
-                  <div className="w-32 h-10 mt-1 rounded-t-full bg-white/5 border-t border-white/15" />
-                </div>
-
-                {/* Bottom Row: Pace & Fillers Metric Chips */}
-                <div className="relative z-10 flex items-center justify-between gap-3">
-                  {/* Metric Chip 2: Pace */}
-                  <div className="bg-paper text-ink rounded-md border border-hairline px-3 py-2 text-left shadow-sm">
-                    <div className="text-[11px] text-muted">Pace</div>
-                    <div className="text-sm font-semibold tabular-nums text-ink">
-                      142 wpm
-                    </div>
-                  </div>
-
-                  {/* Metric Chip 3: Fillers */}
-                  <div className="bg-paper text-ink rounded-md border border-hairline px-3 py-2 text-left shadow-sm">
-                    <div className="text-[11px] text-muted">Fillers</div>
-                    <div className="text-sm font-semibold tabular-nums text-caution">
-                      2 detected
-                    </div>
-                  </div>
+                {/* Simulator Bottom Bar */}
+                <div className="px-5 py-3.5 bg-paper border-t border-hairline flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <span className="text-muted">
+                    Ready to practice on your own camera?
+                  </span>
+                  <Link href="/practice">
+                    <Button size="sm" className="h-8 px-4 text-xs font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover">
+                      Launch practice studio
+                    </Button>
+                  </Link>
                 </div>
 
               </div>
@@ -314,46 +722,357 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===================== HOW A SESSION WORKS ===================== */}
+      {/* ===================== BLOMMA-STYLE STICKY SCROLL FEATURE RAIL ===================== */}
       <section className="py-20 md:py-24 bg-paper border-b border-hairline">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
           
-          <div className="max-w-2xl text-left mb-12 space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
-              How a session works
+          <div className="max-w-2xl text-left mb-14 space-y-2">
+            <div className="text-xs font-semibold text-darpan-blue tracking-wide uppercase">
+              The Coaching Methodology
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-[-0.015em] text-ink">
+              Three steps from launch to objective mastery
             </h2>
-            <p className="text-sm sm:text-base text-muted">
-              Three steps from launch to diagnostic report. Everything runs in your browser.
+            <p className="text-base text-muted">
+              Built on cognitive coaching research and real-time biometric feedback. Everything happens in your browser.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+          {/* Sticky Side-by-Side 3-Step Walkthrough */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             
-            {/* Step 1 */}
-            <div className="bg-surface border border-hairline rounded-lg p-6 space-y-3">
-              <div className="text-sm font-semibold text-darpan-blue tabular-nums">01</div>
-              <h3 className="text-base font-semibold text-ink">Choose a scenario</h3>
-              <p className="text-sm text-text leading-relaxed">
-                Select a placement interview, campus debate, startup pitch, or paste a custom script into the teleprompter.
-              </p>
+            {/* Left Steps Column */}
+            <div className="lg:col-span-6 space-y-6 text-left">
+              
+              {/* Step 1 */}
+              <div 
+                onClick={() => setActiveStep(1)}
+                className={`p-6 rounded-xl border transition-all cursor-pointer ${
+                  activeStep === 1 
+                    ? 'bg-surface border-darpan-blue ring-1 ring-darpan-blue shadow-xs' 
+                    : 'bg-paper border-hairline hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                    activeStep === 1 ? 'bg-darpan-blue text-white' : 'bg-surface text-muted'
+                  }`}>
+                    01
+                  </span>
+                  <h3 className="text-lg font-semibold text-ink">Private On-Device Vision</h3>
+                </div>
+                <p className="text-sm text-text leading-relaxed">
+                  Select a placement round, debate, or custom speech. Our in-browser WebAssembly engine tracks 468 facial landmarks and pupil gaze coordinates locally. Your video frames never leave your computer.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted">
+                  <span className="inline-flex items-center gap-1 bg-paper border border-hairline px-2 py-1 rounded">
+                    <Check className="h-3 w-3 text-darpan-blue" /> Zero server uploads
+                  </span>
+                  <span className="inline-flex items-center gap-1 bg-paper border border-hairline px-2 py-1 rounded">
+                    <Check className="h-3 w-3 text-darpan-blue" /> 30 FPS landmark tracking
+                  </span>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div 
+                onClick={() => setActiveStep(2)}
+                className={`p-6 rounded-xl border transition-all cursor-pointer ${
+                  activeStep === 2 
+                    ? 'bg-surface border-darpan-blue ring-1 ring-darpan-blue shadow-xs' 
+                    : 'bg-paper border-hairline hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                    activeStep === 2 ? 'bg-darpan-blue text-white' : 'bg-surface text-muted'
+                  }`}>
+                    02
+                  </span>
+                  <h3 className="text-lg font-semibold text-ink">Sub-Second Acoustic & Posture Telemetry</h3>
+                </div>
+                <p className="text-sm text-text leading-relaxed">
+                  As you speak, non-intrusive visual cues help you calibrate pace and posture. The pacing speedometer indicates if you drop below 120 WPM or rush past 160 WPM, helping you stay in the executive cadence zone.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted">
+                  <span className="inline-flex items-center gap-1 bg-paper border border-hairline px-2 py-1 rounded">
+                    <Check className="h-3 w-3 text-darpan-blue" /> 130–150 WPM target guide
+                  </span>
+                  <span className="inline-flex items-center gap-1 bg-paper border border-hairline px-2 py-1 rounded">
+                    <Check className="h-3 w-3 text-darpan-blue" /> Live hesitation detector
+                  </span>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div 
+                onClick={() => setActiveStep(3)}
+                className={`p-6 rounded-xl border transition-all cursor-pointer ${
+                  activeStep === 3 
+                    ? 'bg-surface border-darpan-blue ring-1 ring-darpan-blue shadow-xs' 
+                    : 'bg-paper border-hairline hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                    activeStep === 3 ? 'bg-darpan-blue text-white' : 'bg-surface text-muted'
+                  }`}>
+                    03
+                  </span>
+                  <h3 className="text-lg font-semibold text-ink">Actionable Diagnostic Blueprint</h3>
+                </div>
+                <p className="text-sm text-text leading-relaxed">
+                  Receive an objective report dissecting your delivery: exact filler words (`um`, `like`, `basically`), speaking cadence timeline, and a single targeted drill to master before your next session.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted">
+                  <span className="inline-flex items-center gap-1 bg-paper border border-hairline px-2 py-1 rounded">
+                    <Check className="h-3 w-3 text-darpan-blue" /> Filler word heatmap
+                  </span>
+                  <span className="inline-flex items-center gap-1 bg-paper border border-hairline px-2 py-1 rounded">
+                    <Check className="h-3 w-3 text-darpan-blue" /> Verifiable certificate
+                  </span>
+                </div>
+              </div>
+
             </div>
 
-            {/* Step 2 */}
-            <div className="bg-surface border border-hairline rounded-lg p-6 space-y-3">
-              <div className="text-sm font-semibold text-darpan-blue tabular-nums">02</div>
-              <h3 className="text-base font-semibold text-ink">Speak to the camera</h3>
-              <p className="text-sm text-text leading-relaxed">
-                Deliver your speech. Real-time on-device vision and acoustic analysis measures gaze, posture, and pacing.
-              </p>
+            {/* Right Interactive Sticky Display Rail */}
+            <div className="lg:col-span-6 sticky top-24">
+              <div className="rounded-xl border border-hairline bg-surface p-6 shadow-xs text-left space-y-4">
+                
+                <div className="flex items-center justify-between pb-3 border-b border-hairline">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-darpan-blue" />
+                    <span className="text-xs font-semibold text-ink">
+                      {activeStep === 1 && "Milestone 01: In-Browser Vision Stack"}
+                      {activeStep === 2 && "Milestone 02: Real-Time Telemetry HUD"}
+                      {activeStep === 3 && "Milestone 03: Post-Speech Diagnostic Matrix"}
+                    </span>
+                  </div>
+                  <span className="text-xs text-muted font-mono">Step {activeStep} of 3</span>
+                </div>
+
+                {/* Step 1 Visual Showcase */}
+                {activeStep === 1 && (
+                  <div className="space-y-4 animate-fadeIn">
+                    <div className="p-4 rounded-lg bg-paper border border-hairline space-y-3">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-medium text-ink">Client-Side WASM Pipeline</span>
+                        <span className="text-success font-semibold flex items-center gap-1">
+                          <Check className="h-3.5 w-3.5" /> 100% On-Device
+                        </span>
+                      </div>
+                      <div className="space-y-2 text-xs text-muted">
+                        <div className="flex justify-between py-1 border-b border-hairline">
+                          <span>Camera Video Stream</span>
+                          <span className="font-mono text-ink">1280x720 • 30 FPS</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-hairline">
+                          <span>Facial Mesh Landmarks</span>
+                          <span className="font-mono text-ink">468 3D Points</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-hairline">
+                          <span>Pupil Gaze Vector Model</span>
+                          <span className="font-mono text-ink">Sub-second Latency</span>
+                        </div>
+                        <div className="flex justify-between py-1">
+                          <span>Server Upload Status</span>
+                          <span className="font-semibold text-emerald-600">Zero Bytes Sent</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-darpan-blue-tint/60 border border-darpan-blue/20 text-xs text-darpan-blue">
+                      You maintain complete privacy. No camera recording is ever stored or transmitted across external networks.
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2 Visual Showcase */}
+                {activeStep === 2 && (
+                  <div className="space-y-4 animate-fadeIn">
+                    <div className="p-4 rounded-lg bg-paper border border-hairline space-y-3">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-medium text-ink">Live Pace & Alignment Gauge</span>
+                        <span className="text-darpan-blue font-semibold">138 WPM</span>
+                      </div>
+                      
+                      {/* Pacing Scale */}
+                      <div className="space-y-1">
+                        <div className="h-2 rounded-full bg-gray-200 overflow-hidden relative">
+                          <div className="absolute left-[30%] right-[30%] h-full bg-emerald-400" />
+                          <div className="absolute left-[54%] w-1.5 h-full bg-ink z-10" />
+                        </div>
+                        <div className="flex justify-between text-[10px] text-muted font-mono">
+                          <span>&lt;120 (Hesitant)</span>
+                          <span className="font-semibold text-emerald-600">130–150 (Optimal)</span>
+                          <span>&gt;165 (Rushed)</span>
+                        </div>
+                      </div>
+
+                      {/* Live Alignment Status */}
+                      <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
+                        <div className="p-2 rounded bg-surface border border-hairline">
+                          <div className="text-[10px] text-muted">Eye Focus</div>
+                          <div className="font-semibold text-ink">88% (Direct)</div>
+                        </div>
+                        <div className="p-2 rounded bg-surface border border-hairline">
+                          <div className="text-[10px] text-muted">Posture Alignment</div>
+                          <div className="font-semibold text-ink">Level Shoulders</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-paper border border-hairline text-xs text-text">
+                      Discreet visual cues appear without disturbing your train of thought, training instinctive muscle memory.
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3 Visual Showcase */}
+                {activeStep === 3 && (
+                  <div className="space-y-4 animate-fadeIn">
+                    <div className="p-4 rounded-lg bg-paper border border-hairline space-y-3">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-medium text-ink">Diagnostic Delivery Audit</span>
+                        <Badge variant="outline" className="text-[10px] text-darpan-blue border-darpan-blue/30">
+                          Comprehensive
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between items-center py-1 border-b border-hairline">
+                          <span className="text-muted">Fillers Detected</span>
+                          <span className="font-semibold text-caution">2 words (1.4%)</span>
+                        </div>
+                        <div className="flex justify-between items-center py-1 border-b border-hairline">
+                          <span className="text-muted">Average Conversational Pace</span>
+                          <span className="font-semibold text-ink">138 WPM</span>
+                        </div>
+                        <div className="flex justify-between items-center py-1 border-b border-hairline">
+                          <span className="text-muted">Gaze Stability</span>
+                          <span className="font-semibold text-success">89%</span>
+                        </div>
+                        <div className="flex justify-between items-center py-1">
+                          <span className="text-muted">Composite Delivery Score</span>
+                          <span className="font-semibold text-darpan-blue text-sm">87 / 100</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-darpan-blue-tint/60 border border-darpan-blue/20 text-xs text-darpan-blue">
+                      Every diagnostic report concludes with a single targeted 60-second exercise to cement improvement.
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-2 flex justify-between items-center">
+                  <div className="flex gap-1.5">
+                    {[1, 2, 3].map((step) => (
+                      <button
+                        key={step}
+                        onClick={() => setActiveStep(step)}
+                        className={`h-2 rounded-full transition-all ${
+                          activeStep === step ? 'w-6 bg-darpan-blue' : 'w-2 bg-gray-300'
+                        }`}
+                        aria-label={`Go to step ${step}`}
+                      />
+                    ))}
+                  </div>
+
+                  <Link href="/practice">
+                    <Button variant="outline" size="sm" className="h-8 text-xs font-medium bg-paper border-hairline text-ink hover:bg-surface">
+                      Try live studio
+                    </Button>
+                  </Link>
+                </div>
+
+              </div>
             </div>
 
-            {/* Step 3 */}
-            <div className="bg-surface border border-hairline rounded-lg p-6 space-y-3">
-              <div className="text-sm font-semibold text-darpan-blue tabular-nums">03</div>
-              <h3 className="text-base font-semibold text-ink">Read your report</h3>
-              <p className="text-sm text-text leading-relaxed">
-                Review an objective breakdown of your filler words, cadence curve, and a single concrete next step to improve.
-              </p>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ===================== INTERACTIVE 60-SECOND IMPROMPTU DRILL WIDGET (Yoodli Style) ===================== */}
+      <section className="py-20 md:py-24 bg-surface border-b border-hairline">
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
+          
+          <div className="max-w-2xl text-left mb-10 space-y-2">
+            <div className="text-xs font-semibold text-darpan-blue tracking-wide uppercase">
+              Instant Warm-Up
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
+              Try a 60-second impromptu speech drill
+            </h2>
+            <p className="text-sm sm:text-base text-muted">
+              Select or randomize a prompt below. Review the 3-part talking framework, then launch directly into the camera studio.
+            </p>
+          </div>
+
+          {/* Drill Interactive Card */}
+          <div className="rounded-xl border border-hairline bg-paper p-6 sm:p-8 text-left shadow-xs space-y-6">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-hairline">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-darpan-blue bg-darpan-blue-tint px-2.5 py-0.5 rounded-full">
+                    {impromptuPrompts[impromptuIdx].category}
+                  </span>
+                  <span className="text-xs text-muted">Prompt {impromptuIdx + 1} of {impromptuPrompts.length}</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold text-ink pt-1">
+                  "{impromptuPrompts[impromptuIdx].question}"
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setImpromptuIdx((prev) => (prev + 1) % impromptuPrompts.length)}
+                  className="h-9 px-3 text-xs font-medium rounded-md bg-paper border-hairline text-ink hover:bg-surface flex items-center gap-1.5"
+                >
+                  <Shuffle className="h-3.5 w-3.5 text-darpan-blue" />
+                  <span>Randomize topic</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  onClick={() => handleLaunchImpromptu(impromptuPrompts[impromptuIdx])}
+                  className="h-9 px-4 text-xs font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover flex items-center gap-1.5"
+                >
+                  <Play className="h-3.5 w-3.5 fill-current" />
+                  <span>Practice in Studio</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* 3-Part Talking Points Roadmap */}
+            <div>
+              <div className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">
+                Recommended 60-Second Speaking Blueprint:
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {impromptuPrompts[impromptuIdx].roadmap.map((point, pIdx) => {
+                  const [phase, ...details] = point.split(':');
+                  return (
+                    <div key={pIdx} className="p-3.5 rounded-lg border border-hairline bg-surface space-y-1">
+                      <div className="text-xs font-semibold text-darpan-blue">{phase}</div>
+                      <div className="text-xs text-text leading-relaxed">{details.join(':').trim()}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="pt-2 flex flex-wrap items-center justify-between gap-4 text-xs text-muted border-t border-hairline">
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4 text-darpan-blue" />
+                Practice runs privately in your browser without saving video
+              </span>
+              <span className="font-mono text-ink font-medium">Recommended target: 130–150 WPM</span>
             </div>
 
           </div>
@@ -362,15 +1081,18 @@ export default function Home() {
       </section>
 
       {/* ===================== PRACTICE SCENARIOS SECTION ===================== */}
-      <section className="py-20 md:py-24 bg-surface border-b border-hairline">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+      <section className="py-20 md:py-24 bg-paper border-b border-hairline">
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
           
           <div className="max-w-2xl text-left mb-10 space-y-2">
+            <div className="text-xs font-semibold text-darpan-blue tracking-wide uppercase">
+              Curated Track Library
+            </div>
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
-              Practice scenarios
+              Choose your practice scenario
             </h2>
             <p className="text-sm sm:text-base text-muted">
-              Choose a scenario below to load recommended benchmarks and practice prompts.
+              Select a specialized track below to review curated questions, talking outlines, and benchmark targets.
             </p>
           </div>
 
@@ -385,7 +1107,7 @@ export default function Home() {
                   onClick={() => setSelectedCategoryIdx(idx)}
                   className={`p-5 rounded-lg border transition-all cursor-pointer text-left flex items-start gap-4 ${
                     isSelected
-                      ? 'bg-paper border-darpan-blue ring-1 ring-darpan-blue'
+                      ? 'bg-paper border-darpan-blue ring-1 ring-darpan-blue shadow-xs'
                       : 'bg-paper border-hairline hover:border-gray-300'
                   }`}
                 >
@@ -408,12 +1130,12 @@ export default function Home() {
           </div>
 
           {/* Selected Scenario Preview Card */}
-          <div className="mt-6 rounded-lg border border-hairline bg-paper p-6 text-left">
+          <div className="mt-8 rounded-xl border border-hairline bg-surface p-6 sm:p-8 text-left space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-hairline">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-darpan-blue bg-darpan-blue-tint px-2 py-0.5 rounded-md">
-                    Selected scenario
+                  <span className="text-xs font-semibold text-darpan-blue bg-darpan-blue-tint px-2.5 py-0.5 rounded-full">
+                    {categories[selectedCategoryIdx].categoryName}
                   </span>
                   <span className="text-sm font-semibold text-ink">
                     {categories[selectedCategoryIdx].title}
@@ -426,41 +1148,58 @@ export default function Home() {
 
               <Button
                 onClick={() => handleLaunchCategory(categories[selectedCategoryIdx])}
-                className="h-10 px-5 text-sm font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover shrink-0 transition-colors"
+                className="h-10 px-5 text-sm font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover shrink-0 transition-colors flex items-center gap-2"
               >
-                Practice this scenario
+                <span>Practice this scenario</span>
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
 
-            {/* Prompt */}
-            <div className="my-5 p-4 rounded-md bg-surface border border-hairline">
-              <span className="text-xs text-muted block mb-1 font-medium">
-                Sample prompt
+            {/* Prompt with 3 Curated Questions */}
+            <div className="space-y-3">
+              <span className="text-xs text-muted block font-semibold uppercase tracking-wider">
+                Curated Practice Questions:
               </span>
-              <p className="text-sm text-ink leading-relaxed">
-                "{categories[selectedCategoryIdx].samplePrompt}"
-              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {categories[selectedCategoryIdx].curatedQuestions.map((qText, qIdx) => (
+                  <div 
+                    key={qIdx} 
+                    className="p-4 rounded-lg bg-paper border border-hairline flex flex-col justify-between space-y-3"
+                  >
+                    <p className="text-xs sm:text-sm text-ink leading-relaxed font-medium">
+                      "{qText}"
+                    </p>
+                    <button
+                      onClick={() => handleLaunchCategory(categories[selectedCategoryIdx], qText)}
+                      className="text-xs font-semibold text-darpan-blue hover:underline text-left inline-flex items-center gap-1"
+                    >
+                      <span>Practice this question</span>
+                      <ArrowRight className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Benchmark Targets */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3 rounded-md border border-hairline bg-surface">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+              <div className="p-3.5 rounded-md border border-hairline bg-paper">
                 <span className="text-xs text-muted block">Target gaze focus</span>
                 <span className="text-sm font-semibold text-ink tabular-nums">{categories[selectedCategoryIdx].targetEye}</span>
               </div>
-              <div className="p-3 rounded-md border border-hairline bg-surface">
-                <span className="text-xs text-muted block">Optimal pace</span>
+              <div className="p-3.5 rounded-md border border-hairline bg-paper">
+                <span className="text-xs text-muted block">Optimal speaking pace</span>
                 <span className="text-sm font-semibold text-ink tabular-nums">{categories[selectedCategoryIdx].targetWpm}</span>
               </div>
-              <div className="p-3 rounded-md border border-hairline bg-surface">
-                <span className="text-xs text-muted block">Body posture</span>
+              <div className="p-3.5 rounded-md border border-hairline bg-paper">
+                <span className="text-xs text-muted block">Expected posture</span>
                 <span className="text-sm font-semibold text-ink">{categories[selectedCategoryIdx].targetPosture}</span>
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-hairline flex justify-end">
-              <Link href="/scenarios" className="text-xs font-medium text-darpan-blue hover:underline">
-                Browse all scenarios
+            <div className="pt-2 border-t border-hairline flex justify-end">
+              <Link href="/scenarios" className="text-xs font-semibold text-darpan-blue hover:underline">
+                Browse full scenario library (30+ questions) →
               </Link>
             </div>
           </div>
@@ -468,11 +1207,133 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ===================== BEFORE VS AFTER BENCHMARK TRANSFORMATION ===================== */}
+      <section className="py-20 md:py-24 bg-surface border-b border-hairline">
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
+          
+          <div className="max-w-2xl text-left mb-12 space-y-2">
+            <div className="text-xs font-semibold text-darpan-blue tracking-wide uppercase">
+              Measured Progress
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
+              The transformation from first mock to mastery
+            </h2>
+            <p className="text-sm sm:text-base text-muted">
+              Here is what happens when a student practices with objective on-device telemetry over just three deliberate sessions.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left">
+            
+            {/* Before Card */}
+            <div className="rounded-xl border border-hairline bg-paper p-6 sm:p-7 space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-hairline">
+                <div>
+                  <span className="text-xs font-semibold text-muted uppercase tracking-wider block">First Mock Session</span>
+                  <h3 className="text-base font-semibold text-ink">Without Objective Telemetry</h3>
+                </div>
+                <span className="text-xs font-semibold text-risk bg-risk-tint px-2.5 py-1 rounded-md">
+                  Untrained
+                </span>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                <div>
+                  <div className="flex justify-between text-muted mb-1">
+                    <span>Camera Eye Contact</span>
+                    <span className="font-semibold text-risk tabular-nums">54% (Looking down)</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+                    <div className="h-full bg-risk w-[54%]" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-muted mb-1">
+                    <span>Speaking Pacing</span>
+                    <span className="font-semibold text-risk tabular-nums">176 WPM (Rushed cadence)</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+                    <div className="h-full bg-amber-500 w-[88%]" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div className="p-3 rounded-lg bg-surface border border-hairline">
+                    <span className="text-muted block text-[11px]">Filler words detected</span>
+                    <span className="text-base font-semibold text-risk tabular-nums">14 fillers</span>
+                    <span className="text-[10px] text-muted block mt-0.5">'um', 'like', 'basically'</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-surface border border-hairline">
+                    <span className="text-muted block text-[11px]">Posture stability</span>
+                    <span className="text-base font-semibold text-risk tabular-nums">58% alignment</span>
+                    <span className="text-[10px] text-muted block mt-0.5">Slouching / leaning</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* After Card */}
+            <div className="rounded-xl border-2 border-darpan-blue bg-paper p-6 sm:p-7 space-y-5 relative shadow-xs">
+              <div className="flex items-center justify-between pb-3 border-b border-hairline">
+                <div>
+                  <span className="text-xs font-semibold text-darpan-blue uppercase tracking-wider block">After 3 Practice Sessions</span>
+                  <h3 className="text-base font-semibold text-ink">Coached with VaniDarpan</h3>
+                </div>
+                <span className="text-xs font-semibold text-success bg-success-tint px-2.5 py-1 rounded-md">
+                  Placement Ready
+                </span>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                <div>
+                  <div className="flex justify-between text-muted mb-1">
+                    <span>Camera Eye Contact</span>
+                    <span className="font-semibold text-success tabular-nums">89% (+35% improvement)</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+                    <div className="h-full bg-success w-[89%]" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-muted mb-1">
+                    <span>Speaking Pacing</span>
+                    <span className="font-semibold text-success tabular-nums">138 WPM (Executive cadence)</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+                    <div className="h-full bg-darpan-blue w-[92%]" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div className="p-3 rounded-lg bg-darpan-blue-tint/50 border border-darpan-blue/20">
+                    <span className="text-darpan-blue block text-[11px]">Filler words detected</span>
+                    <span className="text-base font-semibold text-success tabular-nums">2 fillers (-86%)</span>
+                    <span className="text-[10px] text-muted block mt-0.5">Replaced with silent pauses</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-darpan-blue-tint/50 border border-darpan-blue/20">
+                    <span className="text-darpan-blue block text-[11px]">Posture stability</span>
+                    <span className="text-base font-semibold text-success tabular-nums">94% alignment</span>
+                    <span className="text-[10px] text-muted block mt-0.5">Upright and centered</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
       {/* ===================== REPORT PREVIEWS WITH SCREENSHOTS ===================== */}
       <section className="py-20 md:py-24 bg-paper border-b border-hairline">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
           
           <div className="max-w-2xl text-left mb-10 space-y-2">
+            <div className="text-xs font-semibold text-darpan-blue tracking-wide uppercase">
+              Product Walkthrough
+            </div>
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
               Objective feedback on how you speak
             </h2>
@@ -504,7 +1365,7 @@ export default function Home() {
           </div>
 
           {/* Preview Container */}
-          <div className="rounded-lg border border-hairline bg-paper overflow-hidden text-left">
+          <div className="rounded-xl border border-hairline bg-paper overflow-hidden text-left shadow-xs">
             
             {/* Window Bar */}
             <div className="px-4 py-3 bg-surface border-b border-hairline flex items-center justify-between">
@@ -514,7 +1375,7 @@ export default function Home() {
                   <div className="h-2.5 w-2.5 rounded-full bg-gray-300" />
                   <div className="h-2.5 w-2.5 rounded-full bg-gray-300" />
                 </div>
-                <span className="text-xs text-muted font-medium">
+                <span className="text-xs text-muted font-medium font-mono">
                   vanidarpan.app/{activePreviewTab}
                 </span>
               </div>
@@ -524,9 +1385,9 @@ export default function Home() {
             </div>
 
             {/* Content Grid */}
-            <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               
-              <div className="lg:col-span-8 rounded-lg border border-hairline overflow-hidden bg-studio">
+              <div className="lg:col-span-8 rounded-lg border border-hairline overflow-hidden bg-studio shadow-xs">
                 <img 
                   src={activePreview.image} 
                   alt={activePreview.heading} 
@@ -562,7 +1423,7 @@ export default function Home() {
 
       {/* ===================== FOR COLLEGES INSTITUTIONAL BAND ===================== */}
       <section className="py-20 md:py-24 bg-surface border-b border-hairline">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
             <div className="space-y-2 text-left max-w-2xl">
@@ -594,13 +1455,13 @@ export default function Home() {
           </div>
 
           {/* Readiness Heatmap Card */}
-          <div className="bg-paper border border-hairline rounded-lg p-6 text-left space-y-6">
+          <div className="bg-paper border border-hairline rounded-xl p-6 sm:p-7 text-left space-y-6 shadow-xs">
             <div className="flex items-center justify-between pb-3 border-b border-hairline">
               <div>
                 <h3 className="text-base font-semibold text-ink">Placement readiness by branch and skill</h3>
                 <p className="text-xs text-muted mt-0.5">Aggregated metrics from recent student practice sessions</p>
               </div>
-              <div className="text-xs text-muted font-medium">Batch of 2026</div>
+              <div className="text-xs text-muted font-medium font-mono">Batch of 2026</div>
             </div>
 
             {/* Heatmap Table */}
@@ -685,11 +1546,14 @@ export default function Home() {
 
       {/* ===================== PLANS IN THREE COLUMNS ===================== */}
       <section className="py-20 md:py-24 bg-paper border-b border-hairline">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
           
           <div className="max-w-2xl text-left mb-12 space-y-2">
+            <div className="text-xs font-semibold text-darpan-blue tracking-wide uppercase">
+              Transparent Pricing
+            </div>
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
-              Plans and access
+              Plans and institutional access
             </h2>
             <p className="text-sm sm:text-base text-muted">
               Individual practice for students, and batch analytics for universities.
@@ -699,7 +1563,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
             
             {/* Free Candidate */}
-            <div className="bg-paper border border-hairline rounded-lg p-6 flex flex-col justify-between space-y-6">
+            <div className="bg-paper border border-hairline rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 shadow-xs">
               <div className="space-y-4">
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold text-ink">Free candidate</h3>
@@ -708,7 +1572,7 @@ export default function Home() {
 
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-semibold text-ink tabular-nums">₹0</span>
-                  <span className="text-xs text-muted">/ free</span>
+                  <span className="text-xs text-muted">/ free forever</span>
                 </div>
 
                 <ul className="space-y-2.5 text-xs text-text pt-2 border-t border-hairline">
@@ -739,12 +1603,12 @@ export default function Home() {
             </div>
 
             {/* Student Pro */}
-            <div className="bg-paper border-2 border-darpan-blue rounded-lg p-6 flex flex-col justify-between space-y-6 relative shadow-xs">
+            <div className="bg-paper border-2 border-darpan-blue rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 relative shadow-xs">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-ink">Student Pro</h3>
-                  <span className="text-[11px] font-semibold text-brass bg-[#FDF1DC] border border-[#F5E6CC] px-2 py-0.5 rounded-sm">
-                    Pro
+                  <span className="text-[11px] font-semibold text-brass bg-[#FDF1DC] border border-[#F5E6CC] px-2.5 py-0.5 rounded-sm">
+                    Recommended
                   </span>
                 </div>
                 <p className="text-xs text-muted">For thorough placement and interview preparation.</p>
@@ -782,7 +1646,7 @@ export default function Home() {
             </div>
 
             {/* College Campus Pilot */}
-            <div className="bg-paper border border-hairline rounded-lg p-6 flex flex-col justify-between space-y-6">
+            <div className="bg-paper border border-hairline rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-6 shadow-xs">
               <div className="space-y-4">
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold text-ink">College campus pilot</h3>
@@ -824,8 +1688,8 @@ export default function Home() {
           </div>
 
           <div className="mt-8 text-center">
-            <Link href="/pricing" className="text-xs font-medium text-darpan-blue hover:underline">
-              View detailed pricing comparison
+            <Link href="/pricing" className="text-xs font-semibold text-darpan-blue hover:underline">
+              View detailed pricing comparison table →
             </Link>
           </div>
 
@@ -834,9 +1698,12 @@ export default function Home() {
 
       {/* ===================== FAQ ACCORDION ===================== */}
       <section className="py-20 md:py-24 bg-surface border-b border-hairline">
-        <div className="max-w-[800px] mx-auto px-4 sm:px-6">
+        <div className="max-w-[840px] mx-auto px-4 sm:px-6">
           
           <div className="text-left mb-10 space-y-2">
+            <div className="text-xs font-semibold text-darpan-blue tracking-wide uppercase">
+              Got Questions?
+            </div>
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
               Frequently asked questions
             </h2>
@@ -850,8 +1717,8 @@ export default function Home() {
               const isOpen = openFaq === idx;
               return (
                 <div 
-                  key={idx}
-                  className="rounded-lg border border-hairline bg-paper overflow-hidden"
+                  key={idx} 
+                  className="rounded-xl border border-hairline bg-paper overflow-hidden shadow-xs transition-colors"
                 >
                   <button
                     type="button"
@@ -879,29 +1746,31 @@ export default function Home() {
         <div className="max-w-[800px] mx-auto px-4 sm:px-6 space-y-6">
           
           <div className="space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
-              Start your first practice session
+            <h2 className="text-2xl sm:text-4xl font-semibold tracking-[-0.015em] text-ink">
+              Start your first practice session now
             </h2>
             <p className="text-sm sm:text-base text-muted max-w-lg mx-auto">
-              Practice in front of the camera and get instant feedback on eye contact, posture, and pacing.
+              Test your eye contact, posture, and pacing in front of your camera. Free forever with zero installation required.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link href="/practice">
-              <Button className="h-10 px-6 text-sm font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover transition-colors">
-                Start practice
+              <Button className="h-11 px-6 text-sm font-medium rounded-md bg-darpan-blue text-white hover:bg-darpan-blue-hover transition-colors flex items-center gap-2 shadow-xs">
+                <span>Start free practice</span>
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <Link href="/report/sample">
-              <Button variant="outline" className="h-10 px-6 text-sm font-medium rounded-md bg-paper border-hairline text-ink hover:bg-surface transition-colors">
+              <Button variant="outline" className="h-11 px-6 text-sm font-medium rounded-md bg-paper border-hairline text-ink hover:bg-surface transition-colors">
                 See a sample report
               </Button>
             </Link>
           </div>
 
-          <div className="pt-2 text-xs text-muted">
-            Your video is analysed on your device and is not uploaded.
+          <div className="pt-2 text-xs text-muted flex items-center justify-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-darpan-blue shrink-0" />
+            <span>Your video is analysed on your device and is not uploaded.</span>
           </div>
 
         </div>

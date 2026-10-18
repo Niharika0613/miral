@@ -54,18 +54,25 @@ function AppRouter() {
 function App() {
   const [location] = useLocation();
   const isAuthPage = location === '/login' || location === '/signup';
+  const isTpoPage = location.startsWith('/tpo');
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <div className="min-h-screen bg-background flex flex-col justify-between selection:bg-primary/20">
-            <Navigation />
-            <main className="flex-1">
+          {isTpoPage ? (
+            <div className="min-h-screen bg-surface font-sans text-text">
               <AppRouter />
-            </main>
-            {!isAuthPage && <Footer />}
-          </div>
+            </div>
+          ) : (
+            <div className="min-h-screen bg-background flex flex-col justify-between selection:bg-primary/20">
+              <Navigation />
+              <main className="flex-1">
+                <AppRouter />
+              </main>
+              {!isAuthPage && <Footer />}
+            </div>
+          )}
           <Toaster />
         </TooltipProvider>
       </ThemeProvider>

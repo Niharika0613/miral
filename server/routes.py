@@ -772,7 +772,7 @@ async def get_tpo_stats(db: AsyncSession = Depends(get_db)):
         pass
 
     return {
-        "college_name": "KIET Group of Institutions",
+        "college_name": "Apex Engineering & Technology Institute",
         "institution_tag": "Autonomous Placement & Communication Intelligence Cell",
         "academic_season": "2025–2026 Placement Season",
         "total_enrolled_candidates": 1480,

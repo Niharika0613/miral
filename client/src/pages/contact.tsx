@@ -59,7 +59,7 @@ export default function Contact() {
         setIsSubmitted(true);
         toast({
           title: "Inquiry Sent Successfully",
-          description: "Your message has been delivered to supportmiralai@gmail.com. We will reply within 24 hours.",
+          description: "Your message has been delivered to contact@vanidarpan.app. We will reply within 24 hours.",
         });
       } else {
         throw new Error("Failed to send email");
@@ -68,7 +68,7 @@ export default function Contact() {
       setIsSubmitted(true);
       toast({
         title: "Inquiry Received",
-        description: "Your inquiry has been recorded. You can also write directly to supportmiralai@gmail.com.",
+        description: "Your inquiry has been recorded. You can also write directly to contact@vanidarpan.app.",
       });
     } finally {
       setIsSubmitting(false);
@@ -109,7 +109,7 @@ export default function Contact() {
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground space-y-1">
                 <p>Deploy structured mock rounds and aggregate readiness analytics across student batches.</p>
-                <p className="font-mono text-primary font-semibold pt-1">supportmiralai@gmail.com</p>
+                <p className="font-mono text-primary font-semibold pt-1">contact@vanidarpan.app</p>
               </CardContent>
             </Card>
 
@@ -125,7 +125,7 @@ export default function Contact() {
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground space-y-1">
                 <p>Questions regarding camera permissions, speech analytics, or feature feedback.</p>
-                <p className="font-mono text-primary font-semibold pt-1">supportmiralai@gmail.com</p>
+                <p className="font-mono text-primary font-semibold pt-1">contact@vanidarpan.app</p>
               </CardContent>
             </Card>
 
@@ -141,7 +141,7 @@ export default function Contact() {
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground space-y-1">
                 <p>Inquiries regarding client-side data ethics, account deletion, or DPDP compliance.</p>
-                <p className="font-mono text-primary font-semibold pt-1">supportmiralai@gmail.com</p>
+                <p className="font-mono text-primary font-semibold pt-1">contact@vanidarpan.app</p>
               </CardContent>
             </Card>
           </div>
@@ -271,7 +271,7 @@ export default function Contact() {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          <span>Sending to supportmiralai@gmail.com...</span>
+                          <span>Sending inquiry...</span>
                         </>
                       ) : (
                         <>

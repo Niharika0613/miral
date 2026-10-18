@@ -260,7 +260,7 @@ def create_app() -> FastAPI:
     @app.get("/api")
     async def api_info():
         return {
-            "message": "MiralAI FastAPI Backend",
+            "message": "VaniDarpan FastAPI Backend",
             "version": "2.0.0",
             "status": "running"
         }
@@ -276,7 +276,7 @@ def create_app() -> FastAPI:
             if os.path.isfile(index_path):
                 return FileResponse(index_path)
         return JSONResponse(status_code=200, content={
-            "message": "MiralAI FastAPI Backend",
+            "message": "VaniDarpan FastAPI Backend",
             "version": "2.0.0",
             "status": "running"
         })

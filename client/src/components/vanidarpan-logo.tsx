@@ -5,10 +5,10 @@ interface LogoProps {
   width?: number;
   height?: number;
   className?: string;
-  showHindi?: boolean;
+  subtitle?: string;
 }
 
-export function VaniDarpanLogo({ height = 36, className, showHindi = true }: LogoProps) {
+export function VaniDarpanLogo({ height = 36, className, subtitle = "Practice mirror" }: LogoProps) {
   const markSize = Math.max(28, Math.round(height * 0.88));
 
   return (
@@ -47,13 +47,13 @@ export function VaniDarpanLogo({ height = 36, className, showHindi = true }: Log
       </svg>
 
       {/* Institutional Wordmark */}
-      <div className="flex flex-col justify-center leading-none">
+      <div className="flex flex-col justify-center leading-tight">
         <span className="font-sans font-semibold text-ink text-[17px] tracking-[-0.01em]">
           VaniDarpan
         </span>
-        {showHindi && (
-          <span className="font-devanagari text-muted text-[10px] tracking-normal mt-0.5 font-medium">
-            वाणीदर्पण
+        {subtitle && (
+          <span className="text-muted text-[10px] tracking-normal font-medium">
+            {subtitle}
           </span>
         )}
       </div>

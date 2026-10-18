@@ -348,13 +348,13 @@ function SpeechCertificateModal({
             {/* Top Header */}
             <div className="space-y-2 pb-6 border-b border-hairline">
               <div className="flex justify-center mb-2">
-                <VaniDarpanLogo height={32} showHindi={true} />
+                <VaniDarpanLogo height={32} />
               </div>
               <h1 className="text-2xl sm:text-3xl font-semibold tracking-[-0.01em] text-ink">
                 Certificate of speaking practice
               </h1>
               <p className="text-xs text-muted">
-                Issued by VaniDarpan (वाणीदर्पण) • On-Device Practice Mirror
+                Issued by VaniDarpan • On-device practice mirror
               </p>
             </div>
 
@@ -486,7 +486,7 @@ export default function Report() {
   const [isPopupSubmitting, setIsPopupSubmitting] = useState(false);
 
   useEffect(() => {
-    const hasSeen = localStorage.getItem('vanidarpan_has_seen_feedback_popup') || localStorage.getItem('miral_has_seen_feedback_popup');
+    const hasSeen = localStorage.getItem('vanidarpan_has_seen_feedback_popup');
     if (!hasSeen && sessionId && sessionId !== 'sample') {
       const timer = setTimeout(() => {
         setShowFeedbackModal(true);
@@ -575,8 +575,7 @@ export default function Report() {
       }
       const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
       const userKey = userId ? `vanidarpan_completed_sessions_${userId}` : 'vanidarpan_completed_sessions_guest';
-      const legacyKey = userId ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
-      const allStored = localStorage.getItem(userKey) || localStorage.getItem(legacyKey) || localStorage.getItem('vanidarpan_completed_sessions') || localStorage.getItem('miral_completed_sessions');
+      const allStored = localStorage.getItem(userKey) || localStorage.getItem('vanidarpan_completed_sessions');
       if (allStored) {
         const list = JSON.parse(allStored);
         if (Array.isArray(list) && list.length > 0) {

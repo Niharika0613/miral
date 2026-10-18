@@ -112,7 +112,7 @@ export default function FAQ() {
           <div className="space-y-0.5 text-center sm:text-left">
             <p className="text-sm font-bold text-foreground">Still have questions?</p>
             <p className="text-xs text-muted-foreground">
-              Reach us at <span className="text-primary font-semibold font-mono">supportmiralai@gmail.com</span>
+              Reach us at <span className="text-primary font-semibold font-mono">contact@vanidarpan.app</span>
             </p>
           </div>
           <Link href="/contact" className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shrink-0">

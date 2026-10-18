@@ -620,7 +620,7 @@ export default function Practice() {
       sessionStorage.setItem('last_completed_session', JSON.stringify(localBackup));
 
       try {
-        const userStorageKey = userId ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
+        const userStorageKey = userId ? `vanidarpan_completed_sessions_${userId}` : 'vanidarpan_completed_sessions_guest';
         const storedStr = localStorage.getItem(userStorageKey);
         const existingList = storedStr ? JSON.parse(storedStr) : [];
         const filtered = Array.isArray(existingList) ? existingList.filter((s: any) => s && s.id !== targetSessionId) : [];

@@ -130,9 +130,9 @@ export default function Login() {
 
         if (mode === 'signup') {
           try {
-            localStorage.setItem('miral_user_goals', JSON.stringify(selectedGoals));
+            localStorage.setItem('vanidarpan_user_goals', JSON.stringify(selectedGoals));
             if (data.user?.id) {
-              localStorage.setItem(`miral_user_goals_${data.user.id}`, JSON.stringify(selectedGoals));
+              localStorage.setItem(`vanidarpan_user_goals_${data.user.id}`, JSON.stringify(selectedGoals));
             }
           } catch {}
 

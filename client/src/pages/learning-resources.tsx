@@ -272,7 +272,7 @@ export default function LearningResources() {
         setSubmittedPartner(true);
         toast({
           title: "Application Sent Successfully",
-          description: "Details have been sent to supportmiralai@gmail.com. Our team will review and reply within 24 hours.",
+          description: "Details have been sent to contact@vanidarpan.app. Our team will review and reply within 24 hours.",
         });
       } else {
         throw new Error("Failed to send email");
@@ -282,7 +282,7 @@ export default function LearningResources() {
       setSubmittedPartner(true);
       toast({
         title: "Request Recorded",
-        description: "Your application has been received. You can also write directly to supportmiralai@gmail.com.",
+        description: "Your application has been received. You can also write directly to contact@vanidarpan.app.",
       });
     } finally {
       setIsSubmittingPartner(false);
@@ -304,8 +304,8 @@ export default function LearningResources() {
         <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
-                <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary text-xs font-semibold">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
                 <span>VaniDarpan Learning Hub</span>
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
@@ -320,7 +320,7 @@ export default function LearningResources() {
             <div className="shrink-0">
               <Button 
                 onClick={() => setPartnerModalOpen(true)}
-                className="w-full sm:w-auto text-xs font-semibold h-10 px-5 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
+                className="w-full sm:w-auto text-xs font-semibold h-10 px-5 gap-2 bg-primary hover:bg-primary/90 text-white shadow-sm"
               >
                 <Users className="h-4 w-4" />
                 <span>List Your Course / Partner as Coach</span>
@@ -334,7 +334,7 @@ export default function LearningResources() {
               onClick={() => setFilter('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 filter === 'all'
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-primary text-white shadow-xs'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -344,8 +344,8 @@ export default function LearningResources() {
               onClick={() => setFilter('masterclasses')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 filter === 'masterclasses'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100'
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10'
               }`}
             >
               <Lock className="h-3 w-3" />
@@ -355,7 +355,7 @@ export default function LearningResources() {
               onClick={() => setFilter('free')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 filter === 'free'
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-primary text-white shadow-xs'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -365,7 +365,7 @@ export default function LearningResources() {
               onClick={() => setFilter('videos')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 filter === 'videos'
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-primary text-white shadow-xs'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -375,7 +375,7 @@ export default function LearningResources() {
               onClick={() => setFilter('articles')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 filter === 'articles'
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-primary text-white shadow-xs'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -389,14 +389,14 @@ export default function LearningResources() {
       <div className="container max-w-6xl mx-auto px-4 sm:px-6 pt-8">
         
         {/* Coach / Creator Partner Showcase Callout */}
-        <div className="mb-8 rounded-2xl border border-indigo-200 dark:border-indigo-500/30 bg-gradient-to-r from-indigo-50/90 via-white to-violet-50/90 dark:from-indigo-950/30 dark:via-[#0e1322] dark:to-violet-950/20 p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+        <div className="mb-8 rounded-xl border border-hairline bg-muted/20 p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Badge className="bg-indigo-600 text-white text-[10px]">
-                CREATOR & COACH NETWORK
+              <Badge variant="outline" className="text-primary border-primary/30 text-[11px] font-normal">
+                Coach network
               </Badge>
-              <span className="text-xs font-bold text-slate-900 dark:text-white">
-                Reach thousands of active speakers, students & candidates
+              <span className="text-xs font-semibold text-ink">
+                Reach thousands of active speakers, students and candidates
               </span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 max-w-2xl">
@@ -422,7 +422,7 @@ export default function LearningResources() {
                 key={resource.id}
                 className={`flex flex-col justify-between border transition-all duration-200 hover:shadow-md ${
                   resource.isPremium
-                    ? 'border-indigo-300 dark:border-indigo-500/40 bg-gradient-to-b from-indigo-50/40 via-white to-white dark:from-indigo-950/20 dark:via-[#0e1322] dark:to-[#0e1322]'
+                    ? 'border-primary/30 bg-card'
                     : 'border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322]'
                 }`}
               >
@@ -433,7 +433,7 @@ export default function LearningResources() {
                         variant="outline" 
                         className={`text-[10px] ${
                           resource.isPremium
-                            ? 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700 font-semibold'
+                            ? 'bg-primary/10 text-primary border-primary/30 font-semibold'
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                         }`}
                       >
@@ -456,7 +456,7 @@ export default function LearningResources() {
 
                     <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
                       resource.isPremium
-                        ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400'
+                        ? 'bg-primary/10 text-primary'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                     }`}>
                       <Icon className="h-4 w-4" />
@@ -468,7 +468,7 @@ export default function LearningResources() {
                   </CardTitle>
 
                   {resource.instructor && (
-                    <p className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 mt-1">
+                    <p className="text-[11px] font-medium text-primary mt-1">
                       Instructor: {resource.instructor}
                     </p>
                   )}
@@ -496,7 +496,7 @@ export default function LearningResources() {
                   {resource.isPremium ? (
                     <Button 
                       onClick={() => handleResourceClick(resource)}
-                      className="w-full text-xs font-semibold h-9 gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
+                      className="w-full text-xs font-semibold h-9 gap-2 bg-primary hover:bg-primary/90 text-white shadow-xs"
                     >
                       <Lock className="h-3.5 w-3.5" />
                       <span>Unlock Masterclass</span>
@@ -530,7 +530,7 @@ export default function LearningResources() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 space-y-1.5">
-              <Badge variant="outline" className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 text-[10px]">
+              <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-[10px]">
                 Week 1: Core Fundamentals
               </Badge>
               <h3 className="text-xs font-bold text-slate-900 dark:text-white">Posture & Eye Contact Habit</h3>
@@ -540,7 +540,7 @@ export default function LearningResources() {
             </div>
 
             <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 space-y-1.5">
-              <Badge variant="outline" className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 text-[10px]">
+              <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-[10px]">
                 Weeks 2–3: Cadence & Pacing
               </Badge>
               <h3 className="text-xs font-bold text-slate-900 dark:text-white">Eliminating Filler Words (WPM)</h3>
@@ -550,7 +550,7 @@ export default function LearningResources() {
             </div>
 
             <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 space-y-1.5">
-              <Badge variant="outline" className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 text-[10px]">
+              <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-[10px]">
                 Week 4+: High-Stakes Mastery
               </Badge>
               <h3 className="text-xs font-bold text-slate-900 dark:text-white">Pitches, Interviews & Debates</h3>
@@ -567,7 +567,7 @@ export default function LearningResources() {
       <Dialog open={unlockModalOpen} onOpenChange={setUnlockModalOpen}>
         <DialogContent className="sm:max-w-md bg-white dark:bg-[#0e1322] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
           <DialogHeader>
-            <div className="h-10 w-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-2">
               <Lock className="h-5 w-5" />
             </div>
             <DialogTitle className="text-lg font-bold">
@@ -579,22 +579,22 @@ export default function LearningResources() {
           </DialogHeader>
 
           <div className="space-y-3 py-2">
-            <div className="p-3.5 rounded-xl border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50/60 dark:bg-indigo-950/30 space-y-2">
+            <div className="p-3.5 rounded-xl border border-primary/20 bg-primary/5 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-900 dark:text-white">What's Included:</span>
-                <Badge className="bg-indigo-600 text-white text-[10px]">PRO BENEFIT</Badge>
+                <Badge className="bg-primary text-white text-[10px]">PRO BENEFIT</Badge>
               </div>
               <ul className="text-xs space-y-1.5 text-slate-700 dark:text-slate-300">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span>Full access to all {ALL_RESOURCES.filter(r => r.isPremium).length} certified coach masterclasses</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span>Unlimited practice sessions with real-time cues</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span>Detailed diagnostic scorecards & downloadable PDF reports</span>
                 </li>
               </ul>
@@ -605,7 +605,7 @@ export default function LearningResources() {
             <Link href="/pricing" className="w-full">
               <Button 
                 onClick={() => setUnlockModalOpen(false)}
-                className="w-full text-xs font-semibold h-10 bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="w-full text-xs font-semibold h-10 bg-primary hover:bg-primary/90 text-white"
               >
                 <span>View Pro Plans & Upgrade</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1" />
@@ -626,7 +626,7 @@ export default function LearningResources() {
       <Dialog open={partnerModalOpen} onOpenChange={setPartnerModalOpen}>
         <DialogContent className="sm:max-w-lg bg-white dark:bg-[#0e1322] border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
           <DialogHeader>
-            <div className="h-10 w-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-2">
               <Users className="h-5 w-5" />
             </div>
             <DialogTitle className="text-lg font-bold">
@@ -696,12 +696,12 @@ export default function LearningResources() {
                 <Button 
                   type="submit"
                   disabled={isSubmittingPartner}
-                  className="w-full text-xs font-semibold h-9 bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="w-full text-xs font-semibold h-9 bg-primary hover:bg-primary/90 text-white"
                 >
                   {isSubmittingPartner ? (
                     <>
                       <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
-                      <span>Sending to supportmiralai@gmail.com...</span>
+                      <span>Submitting application...</span>
                     </>
                   ) : (
                     <>

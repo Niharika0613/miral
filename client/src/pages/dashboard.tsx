@@ -73,7 +73,7 @@ export default function Dashboard() {
     let rawLocalList: any[] = [];
     try {
       // User-isolated local sessions storage key
-      const userKey = userId ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
+      const userKey = userId ? `vanidarpan_completed_sessions_${userId}` : 'vanidarpan_completed_sessions_guest';
       const stored = localStorage.getItem(userKey);
       rawLocalList = stored ? JSON.parse(stored) : [];
       if (!Array.isArray(rawLocalList)) rawLocalList = [];

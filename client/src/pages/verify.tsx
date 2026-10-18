@@ -106,7 +106,7 @@ export default function VerifyCertificate() {
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
                 Issued By
               </span>
-              <span className="font-semibold text-foreground">VaniDarpan (वाणीदर्पण)</span>
+              <span className="font-semibold text-foreground">VaniDarpan</span>
             </div>
 
             <div className="flex items-start justify-between gap-3 pb-1">

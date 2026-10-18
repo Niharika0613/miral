@@ -124,7 +124,7 @@ export function Footer() {
         {/* Bottom Sub-Bar */}
         <div className="border-t border-hairline pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
           <p>
-            © {currentYear} VaniDarpan (वाणीदर्पण). Built for students and institutions.
+            © {currentYear} VaniDarpan. Built for students and institutions.
           </p>
           
           <div className="flex items-center gap-4 text-xs text-muted">

@@ -132,8 +132,8 @@ export default function Pricing() {
                 <Badge variant="outline" className="text-[10px] font-semibold border-primary/40 text-primary">
                   Placement Intensive
                 </Badge>
-                <Badge className="bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-[10px] font-bold px-2.5 py-0.5">
-                  Free Campus Pilot • Until Oct 31
+                <Badge className="bg-brass text-white text-[10px] font-medium px-2.5 py-0.5 rounded-sm">
+                  Free campus pilot • until 31 Oct
                 </Badge>
               </div>
               <CardTitle className="text-xl font-bold text-foreground">Pro Placement Pass</CardTitle>

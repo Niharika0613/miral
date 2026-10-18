@@ -60,7 +60,7 @@ export const getUserPlan = () => {
 export const getDailyAnalysisUsage = () => {
   const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId') || 'guest';
   const today = new Date().toISOString().slice(0, 10);
-  const key = `miral_daily_transcript_analyses_${userId}_${today}`;
+  const key = `vanidarpan_daily_transcript_analyses_${userId}_${today}`;
   
   let count = 0;
   try {

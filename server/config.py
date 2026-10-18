@@ -10,7 +10,7 @@ ENV_FILE = BASE_DIR / ".env"
 
 class Settings(BaseSettings):
     # Database
-    database_url: str = os.environ.get('DATABASE_URL', 'sqlite+aiosqlite:///./miral.db')
+    database_url: str = os.environ.get('DATABASE_URL', 'sqlite+aiosqlite:///./vanidarpan.db')
     
     # OpenAI
     openai_api_key: Optional[str] = os.environ.get('OPENAI_API_KEY', None)
@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     
     # Security
-    session_secret: str = os.environ.get('SECRET_KEY', 'miral-secret-key')
+    session_secret: str = os.environ.get('SECRET_KEY', 'vanidarpan-secret-key')
     
     # CORS
     cors_origins: str = os.environ.get('CORS_ORIGINS', '*')

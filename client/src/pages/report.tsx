@@ -38,7 +38,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getCurrentUser } from '@/utils/auth';
 import type { Session } from '@shared/schema';
-import { VaniDarpanLogo } from '@/components/miral-logo';
+import { VaniDarpanLogo } from '@/components/vanidarpan-logo';
 
 // Safe metric extraction helpers
 const getConfidence = (s: any): number => Math.round(s?.confidenceScore ?? s?.confidence_score ?? 0);
@@ -250,7 +250,7 @@ function SpeechCertificateModal({
   onClose: () => void;
 }) {
   const currentUser = getCurrentUser();
-  const initialName = (currentUser?.name && currentUser.name !== 'Candidate' && currentUser.name !== 'Verified Speaker')
+  const initialName = (currentUser?.name && currentUser.name !== 'Candidate' && currentUser.name !== 'Speaker')
     ? currentUser.name
     : (localStorage.getItem('userName') || '');
 
@@ -424,14 +424,14 @@ function SpeechCertificateModal({
               {/* Reference ID & Date */}
               <div className="space-y-1 text-xs text-muted">
                 <div className="flex items-center gap-2">
-                  <span>Verification ID:</span>
+                  <span>Record ID:</span>
                   <span className="font-semibold text-ink tabular-nums">{certId}</span>
                   <button onClick={handleCopyCertId} className="hover:text-ink print:hidden" title="Copy ID">
                     <Copy className="h-3 w-3" />
                   </button>
                 </div>
                 <div>Issued on: {issueDate}</div>
-                <div>Verified on: vanidarpan.app/verify</div>
+                <div>Verify at: vanidarpan.app/verify</div>
               </div>
 
               {/* Center Brass Seal */}
@@ -439,7 +439,7 @@ function SpeechCertificateModal({
                 <div className="w-16 h-16 rounded-full border-2 border-brass flex flex-col items-center justify-center p-1 text-center bg-paper">
                   <Award className="h-5 w-5 text-brass" />
                   <span className="text-[8px] font-semibold text-brass uppercase leading-none mt-0.5">
-                    Verified
+                    Darpan
                   </span>
                 </div>
                 <span className="text-[10px] text-muted mt-1">Practice seal</span>
@@ -451,8 +451,8 @@ function SpeechCertificateModal({
                   <QrCode className="h-10 w-10 text-ink" />
                 </div>
                 <div className="text-[10px] text-muted space-y-0.5">
-                  <div className="font-medium text-ink">Scan to verify</div>
-                  <div>Direct digital credential</div>
+                  <div className="font-medium text-ink">Scan to view</div>
+                  <div>Direct milestone record</div>
                 </div>
               </div>
 
@@ -569,13 +569,14 @@ export default function Report() {
       const lastCompleted = sessionStorage.getItem('last_completed_session');
       if (lastCompleted) {
         const parsed = JSON.parse(lastCompleted);
-        if (!sessionId || parsed.id === sessionId || sessionId.startsWith('miral-') || sessionId.startsWith('local-')) {
+        if (!sessionId || parsed.id === sessionId || sessionId.startsWith('vd-') || sessionId.startsWith('local-')) {
           return parsed;
         }
       }
       const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
-      const userKey = userId ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
-      const allStored = localStorage.getItem(userKey) || localStorage.getItem('miral_completed_sessions');
+      const userKey = userId ? `vanidarpan_completed_sessions_${userId}` : 'vanidarpan_completed_sessions_guest';
+      const legacyKey = userId ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
+      const allStored = localStorage.getItem(userKey) || localStorage.getItem(legacyKey) || localStorage.getItem('vanidarpan_completed_sessions') || localStorage.getItem('miral_completed_sessions');
       if (allStored) {
         const list = JSON.parse(allStored);
         if (Array.isArray(list) && list.length > 0) {

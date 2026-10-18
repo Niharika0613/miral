@@ -300,7 +300,7 @@ I'm looking to join a fast-moving team where I can take ownership of critical fe
               </Badge>
             </div>
             <CardDescription className="text-xs text-muted-foreground mt-1">
-              Have your own resume intro, project speech, or GD notes prepared? Paste it here to read while MIRAL tracks your eye contact and vocal pace.
+              Have your own resume intro, project speech, or GD notes prepared? Paste it here to read while VaniDarpan tracks your eye contact and vocal pace.
             </CardDescription>
           </CardHeader>
 
@@ -348,7 +348,7 @@ I'm looking to join a fast-moving team where I can take ownership of critical fe
                 </label>
                 <Input
                   id="custom-topic"
-                  placeholder="e.g., My TCS HR Self-Introduction, GD Opening on AI"
+                  placeholder="e.g., Campus placement HR self-introduction, group discussion on AI"
                   value={customTopic}
                   onChange={(e) => setCustomTopic(e.target.value)}
                   className="text-xs h-9"

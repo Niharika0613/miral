@@ -19,7 +19,7 @@ import {
   Globe
 } from 'lucide-react';
 import { setAuth } from '@/utils/auth';
-import { VaniDarpanLogo } from '@/components/miral-logo';
+import { VaniDarpanLogo } from '@/components/vanidarpan-logo';
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 

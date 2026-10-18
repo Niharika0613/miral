@@ -49,7 +49,7 @@ export default function Pricing() {
               <Badge className="bg-primary text-primary-foreground text-xs font-bold">
                 Wave 1 Pilot Active
               </Badge>
-              <span className="text-xs sm:text-sm font-bold text-foreground">100% Free Campus Access</span>
+              <span className="text-xs sm:text-sm font-bold text-foreground">Free campus access during pilot</span>
             </div>
             <p className="text-xs text-muted-foreground">
               All candidate practice tracks, live teleprompters, and AI speech diagnostics are currently unlocked at zero cost for participating college students.
@@ -91,11 +91,11 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>Real-time 3D iris eye gaze & head pose tracking</span>
+                  <span>Real-time eye contact and head posture tracking</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>Real-time WPM pacing gauge & filler word counter</span>
+                  <span>Real-time pace gauge and filler word counter</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
@@ -107,7 +107,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>100% private in-browser WebAssembly (Zero video uploads)</span>
+                  <span>Your video is analysed on your device and is not uploaded</span>
                 </li>
               </ul>
 
@@ -145,7 +145,7 @@ export default function Pricing() {
                   <span className="text-3xl font-bold text-primary">₹0</span>
                   <span className="text-xs line-through text-muted-foreground">₹199/mo</span>
                   <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-600 bg-emerald-500/10 font-bold">
-                    100% Free in Pilot
+                    Free in pilot
                   </Badge>
                 </div>
                 <span className="text-[11px] text-muted-foreground">Standard ₹199/mo or ₹499 Season Pass activates after 31 Oct 2026</span>
@@ -229,7 +229,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-600 shrink-0" />
-                  <span><strong>Zero IT Infrastructure & GPU Costs</strong> (Runs 100% on lab PCs)</span>
+                  <span><strong>Zero cloud infrastructure costs</strong> (Runs on standard lab PCs)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-600 shrink-0" />
@@ -237,7 +237,7 @@ export default function Pricing() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-600 shrink-0" />
-                  <span>NAAC / NIRF Soft-Skills Training Evidence & Compliance Data</span>
+                  <span>Soft-skills training evidence and audit reports</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-600 shrink-0" />
@@ -340,7 +340,7 @@ export default function Pricing() {
                     <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
                   </tr>
                   <tr>
-                    <td className="p-4 font-medium text-foreground">NAAC / NIRF Soft-Skills Compliance Data</td>
+                    <td className="p-4 font-medium text-foreground">Soft-skills training evidence and audit reports</td>
                     <td className="p-4 text-center text-muted-foreground/40">—</td>
                     <td className="p-4 text-center text-muted-foreground/40">—</td>
                     <td className="p-4 text-center text-primary"><Check className="h-4 w-4 mx-auto" /></td>
@@ -355,7 +355,7 @@ export default function Pricing() {
         <div className="p-6 rounded-2xl border border-border/60 bg-muted/20 space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
             <ShieldCheck className="h-4 w-4" />
-            <span>The MIRAL Edge for Universities & Students</span>
+            <span>The VaniDarpan advantage for universities and students</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-muted-foreground leading-relaxed">
             <div className="p-4 rounded-xl bg-card border border-border/40 space-y-1.5">
@@ -363,8 +363,8 @@ export default function Pricing() {
               <p>Vision models run client-side via WebAssembly. We never charge universities expensive per-minute video rendering fees.</p>
             </div>
             <div className="p-4 rounded-xl bg-card border border-border/40 space-y-1.5">
-              <span className="font-bold text-foreground block">100% Student Privacy Compliant</span>
-              <p>Webcam video never leaves the student browser. Zero raw recordings stored on cloud servers.</p>
+              <span className="font-bold text-foreground block">On-device video privacy</span>
+              <p>Your video is analysed on your device and is not uploaded. Zero raw recordings stored on cloud servers.</p>
             </div>
             <div className="p-4 rounded-xl bg-card border border-border/40 space-y-1.5">
               <span className="font-bold text-foreground block">Plug-and-Play Delivery Module</span>

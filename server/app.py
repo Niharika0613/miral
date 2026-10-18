@@ -32,7 +32,7 @@ def create_app() -> FastAPI:
     Create and configure FastAPI application
     """
     app = FastAPI(
-        title="MiralAI API",
+        title="VaniDarpan API",
         description="Confidence Building & Public Speaking Practice Platform",
         version="2.0.0",
         # Serialize responses using field aliases (snake_case -> camelCase)

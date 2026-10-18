@@ -789,8 +789,8 @@ async def get_tpo_stats(db: AsyncSession = Depends(get_db)):
         "avg_eye_contact": 73.6,
         "avg_wpm": 142.4,
         "avg_filler_rate": 1.7,
-        "accreditation_naac": "Criterion 5.1.2 & 5.1.4 Verified",
-        "accreditation_nba": "PO10 Attainment: 82.6%",
+        "accreditation_naac": "Internal Soft-Skills Benchmark",
+        "accreditation_nba": "Attainment: 82.6%",
         "live_candidates_active": max(1, real_sessions_count),
     }
 
@@ -907,7 +907,7 @@ async def get_tpo_students(
                 
                 students_list.append({
                     "id": str(s.id),
-                    "name": "Verified Candidate",
+                    "name": "Candidate",
                     "roll_number": f"22CS{str(s.id)[:4].upper()}",
                     "branch": "CSE",
                     "branch_full": "Computer Science & Engineering",

@@ -12,7 +12,7 @@ Base = declarative_base()
 
 # 1. Prepare SQLite Local Fallback Engine (Anchored to Project Root)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SQLITE_DB_PATH = os.path.join(BASE_DIR, "miral.db").replace("\\", "/")
+SQLITE_DB_PATH = os.path.join(BASE_DIR, "vanidarpan.db").replace("\\", "/")
 SQLITE_URL = f"sqlite+aiosqlite:///{SQLITE_DB_PATH}"
 sqlite_engine = create_async_engine(
     SQLITE_URL,

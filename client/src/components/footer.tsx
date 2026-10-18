@@ -1,6 +1,6 @@
 // client/src/components/footer.tsx
 import { Link } from "wouter";
-import { VaniDarpanLogo } from "@/components/miral-logo";
+import { VaniDarpanLogo } from "@/components/vanidarpan-logo";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();

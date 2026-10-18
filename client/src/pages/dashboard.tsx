@@ -186,7 +186,7 @@ export default function Dashboard() {
                 Master Public Speaking & Communication Delivery
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                Objective real-time 3D eye gaze tracking, posture alignment, vocal pacing calibration, and bilingual hesitation control — 100% private in your browser.
+                Objective real-time eye contact tracking, posture alignment, vocal pacing calibration, and filler word control — your video is analysed on your device and is not uploaded.
               </p>
             </div>
 
@@ -235,8 +235,8 @@ export default function Dashboard() {
               <p className="text-[11px] text-muted-foreground">Practice your speech or notes</p>
             </div>
             <div className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-0.5 text-xs">
-              <span className="font-bold text-foreground block">100% Client Privacy</span>
-              <p className="text-[11px] text-muted-foreground">Zero video uploads or cloud storage</p>
+              <span className="font-bold text-foreground block">On-device privacy</span>
+              <p className="text-[11px] text-muted-foreground">Your video is analysed on your device and is not uploaded</p>
             </div>
           </div>
         </div>

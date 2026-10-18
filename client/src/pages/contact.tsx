@@ -86,10 +86,10 @@ export default function Contact() {
             <span>Campus Pilots & Support</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-            Contact MIRAL AI
+            Contact VaniDarpan
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Planning a campus placement pilot, need technical support, or want to integrate MIRAL into your university or career bootcamp? We are here to help.
+            Planning a campus placement pilot, need technical support, or want to integrate VaniDarpan into your university or career bootcamp? We are here to help.
           </p>
         </div>
 
@@ -165,7 +165,7 @@ export default function Contact() {
                     </div>
                     <h3 className="text-base font-bold text-foreground">Message Sent Successfully</h3>
                     <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                      Thank you for contacting MIRAL AI. We have received your request and will be in touch shortly.
+                      Thank you for contacting VaniDarpan. We have received your request and will be in touch shortly.
                     </p>
                     <Button 
                       variant="outline" 

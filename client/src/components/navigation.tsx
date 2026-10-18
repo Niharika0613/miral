@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState } from "react";
 import { logout, getCurrentUser } from "@/utils/auth";
-import { VaniDarpanLogo } from "@/components/miral-logo";
+import { VaniDarpanLogo } from "@/components/vanidarpan-logo";
 
 export function Navigation() {
   const [location] = useLocation();

@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { VaniDarpanLogo } from '@/components/miral-logo';
+import { VaniDarpanLogo } from '@/components/vanidarpan-logo';
 
 interface TpoStats {
   college_name: string;

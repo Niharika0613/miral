@@ -59,7 +59,7 @@ export default function Contact() {
         setIsSubmitted(true);
         toast({
           title: "Inquiry Sent Successfully",
-          description: "Your message has been delivered to contact@vanidarpan.app. We will reply within 24 hours.",
+          description: "Your message has been delivered to supportmiralai@gmail.com. We will reply within 24 hours.",
         });
       } else {
         throw new Error("Failed to send email");
@@ -68,7 +68,7 @@ export default function Contact() {
       setIsSubmitted(true);
       toast({
         title: "Inquiry Received",
-        description: "Your inquiry has been recorded. You can also write directly to contact@vanidarpan.app.",
+        description: "Your inquiry has been recorded. You can also write directly to supportmiralai@gmail.com.",
       });
     } finally {
       setIsSubmitting(false);
@@ -86,10 +86,10 @@ export default function Contact() {
             <span>Campus Pilots & Support</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-            Contact VaniDarpan
+            Contact MIRAL AI
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Planning a campus placement pilot, need technical support, or want to integrate VaniDarpan into your university or career bootcamp? We are here to help.
+            Planning a campus placement pilot, need technical support, or want to integrate MIRAL into your university or career bootcamp? We are here to help.
           </p>
         </div>
 
@@ -109,7 +109,7 @@ export default function Contact() {
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground space-y-1">
                 <p>Deploy structured mock rounds and aggregate readiness analytics across student batches.</p>
-                <p className="font-mono text-primary font-semibold pt-1">contact@vanidarpan.app</p>
+                <p className="font-mono text-primary font-semibold pt-1">supportmiralai@gmail.com</p>
               </CardContent>
             </Card>
 
@@ -125,7 +125,7 @@ export default function Contact() {
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground space-y-1">
                 <p>Questions regarding camera permissions, speech analytics, or feature feedback.</p>
-                <p className="font-mono text-primary font-semibold pt-1">contact@vanidarpan.app</p>
+                <p className="font-mono text-primary font-semibold pt-1">supportmiralai@gmail.com</p>
               </CardContent>
             </Card>
 
@@ -141,7 +141,7 @@ export default function Contact() {
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground space-y-1">
                 <p>Inquiries regarding client-side data ethics, account deletion, or DPDP compliance.</p>
-                <p className="font-mono text-primary font-semibold pt-1">contact@vanidarpan.app</p>
+                <p className="font-mono text-primary font-semibold pt-1">supportmiralai@gmail.com</p>
               </CardContent>
             </Card>
           </div>
@@ -165,7 +165,7 @@ export default function Contact() {
                     </div>
                     <h3 className="text-base font-bold text-foreground">Message Sent Successfully</h3>
                     <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                      Thank you for contacting VaniDarpan. We have received your request and will be in touch shortly.
+                      Thank you for contacting MIRAL AI. We have received your request and will be in touch shortly.
                     </p>
                     <Button 
                       variant="outline" 
@@ -271,7 +271,7 @@ export default function Contact() {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          <span>Sending inquiry...</span>
+                          <span>Sending to supportmiralai@gmail.com...</span>
                         </>
                       ) : (
                         <>

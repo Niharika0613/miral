@@ -33,7 +33,7 @@ export default function Terms() {
             </CardHeader>
             <CardContent className="space-y-3 text-xs text-muted-foreground leading-relaxed">
               <p>
-                By accessing or using VaniDarpan ("the Platform"), you agree to be bound by these Terms of Service. If you are participating as part of an institutional university pilot or placement cell program, your usage is also governed by your institution's academic conduct charter.
+                By accessing or using MIRAL ("the Platform"), you agree to be bound by these Terms of Service. If you are participating as part of an institutional university pilot or placement cell program, your usage is also governed by your institution's academic conduct charter.
               </p>
             </CardContent>
           </Card>
@@ -46,10 +46,10 @@ export default function Terms() {
             </CardHeader>
             <CardContent className="space-y-3 text-xs text-muted-foreground leading-relaxed">
               <p>
-                VaniDarpan is designed as an educational, non-judgmental speech and non-verbal confidence coaching mirror. The diagnostic metrics (including composite confidence index, visual focus percentage, posture stability score, and words-per-minute pacing) represent automated algorithmic estimations intended for self-improvement and mock practice.
+                MIRAL is designed as an educational, non-judgmental speech and non-verbal confidence coaching mirror. The diagnostic metrics (including composite confidence index, visual focus percentage, posture stability score, and words-per-minute pacing) represent automated algorithmic estimations intended for self-improvement and mock practice.
               </p>
               <p>
-                While VaniDarpan metrics significantly correlate with human interview performance, the platform does not guarantee specific job offers or formal academic grades.
+                While MIRAL metrics significantly correlate with human interview performance, the platform does not guarantee specific job offers or formal academic grades.
               </p>
             </CardContent>
           </Card>
@@ -75,7 +75,7 @@ export default function Terms() {
             </CardHeader>
             <CardContent className="space-y-3 text-xs text-muted-foreground leading-relaxed">
               <p>
-                Candidates retain full ownership of their original speech transcripts, interview responses, and exported diagnostic reports. VaniDarpan and its technology partners retain all rights, titles, and interests in the underlying multimodal computer vision algorithms, user interface, and diagnostic engines.
+                Candidates retain full ownership of their original speech transcripts, interview responses, and exported diagnostic reports. MIRAL and its technology partners retain all rights, titles, and interests in the underlying multimodal computer vision algorithms, user interface, and diagnostic engines.
               </p>
             </CardContent>
           </Card>
@@ -88,7 +88,7 @@ export default function Terms() {
             </CardHeader>
             <CardContent className="space-y-3 text-xs text-muted-foreground leading-relaxed">
               <p>
-                Universities and placement cells participating in campus pilots may request institutional dashboard access to aggregate student cohort performance. For enterprise and university inquiries, contact <span className="font-mono text-primary font-semibold">contact@vanidarpan.app</span>.
+                Universities and placement cells participating in campus pilots may request institutional dashboard access to aggregate student cohort performance. For enterprise and university inquiries, contact <span className="font-mono text-primary font-semibold">supportmiralai@gmail.com</span>.
               </p>
             </CardContent>
           </Card>

@@ -76,7 +76,7 @@ export default function Profile() {
     const apiList = Array.isArray(apiSessions) ? apiSessions : [];
     let localList: any[] = [];
     try {
-      const userKey = userId && userId !== 'guest-user' ? `vanidarpan_completed_sessions_${userId}` : 'vanidarpan_completed_sessions_guest';
+      const userKey = userId && userId !== 'guest-user' ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
       const stored = localStorage.getItem(userKey);
       localList = stored ? JSON.parse(stored) : [];
       if (!Array.isArray(localList)) localList = [];
@@ -152,7 +152,7 @@ export default function Profile() {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `vanidarpan-profile-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `miral-profile-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
   };
 
@@ -314,7 +314,7 @@ export default function Profile() {
           </Card>
 
           <Card className="border border-border/60 bg-card shadow-xs p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+            <div className="h-10 w-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-600">
               <Sparkles className="h-5 w-5" />
             </div>
             <div>

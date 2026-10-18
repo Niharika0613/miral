@@ -415,7 +415,7 @@ export default function Practice() {
       sessionStartTimeRef.current = startTime;
       isRecordingRef.current = true;
 
-      const newSessionId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `vd-${Date.now()}`;
+      const newSessionId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `miral-${Date.now()}`;
       sessionIdRef.current = newSessionId;
       setSessionId(newSessionId);
 
@@ -467,7 +467,7 @@ export default function Practice() {
   };
 
   const handleStop = async () => {
-    const targetSessionId = sessionIdRef.current || sessionId || `vd-${Date.now()}`;
+    const targetSessionId = sessionIdRef.current || sessionId || `miral-${Date.now()}`;
     setIsSaving(true);
     try {
       isRecordingRef.current = false;
@@ -620,7 +620,7 @@ export default function Practice() {
       sessionStorage.setItem('last_completed_session', JSON.stringify(localBackup));
 
       try {
-        const userStorageKey = userId ? `vanidarpan_completed_sessions_${userId}` : 'vanidarpan_completed_sessions_guest';
+        const userStorageKey = userId ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
         const storedStr = localStorage.getItem(userStorageKey);
         const existingList = storedStr ? JSON.parse(storedStr) : [];
         const filtered = Array.isArray(existingList) ? existingList.filter((s: any) => s && s.id !== targetSessionId) : [];
@@ -1160,7 +1160,7 @@ export default function Practice() {
           <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200 flex items-center gap-2.5 text-xs">
             <AlertCircle className="h-4 w-4 shrink-0 text-amber-600" />
             <span>
-              Your browser does not natively support continuous speech recognition. For optimal real-time transcription and pace metrics, we recommend opening VaniDarpan in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, or <strong>Safari</strong>.
+              Your browser does not natively support continuous speech recognition. For optimal real-time transcription and WPM pacing metrics, we recommend opening MIRAL in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, or <strong>Safari</strong>.
             </span>
           </div>
         )}

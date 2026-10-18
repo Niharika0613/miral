@@ -97,8 +97,8 @@ export function AudioStreamDemo() {
           <p className="text-xs text-gray-600">Duration</p>
           <p className="text-2xl font-bold">{metrics.duration}s</p>
         </div>
-        <div className="p-4 bg-muted/30 border border-hairline rounded">
-          <p className="text-xs text-muted">Frequency</p>
+        <div className="p-4 bg-purple-50 rounded">
+          <p className="text-xs text-gray-600">Frequency</p>
           <p className="text-2xl font-bold">{metrics.frequency} Hz</p>
         </div>
       </div>

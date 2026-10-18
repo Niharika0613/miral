@@ -1,4 +1,4 @@
-// client/src/pages/faq.tsx
+﻿// client/src/pages/faq.tsx
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, HelpCircle, ShieldCheck, Video, Zap, MessageSquare } from 'lucide-react';
@@ -14,32 +14,32 @@ const FAQS: FAQItem[] = [
   {
     category: 'privacy',
     question: 'Is my webcam video recorded or stored?',
-    answer: 'No. Your video is analysed on your device and is not uploaded. All computer vision runs locally in your browser using WebAssembly. Camera frames never leave your computer or phone.'
+    answer: 'No. All computer vision runs locally in your browser using Google MediaPipe and WebAssembly. Your raw camera stream is never uploaded or saved to any external server.'
   },
   {
     category: 'metrics',
     question: 'How is my eye contact score calculated?',
-    answer: 'VaniDarpan extracts 478 facial landmarks to compute iris ratios relative to eye corners. Looking directly into the camera registers as direct eye contact. Glancing away registers as looking away.'
+    answer: 'MIRAL extracts 478 3D facial landmarks to compute iris ratios relative to your eye corners. Looking directly into the camera registers as direct contact. Glancing away immediately lowers your score.'
   },
   {
     category: 'metrics',
     question: 'What is the ideal speaking pace for interviews?',
-    answer: 'The recommended conversational band for campus placements and interviews is 130–150 WPM. Speaking faster than 160 WPM sounds rushed, while speaking below 120 WPM can signal hesitation.'
+    answer: 'The optimal band for campus placements and GDs is 130–155 WPM. Faster than 165 WPM makes arguments hard to follow; slower than 110 WPM can signal hesitation.'
   },
   {
     category: 'placement',
-    question: 'How does VaniDarpan detect filler words like "um" and "matlab"?',
-    answer: 'VaniDarpan uses real-time on-device speech-to-text matching to catch common fillers including "um", "uh", "like", "basically", "matlab", "yaani", and "actually".'
+    question: 'How does MIRAL detect filler words like "um" and "matlab"?',
+    answer: 'MIRAL uses real-time speech-to-text token matching to catch English and bilingual fillers including "um", "uh", "like", "basically", "matlab", "yaani", and "and all".'
   },
   {
     category: 'placement',
-    question: 'Does VaniDarpan work on smartphones and tablets?',
-    answer: 'Yes. VaniDarpan is fully responsive and works across modern browsers on phones, tablets, and laptops.'
+    question: 'Does MIRAL work on smartphones and tablets?',
+    answer: 'Yes. MIRAL is fully responsive and works on Chrome, Edge, and Safari across iOS, Android, tablets, and desktops.'
   },
   {
     category: 'placement',
-    question: 'How can my college placement cell set up a campus pilot?',
-    answer: 'Submit a pilot request through our Contact page. We provide college overview dashboards to track batch-wide communication readiness.'
+    question: 'How can my college TPO set up a campus pilot?',
+    answer: 'Submit a pilot inquiry through our Contact page or email supportmiralai@gmail.com. We provide institutional cohort dashboards to track batch-wide communication improvement.'
   }
 ];
 
@@ -72,7 +72,7 @@ export default function FAQ() {
             Frequently Asked Questions
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Quick answers about VaniDarpan metrics, privacy, and campus placement practice.
+            Quick answers about MIRAL metrics, privacy, and campus placement practice.
           </p>
         </div>
 
@@ -112,7 +112,7 @@ export default function FAQ() {
           <div className="space-y-0.5 text-center sm:text-left">
             <p className="text-sm font-bold text-foreground">Still have questions?</p>
             <p className="text-xs text-muted-foreground">
-              Reach us at <span className="text-primary font-semibold font-mono">contact@vanidarpan.app</span>
+              Reach us at <span className="text-primary font-semibold font-mono">supportmiralai@gmail.com</span>
             </p>
           </div>
           <Link href="/contact" className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shrink-0">

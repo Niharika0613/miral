@@ -1,15 +1,16 @@
 // client/src/components/navigation.tsx
 import { Link, useLocation } from "wouter";
-import { User, LogOut, Menu, X } from "lucide-react";
+import { Video, LayoutDashboard, User, LogOut, LogIn, Sparkles, Compass, Menu, X, ShieldCheck, HelpCircle, Mail, Tag, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState } from "react";
-import { logout, getCurrentUser } from "@/utils/auth";
-import { VaniDarpanLogo } from "@/components/vanidarpan-logo";
+import { logout, getCurrentUser, getUserPlan } from "@/utils/auth";
+import { MiralLogo } from "@/components/miral-logo";
 
 export function Navigation() {
   const [location] = useLocation();
-  const [user, setUser] = useState<{ id: string; name: string; plan?: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; name: string } | null>(null);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -17,150 +18,128 @@ export function Navigation() {
     setIsMobileOpen(false); // Close mobile drawer on route change
   }, [location]);
 
-  // Student bar strictly per DESIGN.md:
-  // "Student bar: logo | Practice, Scenarios, Progress, Learn, Plans | account menu.
-  // FAQ, Contact, Privacy, Terms and 'For colleges' live in the footer.
-  // 'TPO Portal' is not in the student bar."
   const navItems = [
-    { path: "/practice", label: "Practice" },
-    { path: "/scenarios", label: "Scenarios" },
-    { path: "/dashboard", label: "Progress" },
-    { path: "/learning", label: "Learn" },
-    { path: "/pricing", label: "Plans" },
+    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/tpo", label: "TPO Portal", icon: Building2 },
+    { path: "/practice", label: "Practice", icon: Video },
+    { path: "/scenarios", label: "Scenarios", icon: Compass },
+    { path: "/pricing", label: "Plans", icon: Tag },
+    { path: "/learning", label: "Learn", icon: Sparkles },
+    { path: "/faq", label: "FAQ", icon: HelpCircle },
+    { path: "/contact", label: "Contact", icon: Mail },
   ];
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/";
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-hairline bg-paper">
-      <div className="max-w-[1200px] mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur-sm">
+      <div className="container max-w-7xl mx-auto flex h-14 items-center justify-between px-4 sm:px-6">
         
-        {/* Brand & Student Navigation */}
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center shrink-0">
-            <VaniDarpanLogo height={34} />
+        {/* Brand & Nav */}
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center">
+            <MiralLogo width={132} height={34} />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1" aria-label="Student Navigation">
+          <nav className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => {
+              const Icon = item.icon;
               const isActive = location === item.path;
               return (
                 <Link key={item.path} href={item.path}>
-                  <span
-                    className={`inline-flex items-center text-sm font-medium px-3 py-1.5 rounded-[6px] transition-colors cursor-pointer ${
-                      isActive
-                        ? "text-darpan-blue bg-darpan-blue-tint font-semibold"
-                        : "text-text hover:text-ink hover:bg-surface"
-                    }`}
+                  <Button
+                    variant={isActive ? "secondary" : "ghost"}
+                    size="sm"
+                    className={`gap-1.5 text-xs font-medium h-8 ${isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                   >
-                    {item.label}
-                  </span>
+                    <Icon className="h-3.5 w-3.5" />
+                    <span>{item.label}</span>
+                  </Button>
                 </Link>
               );
             })}
           </nav>
         </div>
 
-        {/* Right Actions: Account Menu / Primary Sign in button */}
-        <div className="flex items-center gap-3">
+        {/* Right Actions: User / Sign In + Theme Toggle + Mobile Menu Button */}
+        <div className="flex items-center gap-2 sm:gap-3">
           {user ? (
             <div className="flex items-center gap-2">
               <Link href="/profile">
-                <span className="inline-flex items-center gap-2 text-sm font-medium text-text hover:text-ink px-2.5 py-1.5 rounded-[6px] hover:bg-surface transition-colors cursor-pointer">
-                  <User className="h-4 w-4 text-darpan-blue" />
-                  <span className="max-w-[130px] truncate">{user.name || "Student"}</span>
-                  {user.plan === "pro" && (
-                    <span className="text-[11px] font-semibold text-brass bg-[#FBF5EC] border border-[#E8D4B4] px-1.5 py-0.5 rounded-[4px]">
-                      Pro
-                    </span>
-                  )}
-                </span>
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 text-foreground font-medium">
+                  <User className="h-3.5 w-3.5 text-primary" />
+                  <span className="hidden sm:inline">{user.name}</span>
+                  <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/25 py-0.5 px-2 hidden md:inline-flex">
+                    Pro Pilot • Free until Oct 31
+                  </Badge>
+                </Button>
               </Link>
-
-              <button
-                type="button"
+              <Button 
+                variant="ghost" 
+                size="sm" 
                 onClick={handleLogout}
-                className="inline-flex items-center justify-center h-9 w-9 rounded-[6px] text-muted hover:text-risk hover:bg-surface transition-colors"
-                title="Sign out"
-                aria-label="Sign out"
+                className="h-8 px-2 text-muted-foreground hover:text-destructive"
+                title="Sign Out"
               >
-                <LogOut className="h-4 w-4" />
-              </button>
+                <LogOut className="h-3.5 w-3.5" />
+              </Button>
             </div>
           ) : (
             <Link href="/login">
-              <Button
-                size="sm"
-                className="bg-darpan-blue hover:bg-darpan-blue-hover text-white text-sm font-medium h-10 px-4 rounded-[6px] shadow-none transition-colors"
-              >
-                Sign in
+              <Button size="sm" variant="default" className="text-xs h-8 font-semibold gap-1.5">
+                <LogIn className="h-3.5 w-3.5" />
+                <span>Sign In</span>
               </Button>
             </Link>
           )}
 
           <ThemeToggle />
 
-          {/* Mobile Menu Toggle Button */}
-          <button
-            type="button"
-            className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-[6px] border border-hairline text-ink hover:bg-surface transition-colors"
+          {/* Mobile Menu Hamburger */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden h-8 w-8 p-0"
             onClick={() => setIsMobileOpen(!isMobileOpen)}
             aria-label="Toggle Navigation Menu"
           >
-            {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+            {isMobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </Button>
         </div>
 
       </div>
 
-      {/* Mobile Drawer (visible on screens < md) */}
+      {/* Mobile Drawer (Visible on screens < lg) */}
       {isMobileOpen && (
-        <div className="md:hidden border-b border-hairline bg-paper px-4 py-3 space-y-1">
-          <nav className="flex flex-col space-y-1" aria-label="Mobile Student Navigation">
+        <div className="lg:hidden border-b border-border/60 bg-card p-4 space-y-2 animate-in slide-in-from-top-2 duration-150 shadow-md">
+          <div className="grid grid-cols-2 gap-2 text-xs">
             {navItems.map((item) => {
+              const Icon = item.icon;
               const isActive = location === item.path;
               return (
                 <Link key={item.path} href={item.path}>
                   <div
                     onClick={() => setIsMobileOpen(false)}
-                    className={`px-3 py-2.5 rounded-[6px] text-sm font-medium transition-colors ${
-                      isActive
-                        ? "text-darpan-blue bg-darpan-blue-tint font-semibold"
-                        : "text-text hover:text-ink hover:bg-surface"
+                    className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all ${
+                      isActive 
+                        ? 'bg-primary/10 border-primary/30 text-primary font-semibold' 
+                        : 'bg-muted/30 border-border/40 text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    {item.label}
+                    <Icon className="h-4 w-4" />
+                    <span>{item.label}</span>
                   </div>
                 </Link>
               );
             })}
-          </nav>
+          </div>
 
-          <div className="pt-3 border-t border-hairline flex flex-col gap-2">
-            {!user && (
-              <Link href="/login">
-                <Button
-                  onClick={() => setIsMobileOpen(false)}
-                  className="w-full bg-darpan-blue hover:bg-darpan-blue-hover text-white text-sm font-medium h-10 rounded-[6px] shadow-none"
-                >
-                  Sign in
-                </Button>
-              </Link>
-            )}
-            <div className="flex items-center justify-between text-xs text-muted pt-1 px-1">
-              <Link href="/tpo" onClick={() => setIsMobileOpen(false)} className="hover:text-ink">
-                For colleges
-              </Link>
-              <Link href="/faq" onClick={() => setIsMobileOpen(false)} className="hover:text-ink">
-                FAQ
-              </Link>
-              <Link href="/contact" onClick={() => setIsMobileOpen(false)} className="hover:text-ink">
-                Contact
-              </Link>
-            </div>
+          <div className="pt-2 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground">
+            <Link href="/privacy" onClick={() => setIsMobileOpen(false)} className="hover:underline">Privacy Policy</Link>
+            <Link href="/terms" onClick={() => setIsMobileOpen(false)} className="hover:underline">Terms of Service</Link>
+            <Link href="/contact" onClick={() => setIsMobileOpen(false)} className="hover:underline">Campus Pilot</Link>
           </div>
         </div>
       )}

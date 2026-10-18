@@ -273,12 +273,12 @@ I'm looking to join a fast-moving team where I can take ownership of critical fe
 
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2.5">
-          <div className="inline-flex items-center gap-2 text-xs font-medium text-primary px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>Practice modes and scenarios</span>
+            <span>Practice Modes & Scenarios</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-[-0.01em] text-foreground">
-            Choose what you want to practice
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-foreground">
+            Choose What You Want to Practice
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
             Paste your own prepared script to practice with our live teleprompter, or select a standard placement scenario below.
@@ -286,21 +286,21 @@ I'm looking to join a fast-moving team where I can take ownership of critical fe
         </div>
 
         {/* 1. Custom Speech / Script Notepad Card (Prominent & Top) */}
-        <Card className="border border-border/60 shadow-xs bg-card overflow-hidden">
-          <CardHeader className="bg-primary/5 border-b border-hairline pb-3">
+        <Card className="border-2 border-primary/30 shadow-md bg-card overflow-hidden">
+          <CardHeader className="bg-primary/5 border-b border-primary/20 pb-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-primary" />
-                <CardTitle className="text-sm md:text-base font-semibold text-foreground">
-                  Practice your own prepared speech or script
+                <CardTitle className="text-sm md:text-base font-bold text-foreground">
+                  Practice Your Own Prepared Speech / Script
                 </CardTitle>
               </div>
-              <Badge variant="outline" className="text-[11px] border-primary/30 text-primary w-fit font-normal">
-                Live teleprompter and eye contact audit
+              <Badge variant="outline" className="text-[10px] border-primary/40 text-primary w-fit">
+                Live Teleprompter + Eye Gaze Audit
               </Badge>
             </div>
             <CardDescription className="text-xs text-muted-foreground mt-1">
-              Have your own resume intro, project speech, or GD notes prepared? Paste it here to read while VaniDarpan tracks your eye contact and vocal pace.
+              Have your own resume intro, project speech, or GD notes prepared? Paste it here to read while MIRAL tracks your eye contact and vocal pace.
             </CardDescription>
           </CardHeader>
 
@@ -348,7 +348,7 @@ I'm looking to join a fast-moving team where I can take ownership of critical fe
                 </label>
                 <Input
                   id="custom-topic"
-                  placeholder="e.g., Campus placement HR self-introduction, group discussion on AI"
+                  placeholder="e.g., My TCS HR Self-Introduction, GD Opening on AI"
                   value={customTopic}
                   onChange={(e) => setCustomTopic(e.target.value)}
                   className="text-xs h-9"
@@ -372,10 +372,11 @@ I'm looking to join a fast-moving team where I can take ownership of critical fe
             <div className="flex justify-end pt-1">
               <Button
                 onClick={handleLaunchCustom}
-                className="text-xs font-semibold h-10 px-5 gap-2 w-full sm:w-auto bg-primary text-white hover:bg-primary/90"
+                className="text-xs font-semibold h-9 px-5 gap-2 w-full sm:w-auto"
               >
                 <Play className="h-3.5 w-3.5" />
-                <span>Start practice with script</span>
+                <span>Launch Teleprompter & Camera Practice</span>
+                <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Button>
             </div>
           </CardContent>
@@ -384,10 +385,10 @@ I'm looking to join a fast-moving team where I can take ownership of critical fe
         {/* 2. Standard Curated Practice Scenarios (Simplified & Clean) */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-foreground">
-              Or choose a curated placement track
+            <h2 className="text-base font-bold text-foreground">
+              Or Choose a Curated Placement Track
             </h2>
-            <span className="text-xs text-muted-foreground">Select any question below</span>
+            <span className="text-xs text-muted-foreground">1-Click Launch</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -397,16 +398,16 @@ I'm looking to join a fast-moving team where I can take ownership of critical fe
                 <Card 
                   key={scenario.id} 
                   id={scenario.id}
-                  className="border border-hairline shadow-xs bg-card hover:border-primary/40 transition-all flex flex-col justify-between scroll-mt-24"
+                  className="border border-border/60 shadow-xs bg-card hover:border-primary/40 transition-all flex flex-col justify-between scroll-mt-24"
                 >
-                  <CardHeader className="pb-3 border-b border-hairline">
+                  <CardHeader className="pb-3 border-b border-border/30">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                        <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
                           <Icon className="h-4 w-4" />
                         </div>
                         <div>
-                          <CardTitle className="text-sm font-semibold text-foreground">
+                          <CardTitle className="text-sm font-bold text-foreground">
                             {scenario.title}
                           </CardTitle>
                           <span className="text-[11px] text-muted-foreground">
@@ -421,8 +422,8 @@ I'm looking to join a fast-moving team where I can take ownership of critical fe
                   </CardHeader>
 
                   <CardContent className="p-4 space-y-2 flex-1">
-                    <span className="text-xs font-medium text-muted-foreground block mb-1">
-                      Select a question to practice:
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                      Select Question to Practice:
                     </span>
                     {scenario.questions.map((q) => (
                       <button

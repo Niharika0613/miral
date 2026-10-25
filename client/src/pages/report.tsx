@@ -212,7 +212,7 @@ function AICoachSection({ session, transcriptAnalysis: externalAnalysis }: AICoa
           { label: "3. Validated Traction", detail: "Provide measurable proof: early pilot signups, retention rates, or cost-savings metrics." },
           { label: "4. Definite Ask", detail: "Close with an explicit call-to-action: capital round, enterprise pilot access, or partnership." },
         ],
-        goldenPhrase: `"Today, 10M+ Indian engineering graduates struggle with corporate communication, creating a 70% interview dropout rate. We built MIRAL—an AI multi-modal coach already piloting across top campuses."`,
+        goldenPhrase: `"Today, 10M+ Indian engineering graduates struggle with corporate communication, creating a 70% interview dropout rate. We built VaniDarpan—an AI multi-modal coach already piloting across top campuses."`,
         executiveTip: "Never end a pitch with 'that's all, thank you'. Conclude with a strong forward-looking vision and definitive call to action."
       };
     } else {
@@ -1035,7 +1035,7 @@ function RecommendedLearningSection({ session }: { session: Session }) {
       list.push({
         title: "Executive Speech & Stage Presence Framework",
         reason: "A structured curriculum on commanding audience attention, structuring arguments with the Rule of Three, and eliminating hesitation.",
-        source: "Miral Communication Lab",
+        source: "VaniDarpan Communication Lab",
         duration: "4.5 Hours • Framework",
         url: "/learning",
         type: "Masterclass",
@@ -1077,7 +1077,7 @@ function RecommendedLearningSection({ session }: { session: Session }) {
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20">
-              Pro Hub • Free Campus Pilot (Until Oct 31)
+              Pro Hub • Extended Campus Pilot Access
             </Badge>
             <Link href="/learning">
               <Button variant="ghost" size="sm" className="text-xs text-primary gap-1 h-7 px-2">
@@ -1173,7 +1173,7 @@ function SpeechCertificateModal({
 
   const certId = useMemo(() => {
     const rawId = (session.id || 'PILOT').replace(/[^a-zA-Z0-9]/g, '').slice(0, 8).toUpperCase();
-    return `MIRAL-CERT-2026-${rawId || '7X92B'}`;
+    return `VANIDARPAN-CERT-2026-${rawId || '7X92B'}`;
   }, [session.id]);
 
   const issueDate = useMemo(() => {
@@ -1245,7 +1245,7 @@ function SpeechCertificateModal({
         </div>
 
         {/* The Printable Certificate Container */}
-        <div id="miral-official-certificate" className="p-6 sm:p-10 bg-white text-slate-900 relative print:p-8">
+        <div id="vanidarpan-official-certificate" className="p-6 sm:p-10 bg-white text-slate-900 relative print:p-8">
           
           {/* Certificate Classic Border Styling */}
           <div className="border-[6px] border-double border-indigo-950 rounded-xl p-6 sm:p-8 relative bg-radial-pattern">
@@ -1260,7 +1260,7 @@ function SpeechCertificateModal({
             <div className="text-center space-y-2 pb-4 border-b border-indigo-100">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-900 text-[10px] font-bold tracking-widest uppercase">
                 <Shield className="h-3.5 w-3.5 text-indigo-700 fill-indigo-100" />
-                MIRAL SPEECH & VISION STUDIO
+                VANIDARPAN SPEECH & VISION STUDIO
               </div>
               <h1 className="text-2xl sm:text-3xl font-serif font-bold text-indigo-950 tracking-tight">
                 Certificate of Speaking Practice
@@ -1363,7 +1363,7 @@ function SpeechCertificateModal({
               <div className="h-16 w-16 rounded-full border-2 border-indigo-500 bg-indigo-50 flex flex-col items-center justify-center p-1 shadow-xs text-center">
                 <Award className="h-6 w-6 text-indigo-700" />
                 <span className="text-[7px] uppercase font-bold tracking-tighter text-indigo-950 leading-none mt-0.5">
-                  MIRAL AI
+                  VaniDarpan
                 </span>
                 <span className="text-[6px] text-indigo-700 uppercase leading-none font-semibold">MILESTONE</span>
               </div>
@@ -1372,7 +1372,7 @@ function SpeechCertificateModal({
               <div className="text-center sm:text-right space-y-1">
                 <div className="flex items-center justify-center sm:justify-end gap-1.5 text-xs font-bold text-indigo-950 border-b border-slate-300 pb-1 px-2">
                   <Shield className="h-3.5 w-3.5 text-indigo-700" />
-                  <span>MIRAL Speech & Vision Analytics</span>
+                  <span>VaniDarpan Speech & Vision Analytics</span>
                 </div>
                 <p className="text-[10px] font-semibold text-slate-700 block">Automated Camera & Cadence Feedback</p>
                 <p className="text-[9px] text-slate-500 block">Evaluated via Computer Vision & Audio Analysis</p>
@@ -1392,7 +1392,7 @@ function SpeechCertificateModal({
 
         {/* Modal Footer Controls (Hidden during Print) */}
         <div className="p-4 bg-muted/30 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground print:hidden">
-          <span>This certificate represents individual practice progress in the MIRAL AI studio.</span>
+          <span>This certificate represents individual practice progress in the VaniDarpan studio.</span>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={onClose} className="h-8 text-xs font-semibold">
               Close
@@ -1435,7 +1435,7 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
       if (onFeedbackSubmitted) onFeedbackSubmitted();
       toast({
         title: "Feedback Recorded",
-        description: "Thank you for helping us improve MIRAL for your communication goals!",
+        description: "Thank you for helping us improve VaniDarpan for your communication goals!",
       });
     } catch {
       setIsSubmitted(true);
@@ -1451,7 +1451,7 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
         <CardContent className="p-4 flex items-center justify-between gap-3 text-xs text-foreground">
           <div className="flex items-center gap-3">
             <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-            <span>Feedback submitted successfully. Thank you for helping us improve MIRAL!</span>
+            <span>Feedback submitted successfully. Thank you for helping us improve VaniDarpan!</span>
           </div>
           <span className="font-semibold text-primary">Keep practicing and refining your skills.</span>
         </CardContent>
@@ -1576,7 +1576,7 @@ export default function Report() {
       setShowFeedbackSuccessModal(true);
       toast({
         title: "Feedback Recorded",
-        description: "Thank you for helping us improve MIRAL!",
+        description: "Thank you for helping us improve VaniDarpan!",
       });
     } catch {
       localStorage.setItem('miral_has_seen_feedback_popup', 'true');
@@ -2062,7 +2062,7 @@ export default function Report() {
                 Thank You for Your Valuable Feedback!
               </CardTitle>
               <CardDescription className="text-xs text-muted-foreground leading-relaxed pt-1">
-                We truly appreciate your insights. Our engineering team will review your notes to make MIRAL even more responsive for your communication practice.
+                We truly appreciate your insights. Our engineering team will review your notes to make VaniDarpan even more responsive for your communication practice.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 pt-2 text-center space-y-4">

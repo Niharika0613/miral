@@ -152,7 +152,7 @@ export default function Profile() {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `miral-profile-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `vanidarpan-profile-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
   };
 

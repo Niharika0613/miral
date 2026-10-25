@@ -1,7 +1,7 @@
 // client/src/components/footer.tsx
 import { Link } from "wouter";
-import { ShieldCheck, Lock, Activity, ArrowRight, Heart } from "lucide-react";
-import { MiralLogo } from "@/components/miral-logo";
+import { ShieldCheck, Lock } from "lucide-react";
+import { VaniDarpanLogo } from "@/components/miral-logo";
 
 export function Footer() {
   return (
@@ -14,7 +14,7 @@ export function Footer() {
           {/* Brand & Mission */}
           <div className="col-span-2 space-y-3">
             <div className="flex items-center">
-              <MiralLogo width={120} height={31} />
+              <VaniDarpanLogo width={140} height={32} />
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
               The real-time multimodal communication mirror and speech mastery platform. Empowering students, job seekers, and debaters with objective computer vision and vocal pacing diagnostics.
@@ -25,7 +25,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Product Tracks */}
+          {/* Practice Tracks */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Practice Tracks</h4>
             <ul className="space-y-2 text-xs text-muted-foreground">
@@ -92,7 +92,7 @@ export function Footer() {
 
         {/* Bottom Sub-Bar */}
         <div className="border-t border-border/40 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} MIRAL AI Platform. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} VaniDarpan Platform. All rights reserved.</p>
           <div className="flex items-center gap-4 text-[11px]">
             <span className="flex items-center gap-1">
               <Lock className="h-3 w-3 text-green-600" />

@@ -21,10 +21,10 @@ import type { Session } from '@shared/schema';
 export default function VerifyCertificate() {
   const [, params] = useRoute('/verify/:id');
   const [, setLocation] = useLocation();
-  const certId = params?.id || 'MIRAL-CERT-SAMPLE';
+  const certId = params?.id || 'VANIDARPAN-CERT-SAMPLE';
 
   // Check if session exists in API (if id was sessionId or has session hash)
-  const sessionId = certId.replace('MIRAL-CERT-2026-', '');
+  const sessionId = certId.replace('VANIDARPAN-CERT-2026-', '').replace('MIRAL-CERT-2026-', '');
   const { data: session } = useQuery<Session>({
     queryKey: ['/api/sessions', sessionId],
     enabled: !!sessionId && !sessionId.includes('SAMPLE'),
@@ -56,7 +56,7 @@ export default function VerifyCertificate() {
             Verified Practice Milestone
           </Badge>
           <h1 className="text-xl font-bold text-foreground">
-            MIRAL Certificate Record
+            VaniDarpan Certificate Record
           </h1>
           <p className="text-xs text-muted-foreground font-mono">
             {certId}
@@ -107,7 +107,7 @@ export default function VerifyCertificate() {
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
                 Issued By
               </span>
-              <span className="font-semibold text-foreground">MIRAL Speech & Vision Studio</span>
+              <span className="font-semibold text-foreground">VaniDarpan Speech & Vision Studio</span>
             </div>
 
             <div className="flex items-start justify-between gap-3 pb-1">
@@ -125,7 +125,7 @@ export default function VerifyCertificate() {
         <div className="p-3.5 rounded-xl bg-muted/40 border border-border/40 text-[11px] text-muted-foreground leading-relaxed text-center space-y-1">
           <p className="font-semibold text-foreground">Authenticity & Scope Notice</p>
           <p>
-            This certificate record confirms individual participation and multi-modal metric analysis on the MIRAL AI practice platform. It represents a practice milestone and is not an accredited academic credential or corporate certification.
+            This certificate record confirms individual participation and multi-modal metric analysis on the VaniDarpan AI practice platform. It represents a practice milestone and is not an accredited academic credential or corporate certification.
           </p>
         </div>
 
@@ -137,7 +137,7 @@ export default function VerifyCertificate() {
             onClick={() => setLocation('/')}
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            MIRAL Home
+            VaniDarpan Home
           </Button>
           <Button 
             className="flex-1 text-xs font-semibold h-9 gap-1.5"

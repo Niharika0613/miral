@@ -1,17 +1,19 @@
 // client/src/pages/login.tsx
 import { useState } from 'react';
 import { useLocation, Link } from 'wouter';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Loader2, 
-  ArrowRight, 
-  ArrowLeft, 
   Check, 
+  ShieldCheck, 
+  ArrowRight, 
+  ArrowLeft,
   Sparkles,
+  Lock,
   Briefcase,
   Users,
   Scale,
@@ -19,25 +21,22 @@ import {
   BookOpen,
   TrendingUp,
   GraduationCap,
-  Globe,
-  Mail,
-  Lock,
-  UserCheck
+  Globe
 } from 'lucide-react';
 import { setAuth } from '@/utils/auth';
-import { MiralLogo } from '@/components/miral-logo';
+import { VaniDarpanLogo } from '@/components/miral-logo';
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
 const GOAL_OPTIONS = [
-  { id: 'interviews', label: 'Job & Campus Placement Interviews', icon: Briefcase },
-  { id: 'gd', label: 'Group Discussions (GD) & Roundtables', icon: Users },
-  { id: 'debate', label: 'Debates & Competitive Speaking', icon: Scale },
-  { id: 'public_speaking', label: 'Public Speaking & Keynotes', icon: Mic },
-  { id: 'recitation', label: 'Poetry Recitation & Storytelling', icon: BookOpen },
-  { id: 'pitch', label: 'Startup Pitching & Presentations', icon: TrendingUp },
-  { id: 'viva', label: 'College Viva & Capstone Defense', icon: GraduationCap },
-  { id: 'fluency', label: 'Everyday English Fluency & Accent', icon: Globe },
+  { id: 'interviews', label: 'Campus Placement & HR Interviews', icon: Briefcase },
+  { id: 'gd', label: 'Group Discussions & Roundtables', icon: Users },
+  { id: 'debate', label: 'Competitive Debating & Model UN', icon: Scale },
+  { id: 'public_speaking', label: 'Keynote & Public Speaking', icon: Mic },
+  { id: 'recitation', label: 'Storytelling & Presentation', icon: BookOpen },
+  { id: 'pitch', label: 'Startup Pitching & Hackathons', icon: TrendingUp },
+  { id: 'viva', label: 'Engineering Viva & Project Defense', icon: GraduationCap },
+  { id: 'fluency', label: 'Conversational Fluency & Pacing', icon: Globe },
 ];
 
 export default function Login() {
@@ -89,10 +88,10 @@ export default function Login() {
         data.user.id,
         data.user.name || data.user.email,
         data.user.plan || 'free',
-        data.user.pro_until || '2026-10-31T23:59:59Z'
+        data.user.pro_until || '2028-12-31T23:59:59Z'
       );
       toast({
-        title: 'Google Sign-In Successful',
+        title: 'Sign-In Successful',
         description: `Welcome back, ${data.user.name || data.user.email}!`,
       });
       window.location.href = '/dashboard';
@@ -129,73 +128,60 @@ export default function Login() {
           if (response.status === 401 && mode === 'login') {
             throw new Error('Invalid email or password. If this is your first time, click "Create one now" below to register.');
           }
-          throw new Error(error.detail || error.message || 'Authentication failed');
+          throw new Error(error.message || error.detail || 'Operation failed');
         }
 
         const data = await response.json();
+        
+        setAuth(
+          data.user.id,
+          data.user.name || formData.name || data.user.email,
+          data.user.plan || 'free',
+          data.user.pro_until || '2028-12-31T23:59:59Z'
+        );
+
+        toast({
+          title: mode === 'login' ? 'Welcome Back' : 'Profile Created',
+          description: mode === 'login' 
+            ? 'Accessing your private speech analytics dashboard.' 
+            : 'Your VaniDarpan practice workspace is ready.',
+        });
 
         if (mode === 'signup') {
-          try {
-            localStorage.setItem('miral_user_goals', JSON.stringify(selectedGoals));
-            if (data.user?.id) {
-              localStorage.setItem(`miral_user_goals_${data.user.id}`, JSON.stringify(selectedGoals));
-            }
-          } catch {}
-
-          toast({
-            title: 'Account Registered',
-            description: 'Your account and learning goals have been set! Please sign in to continue.',
-          });
-          setMode('login');
-          setFormData({ ...formData, password: '' });
+          sessionStorage.setItem('preferredTopic', 'Campus Placement Interview');
+          sessionStorage.setItem('practiceGoals', JSON.stringify(selectedGoals));
+          setLocation('/practice');
         } else {
-          setAuth(
-            data.user.id, 
-            data.user.name || data.user.email,
-            data.user.plan || 'free',
-            data.user.pro_until || '2026-10-31T23:59:59Z'
-          );
-          toast({
-            title: 'Authentication Successful',
-            description: `Welcome back, ${data.user.name || data.user.email}`,
-          });
-          window.location.href = '/dashboard';
-        }
-      } else if (mode === 'forgot') {
-        const emailToReset = formData.email.trim();
-        if (!emailToReset) {
-          throw new Error('Please enter your email address to generate a reset token.');
+          setLocation('/dashboard');
         }
 
+      } else if (mode === 'forgot') {
         const response = await fetch('/api/auth/forgot-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: emailToReset }),
+          body: JSON.stringify({ email: formData.email.trim() }),
         });
 
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error(`No account found for "${emailToReset}". Click "Create Account" below to register.`);
-          }
-          throw new Error(data.detail || data.message || 'Failed to request password reset');
-        }
-
-        if (data.resetToken) {
-          setFormData((prev) => ({ ...prev, resetToken: data.resetToken }));
+          throw new Error(data.detail || data.message || 'Failed to process password reset');
         }
 
         toast({
-          title: 'Reset Token Generated',
-          description: data.message || 'Security reset token loaded. Please enter your new password.',
+          title: 'Reset Token Ready',
+          description: data.token 
+            ? `Development token: ${data.token}. You can now set a new password.`
+            : 'If that email exists in our records, a reset token has been generated.',
         });
-        setMode('reset');
-      } else if (mode === 'reset') {
-        if (!formData.resetToken.trim()) {
-          throw new Error('Reset token is required. Please generate a token first.');
+
+        if (data.token) {
+          setFormData((prev) => ({ ...prev, resetToken: data.token }));
+          setMode('reset');
         }
-        if (!formData.newPassword || formData.newPassword.length < 6) {
-          throw new Error('New password must be at least 6 characters long.');
+
+      } else if (mode === 'reset') {
+        if (formData.newPassword.length < 6) {
+          throw new Error('New password must be at least 6 characters.');
         }
 
         const response = await fetch('/api/auth/reset-password', {
@@ -231,32 +217,28 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#05060A] text-slate-100 flex items-center justify-center px-4 py-12 relative overflow-hidden">
-      {/* Aurora Ambient Glow Blobs */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/15 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-violet-600/15 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] bg-cyan-600/10 rounded-full blur-[140px] pointer-events-none" />
-
+    <div className="min-h-screen bg-slate-50/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex items-center justify-center px-4 py-12 transition-colors">
+      
       {/* Main Auth Card */}
-      <Card className={`w-full ${mode === 'signup' ? 'max-w-xl' : 'max-w-md'} relative z-10 bg-[#090D1A]/85 backdrop-blur-2xl border border-white/[0.12] rounded-2xl shadow-[0_0_80px_rgba(99,102,241,0.18)] transition-all duration-300`}>
+      <Card className={`w-full ${mode === 'signup' ? 'max-w-xl' : 'max-w-md'} bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-all duration-200`}>
         
         {/* Card Header with VaniDarpan Branding */}
-        <CardHeader className="text-center pb-5 border-b border-white/[0.08] bg-white/[0.02]">
-          <div className="flex flex-col items-center mb-3">
-            <MiralLogo width={138} height={36} />
-            <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400/90 mt-1">
-              वाणीदर्पण • Institutional AI Mirror
+        <CardHeader className="text-center pb-5 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col items-center mb-2">
+            <VaniDarpanLogo width={150} height={36} />
+            <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 mt-1.5 tracking-wide">
+              Institutional AI Practice Mirror
             </span>
           </div>
-          <CardTitle className="text-xl font-bold tracking-tight text-white">
+          <CardTitle className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
             {mode === 'login' && 'Sign In to Your Workspace'}
-            {mode === 'signup' && 'Create Your Speaker Profile'}
+            {mode === 'signup' && 'Create Your Candidate Account'}
             {mode === 'forgot' && 'Reset Your Password'}
             {mode === 'reset' && 'Set New Password'}
           </CardTitle>
-          <CardDescription className="text-xs text-slate-400 mt-1">
+          <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {mode === 'login' && 'Access your private speech diagnostics, AI telemetry & placement reports'}
-            {mode === 'signup' && 'Set up your AI speech benchmarks and personalized learning targets'}
+            {mode === 'signup' && 'Set up your baseline speech benchmarks and personalized interview tracks'}
             {mode === 'forgot' && 'Enter your registered email to receive a password reset token'}
             {mode === 'reset' && 'Enter your reset token and your new account password'}
           </CardDescription>
@@ -272,7 +254,7 @@ export default function Login() {
                 variant="outline"
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full h-10 bg-white/[0.04] hover:bg-white/[0.08] border-white/10 text-white font-medium text-xs flex items-center justify-center gap-2.5 rounded-xl transition-all shadow-sm"
+                className="w-full h-10 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-medium text-xs flex items-center justify-center gap-2.5 rounded-xl transition-all shadow-xs"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -286,10 +268,10 @@ export default function Login() {
               {/* Divider */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-white/[0.08]" />
+                  <span className="w-full border-t border-slate-200 dark:border-slate-800" />
                 </div>
                 <div className="relative flex justify-center text-[10px] uppercase">
-                  <span className="bg-[#090D1A] px-2 text-slate-400 font-semibold tracking-wider">
+                  <span className="bg-white dark:bg-slate-900 px-2 text-slate-400 font-semibold tracking-wider">
                     Or continue with email
                   </span>
                 </div>
@@ -297,18 +279,18 @@ export default function Login() {
             </div>
           )}
 
-          {/* Direct Email Registration / Login Form */}
+          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             
             {mode === 'signup' && (
               <div className="space-y-1.5">
-                <Label htmlFor="name" className="text-xs font-semibold text-slate-200">Full Name</Label>
+                <Label htmlFor="name" className="text-xs font-semibold text-slate-700 dark:text-slate-300">Full Name</Label>
                 <Input
                   id="name"
                   placeholder="e.g. Niharika Sharma"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="text-xs h-9 bg-white/[0.04] border-white/[0.1] text-white placeholder:text-slate-500 focus:border-indigo-500/60"
+                  className="text-xs h-9 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
                   required
                 />
               </div>
@@ -316,7 +298,7 @@ export default function Login() {
 
             {(mode === 'login' || mode === 'signup' || mode === 'forgot') && (
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-xs font-semibold text-slate-200">Email Address</Label>
+                <Label htmlFor="email" className="text-xs font-semibold text-slate-700 dark:text-slate-300">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
@@ -324,7 +306,7 @@ export default function Login() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className="text-xs h-9 bg-white/[0.04] border-white/[0.1] text-white placeholder:text-slate-500 focus:border-indigo-500/60"
+                  className="text-xs h-9 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
                 />
               </div>
             )}
@@ -332,12 +314,12 @@ export default function Login() {
             {(mode === 'login' || mode === 'signup') && (
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-xs font-semibold text-slate-200">Password</Label>
+                  <Label htmlFor="password" className="text-xs font-semibold text-slate-700 dark:text-slate-300">Password</Label>
                   {mode === 'login' && (
                     <button
                       type="button"
                       onClick={() => setMode('forgot')}
-                      className="text-[11px] text-indigo-400 hover:text-indigo-300 hover:underline font-medium"
+                      className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
                     >
                       Forgot password?
                     </button>
@@ -350,20 +332,20 @@ export default function Login() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
-                  className="text-xs h-9 bg-white/[0.04] border-white/[0.1] text-white placeholder:text-slate-500 focus:border-indigo-500/60"
+                  className="text-xs h-9 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
                 />
               </div>
             )}
 
             {/* Goal Checklist (Signup only) */}
             {mode === 'signup' && (
-              <div className="space-y-2 pt-2 border-t border-white/[0.08]">
+              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                 <div className="flex items-center justify-between">
-                  <Label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
-                    <span>Why do you want to use VaniDarpan?</span>
+                  <Label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                    <span>Primary Practice Goals</span>
                   </Label>
-                  <span className="text-[10px] text-slate-400">Select target goals</span>
+                  <span className="text-[10px] text-slate-400">Select all that apply</span>
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
@@ -377,18 +359,18 @@ export default function Login() {
                         onClick={() => toggleGoal(goal.id)}
                         className={`flex items-center gap-2.5 p-2.5 rounded-lg border text-left text-xs transition-all ${
                           isSelected
-                            ? 'bg-indigo-500/15 border-indigo-500/50 text-white font-semibold shadow-xs'
-                            : 'bg-white/[0.02] border-white/[0.06] text-slate-400 hover:border-white/20 hover:text-slate-200'
+                            ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800 text-indigo-900 dark:text-indigo-200 font-semibold shadow-xs'
+                            : 'bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/60 text-slate-600 dark:text-slate-400 hover:border-slate-300'
                         }`}
                       >
                         <div className={`h-4 w-4 rounded flex items-center justify-center border shrink-0 ${
                           isSelected 
-                            ? 'bg-indigo-600 border-indigo-500 text-white' 
-                            : 'border-slate-600 bg-black/40'
+                            ? 'bg-indigo-600 border-indigo-600 text-white' 
+                            : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'
                         }`}>
                           {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
                         </div>
-                        <IconComponent className="h-4 w-4 text-indigo-400 shrink-0" />
+                        <IconComponent className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
                         <span className="truncate text-[11px] leading-tight">{goal.label}</span>
                       </button>
                     );
@@ -399,33 +381,30 @@ export default function Login() {
 
             {mode === 'reset' && (
               <>
-                <div className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25 space-y-1 text-left">
+                <div className="p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-1 text-left">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-white">Reset Token Active</span>
-                    <span className="text-[10px] font-mono text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded">15m expiry</span>
+                    <span className="text-xs font-semibold text-indigo-900 dark:text-indigo-200">Reset Token Loaded</span>
+                    <span className="text-[10px] font-mono text-indigo-600 bg-indigo-100 dark:bg-indigo-900 px-2 py-0.5 rounded">Active</span>
                   </div>
-                  <p className="text-[11px] text-slate-300">
-                    Resetting credentials for <span className="font-semibold text-indigo-200">{formData.email}</span>. Your security token has been loaded below.
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                    Resetting password for <span className="font-semibold text-slate-900 dark:text-white">{formData.email}</span>.
                   </p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="reset-token" className="text-xs font-semibold text-slate-200">Security Reset Token</Label>
-                    <span className="text-[10px] text-emerald-400 font-mono">Token Loaded</span>
-                  </div>
+                  <Label htmlFor="reset-token" className="text-xs font-semibold text-slate-700 dark:text-slate-300">Reset Token</Label>
                   <Input
                     id="reset-token"
-                    placeholder="Paste security reset token"
+                    placeholder="Security reset token"
                     value={formData.resetToken}
                     onChange={(e) => setFormData({ ...formData, resetToken: e.target.value })}
                     required
-                    className="text-xs h-9 font-mono bg-white/[0.04] border-white/[0.1] text-indigo-300 placeholder:text-slate-500"
+                    className="text-xs h-9 font-mono bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="new-password" className="text-xs font-semibold text-slate-200">New Account Password</Label>
+                  <Label htmlFor="new-password" className="text-xs font-semibold text-slate-700 dark:text-slate-300">New Password</Label>
                   <Input
                     id="new-password"
                     type="password"
@@ -434,7 +413,7 @@ export default function Login() {
                     onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
                     required
                     minLength={6}
-                    className="text-xs h-9 bg-white/[0.04] border-white/[0.1] text-white placeholder:text-slate-500"
+                    className="text-xs h-9 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
                   />
                 </div>
               </>
@@ -442,7 +421,7 @@ export default function Login() {
 
             <Button
               type="submit"
-              className="w-full text-xs font-semibold h-10 gap-1.5 mt-2 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white shadow-md shadow-indigo-500/20"
+              className="w-full text-xs font-semibold h-10 gap-1.5 mt-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs rounded-xl"
               disabled={isLoading}
             >
               {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
@@ -452,7 +431,7 @@ export default function Login() {
                   : mode === 'login' 
                   ? 'Sign In to Workspace' 
                   : mode === 'signup' 
-                  ? 'Create Free Account & Save Goals' 
+                  ? 'Create Free Account' 
                   : mode === 'forgot'
                   ? 'Generate Reset Token'
                   : 'Update Password'}
@@ -462,22 +441,22 @@ export default function Login() {
           </form>
 
           {/* Bottom Switcher: Sign In vs Sign Up */}
-          <div className="mt-6 text-center pt-4 border-t border-white/[0.08] space-y-2">
+          <div className="mt-6 text-center pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
             {mode === 'forgot' ? (
               <div className="flex items-center justify-center gap-3">
                 <button
                   type="button"
                   onClick={() => setMode('login')}
-                  className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white font-semibold transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white font-semibold transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
                   <span>Back to Sign In</span>
                 </button>
-                <span className="text-slate-600 text-xs">•</span>
+                <span className="text-slate-300 dark:text-slate-700 text-xs">•</span>
                 <button
                   type="button"
                   onClick={() => setMode('signup')}
-                  className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-semibold transition-colors"
+                  className="inline-flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-semibold transition-colors"
                 >
                   <span>Create Account</span>
                   <ArrowRight className="h-3 w-3" />
@@ -488,27 +467,27 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setMode('forgot')}
-                  className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white font-semibold transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white font-semibold transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
                   <span>Request New Token</span>
                 </button>
-                <span className="text-slate-600 text-xs">•</span>
+                <span className="text-slate-300 dark:text-slate-700 text-xs">•</span>
                 <button
                   type="button"
                   onClick={() => setMode('login')}
-                  className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-semibold transition-colors"
+                  className="inline-flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-semibold transition-colors"
                 >
                   <span>Back to Sign In</span>
                 </button>
               </div>
             ) : (
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {mode === 'login' ? "Don't have an account yet?" : "Already registered?"}{' '}
                 <button
                   type="button"
                   onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-                  className="font-semibold text-indigo-400 hover:text-indigo-300 hover:underline ml-1"
+                  className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline ml-1"
                 >
                   {mode === 'login' ? 'Create one now' : 'Sign in here'}
                 </button>

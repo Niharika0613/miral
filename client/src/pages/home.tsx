@@ -135,7 +135,7 @@ export default function Home() {
       image: '/images/practice-preview-v3.png',
       badge: 'Real-Time In-Browser Feedback',
       heading: 'Live Eye Gaze, Posture & Transcript Analysis',
-      description: 'Practice directly on camera. Miral calculates your real-time eye gaze percentage, upright posture stability, speaking tempo (WPM), and live speech transcript with 100% in-browser WebAssembly.'
+      description: 'Practice directly on camera. VaniDarpan calculates your real-time eye gaze percentage, upright posture stability, speaking tempo (WPM), and live speech transcript with 100% in-browser WebAssembly.'
     },
     {
       id: 'scenarios' as const,
@@ -170,12 +170,12 @@ export default function Home() {
 
   const faqs = [
     {
-      q: "What is Miral and who is it built for?",
-      a: "Miral is an AI practice mirror for anyone who wants to speak with confidence. Whether you are preparing for a public speech, a college debate, a startup pitch, a job interview, or a team presentation, Miral gives you real-time visual and audio feedback on how you look and sound."
+      q: "What is VaniDarpan and who is it built for?",
+      a: "VaniDarpan is an AI practice mirror for anyone who wants to speak with confidence. Whether you are preparing for a public speech, a college debate, a startup pitch, a job interview, or a team presentation, VaniDarpan gives you real-time visual and audio feedback on how you look and sound."
     },
     {
       q: "How does the real-time AI eye contact and posture tracking work?",
-      a: "Miral runs lightweight computer vision models directly inside your browser using WebAssembly. It tracks your facial orientation, eye gaze direction towards the camera lens, and posture alignment at 60 FPS in real time with zero latency."
+      a: "VaniDarpan runs lightweight computer vision models directly inside your browser using WebAssembly. It tracks your facial orientation, eye gaze direction towards the camera lens, and posture alignment at 60 FPS in real time with zero latency."
     },
     {
       q: "Are my camera video or audio recordings uploaded to any server?",
@@ -183,11 +183,11 @@ export default function Home() {
     },
     {
       q: "Why should I create a free account?",
-      a: "Creating a free account allows Miral to save your practice history, track your improvement over time on your personal dashboard, and preserve your past session scorecards and custom speech scripts."
+      a: "Creating a free account allows VaniDarpan to save your practice history, track your improvement over time on your personal dashboard, and preserve your past session scorecards and custom speech scripts."
     },
     {
       q: "Can I practice my own custom speeches or scripts?",
-      a: "Yes! Miral includes a built-in smart teleprompter. You can paste any speech, pitch deck notes, or interview script, adjust the font size, and practice reading while maintaining direct eye contact with the camera."
+      a: "Yes! VaniDarpan includes a built-in smart teleprompter. You can paste any speech, pitch deck notes, or interview script, adjust the font size, and practice reading while maintaining direct eye contact with the camera."
     },
     {
       q: "What is the recommended speaking speed (WPM)?",
@@ -398,7 +398,7 @@ export default function Home() {
           
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-3 py-0.5">
-              Inside Miral
+              Inside VaniDarpan
             </Badge>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               See the actual practice studio in action.
@@ -442,7 +442,7 @@ export default function Home() {
                   <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
                 </div>
                 <span className="text-xs font-mono text-slate-500 ml-2">
-                  miral.app/{activePreviewTab}
+                  vanidarpan.com/{activePreviewTab}
                 </span>
               </div>
               <Badge variant="outline" className="border-indigo-200 dark:border-indigo-900 text-indigo-700 dark:text-indigo-300 text-[10px]">
@@ -493,7 +493,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===================== WHAT MIRAL ANALYZES IN REAL TIME ===================== */}
+      {/* ===================== WHAT VANIDARPAN ANALYZES IN REAL TIME ===================== */}
       <section className="py-16 sm:py-24 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
         <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           
@@ -589,7 +589,7 @@ export default function Home() {
               <div className="text-3xl sm:text-4xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">02</div>
               <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Practice with Live Visual Cues</h3>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                Speak on camera. Miral monitors your eye contact, posture, and speaking tempo with gentle on-screen cues.
+                Speak on camera. VaniDarpan monitors your eye contact, posture, and speaking tempo with gentle on-screen cues.
               </p>
             </div>
 
@@ -616,7 +616,7 @@ export default function Home() {
               Frequently Asked Questions
             </Badge>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-              Everything you need to know about Miral.
+              Everything you need to know about VaniDarpan.
             </h2>
           </div>
 

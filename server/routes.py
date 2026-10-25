@@ -69,7 +69,7 @@ async def signup(user_data: UserSignup, db: AsyncSession = Depends(get_db)):
                 "email": user.email,
                 "name": user.name or clean_email.split('@')[0],
                 "plan": getattr(user, 'plan', 'free') or 'free',
-                "pro_until": user.pro_until.isoformat() if getattr(user, 'pro_until', None) else "2026-10-31T23:59:59Z"
+                "pro_until": user.pro_until.isoformat() if getattr(user, 'pro_until', None) else "2028-12-31T23:59:59Z"
             }
         }
 
@@ -109,7 +109,7 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
                 "email": user.email,
                 "name": user.name or clean_email.split('@')[0],
                 "plan": getattr(user, 'plan', 'free') or 'free',
-                "pro_until": user.pro_until.isoformat() if getattr(user, 'pro_until', None) else "2026-10-31T23:59:59Z"
+                "pro_until": user.pro_until.isoformat() if getattr(user, 'pro_until', None) else "2028-12-31T23:59:59Z"
             }
         }
 
@@ -160,7 +160,7 @@ async def google_auth(data: GoogleAuthRequest, db: AsyncSession = Depends(get_db
                 "email": user.email,
                 "name": user.name or data.name or user.email.split('@')[0],
                 "plan": getattr(user, 'plan', 'free') or 'free',
-                "pro_until": user.pro_until.isoformat() if getattr(user, 'pro_until', None) else "2026-10-31T23:59:59Z"
+                "pro_until": user.pro_until.isoformat() if getattr(user, 'pro_until', None) else "2028-12-31T23:59:59Z"
             }
         }
 
@@ -226,7 +226,7 @@ async def verify_phone_otp(data: PhoneVerifyRequest, db: AsyncSession = Depends(
                 "email": user.email,
                 "name": user.name or default_name,
                 "plan": getattr(user, 'plan', 'free') or 'free',
-                "pro_until": user.pro_until.isoformat() if getattr(user, 'pro_until', None) else "2026-10-31T23:59:59Z"
+                "pro_until": user.pro_until.isoformat() if getattr(user, 'pro_until', None) else "2028-12-31T23:59:59Z"
             }
         }
 

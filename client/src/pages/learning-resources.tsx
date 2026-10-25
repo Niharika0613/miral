@@ -47,7 +47,7 @@ interface Resource {
 }
 
 const ALL_RESOURCES: Resource[] = [
-  // --- PRO CURATED MASTERCLASSES (Miral Communication Lab & Verified Frameworks) ---
+  // --- PRO CURATED MASTERCLASSES (VaniDarpan Communication Lab & Verified Frameworks) ---
   {
     id: 101,
     title: 'Executive Speech & Boardroom Presence Framework',
@@ -57,11 +57,11 @@ const ALL_RESOURCES: Resource[] = [
     duration: '4.5 Hours • Certified Framework',
     level: 'Advanced',
     url: '#',
-    source: 'Miral Communication Lab',
+    source: 'VaniDarpan Communication Lab',
     isPremium: true,
     isSponsored: false,
-    instructor: 'Miral Executive Curriculum',
-    price: 'Included in Miral Pro',
+    instructor: 'VaniDarpan Executive Curriculum',
+    price: 'Included in VaniDarpan Pro',
   },
   {
     id: 102,
@@ -75,8 +75,8 @@ const ALL_RESOURCES: Resource[] = [
     source: 'Placement Readiness Series',
     isPremium: true,
     isSponsored: false,
-    instructor: 'Miral Placement Lab',
-    price: 'Included in Miral Pro',
+    instructor: 'VaniDarpan Placement Lab',
+    price: 'Included in VaniDarpan Pro',
   },
   {
     id: 103,
@@ -90,8 +90,8 @@ const ALL_RESOURCES: Resource[] = [
     source: 'Venture Pitch Series',
     isPremium: true,
     isSponsored: false,
-    instructor: 'Miral Pitch Lab',
-    price: 'Included in Miral Pro',
+    instructor: 'VaniDarpan Pitch Lab',
+    price: 'Included in VaniDarpan Pro',
   },
 
   // --- FREE CURATED HIGH-QUALITY RESOURCES ---
@@ -306,7 +306,7 @@ export default function LearningResources() {
             <div className="space-y-2 max-w-2xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
                 <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-                <span>Miral Learning Hub & Creator Marketplace</span>
+                <span>VaniDarpan Learning Hub & Creator Marketplace</span>
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 Master the Art of Speaking & Presentation
@@ -400,7 +400,7 @@ export default function LearningResources() {
               </span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 max-w-2xl">
-              Are you a speech instructor, soft-skills coach, or corporate trainer? Partner with Miral to list your certified workshops and cohorts directly inside our active practice studio.
+              Are you a speech instructor, soft-skills coach, or corporate trainer? Partner with VaniDarpan to list your certified workshops and cohorts directly inside our active practice studio.
             </p>
           </div>
           <Button 
@@ -524,7 +524,7 @@ export default function LearningResources() {
               Recommended 4-Week Speaking Mastery Path
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Combine video learnings with daily 5-minute camera drills in the Miral Practice Studio.
+              Combine video learnings with daily 5-minute camera drills in the VaniDarpan Practice Studio.
             </p>
           </div>
 
@@ -535,7 +535,7 @@ export default function LearningResources() {
               </Badge>
               <h3 className="text-xs font-bold text-slate-900 dark:text-white">Posture & Eye Contact Habit</h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Watch Amy Cuddy's power posing talk. Practice 3 mock self-introductions in Miral to lock in 85%+ camera gaze.
+                Watch Amy Cuddy's power posing talk. Practice 3 mock self-introductions in VaniDarpan to lock in 85%+ camera gaze.
               </p>
             </div>
 
@@ -574,7 +574,7 @@ export default function LearningResources() {
               {selectedPremiumResource?.title || "Unlock Pro Masterclass"}
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              This masterclass is part of the Miral Pro certified curriculum. Upgrade your plan to unlock all coach masterclasses, unlimited camera analytics, and PDF certificates.
+              This masterclass is part of the VaniDarpan Pro certified curriculum. Upgrade your plan to unlock all coach masterclasses, unlimited camera analytics, and PDF certificates.
             </DialogDescription>
           </DialogHeader>
 
@@ -630,10 +630,10 @@ export default function LearningResources() {
               <Users className="h-5 w-5" />
             </div>
             <DialogTitle className="text-lg font-bold">
-              List Your Course or Masterclass on Miral
+              List Your Course or Masterclass on VaniDarpan
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Showcase your soft-skills cohorts, public speaking workshops, and placement courses to high-intent learners actively practicing on Miral.
+              Showcase your soft-skills cohorts, public speaking workshops, and placement courses to high-intent learners actively practicing on VaniDarpan.
             </DialogDescription>
           </DialogHeader>
 

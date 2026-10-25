@@ -1,63 +1,61 @@
 // client/src/components/miral-logo.tsx
 import { useId } from 'react';
 
-interface MiralLogoProps {
+interface LogoProps {
   width?: number;
   height?: number;
   className?: string;
 }
 
-export function MiralLogo({ width = 140, height = 36, className }: MiralLogoProps) {
-  // useId ensures unique gradient IDs when the logo renders multiple times on the same page
+export function VaniDarpanLogo({ width = 150, height = 36, className }: LogoProps) {
   const uid = useId().replace(/:/g, '');
-  const gradId = `mg-${uid}`;
+  const gradId = `vdg-${uid}`;
 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 158 40"
+      viewBox="0 0 170 38"
       width={width}
       height={height}
       className={className}
-      aria-label="MIRAL"
+      aria-label="VaniDarpan"
       role="img"
     >
       <defs>
         <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#1d4ed8" />
-          <stop offset="100%" stopColor="#0891b2" />
+          <stop offset="0%" stopColor="#1F4FBF" />
+          <stop offset="100%" stopColor="#3B82F6" />
         </linearGradient>
       </defs>
 
-      {/* ── Badge background: rounded-square app-icon style ── */}
-      <rect x="1" y="1" width="38" height="38" rx="10" fill={`url(#${gradId})`} />
+      {/* ── App Icon Badge: Rounded Square ── */}
+      <rect x="1" y="1" width="36" height="36" rx="9" fill={`url(#${gradId})`} />
 
-      {/* ── Geometric M — clean line-drawn, no fill, white stroke ── */}
-      {/*   Left foot → left peak → valley dot → right peak → right foot   */}
-      <path
-        d="M10,30 L10,12 L20,23 L30,12 L30,30"
-        fill="none"
-        stroke="white"
-        strokeWidth="3.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
+      {/* ── Geometric Reflection / Soundwave Aperture ── */}
+      {/* Sound / Voice Wave left bar */}
+      <rect x="9" y="14" width="3" height="10" rx="1.5" fill="white" opacity="0.85" />
+      {/* Central Mirror / Voice peak */}
+      <rect x="15" y="9" width="3.2" height="20" rx="1.6" fill="white" />
+      {/* Aperture Iris Center */}
+      <circle cx="21" cy="19" r="2" fill="white" />
+      {/* Right reflection bar */}
+      <rect x="26" y="14" width="3" height="10" rx="1.5" fill="white" opacity="0.85" />
 
-      {/* ── Focal dot at M valley — represents the AI "iris" / mic core ── */}
-      <circle cx="20" cy="23" r="2.2" fill="white" opacity="0.9" />
-
-      {/* ── Wordmark ── */}
+      {/* ── Brand Wordmark: VaniDarpan ── */}
       <text
-        x="50"
-        y="28"
-        fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-        fontSize="22"
-        fontWeight="800"
+        x="46"
+        y="26"
+        fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif"
+        fontSize="20"
+        fontWeight="700"
         fill="currentColor"
-        letterSpacing="-0.6"
+        letterSpacing="-0.5"
       >
-        MIRAL
+        VaniDarpan
       </text>
     </svg>
   );
 }
+
+// Backward compatibility alias for any component still importing MiralLogo
+export const MiralLogo = VaniDarpanLogo;

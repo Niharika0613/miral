@@ -18,7 +18,7 @@ export default function Privacy() {
             Privacy Policy
           </h1>
           <p className="text-sm text-muted-foreground">
-            Last Updated: September 1, 2026 • Effective for all MIRAL candidates, student pilots, and educational partners.
+            Last Updated: September 1, 2026 • Effective for all VaniDarpan candidates, student pilots, and educational partners.
           </p>
         </div>
 
@@ -99,7 +99,7 @@ export default function Privacy() {
             </CardHeader>
             <CardContent className="space-y-2 text-xs text-muted-foreground leading-relaxed">
               <p>
-                When MIRAL is deployed across university campuses and placement drives, institutional administrators only receive aggregated, cohort-level readiness metrics (e.g. "84% of candidates reached optimal pacing"). Individual practice transcripts remain private to the candidate unless explicitly shared via an exported report.
+                When VaniDarpan is deployed across university campuses and placement drives, institutional administrators only receive aggregated, cohort-level readiness metrics (e.g. "84% of candidates reached optimal pacing"). Individual practice transcripts remain private to the candidate unless explicitly shared via an exported report.
               </p>
             </CardContent>
           </Card>

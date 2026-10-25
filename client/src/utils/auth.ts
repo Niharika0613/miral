@@ -33,16 +33,16 @@ export const getCurrentUser = () => {
     id: userId,
     name: userName || 'Candidate',
     plan: localStorage.getItem('userPlan') || 'free',
-    proUntil: localStorage.getItem('proUntil') || '2026-10-31T23:59:59Z',
+    proUntil: localStorage.getItem('proUntil') || '2028-12-31T23:59:59Z',
   };
 };
 
 export const getUserPlan = () => {
   const storedPlan = localStorage.getItem('userPlan') || sessionStorage.getItem('userPlan') || 'free';
-  const proUntil = localStorage.getItem('proUntil') || '2026-10-31T23:59:59Z';
+  const proUntil = localStorage.getItem('proUntil') || '2028-12-31T23:59:59Z';
   
-  // Pilot wave runs through October 31, 2026
-  const pilotExpiry = new Date('2026-10-31T23:59:59Z');
+  // Extended Campus Pilot Wave
+  const pilotExpiry = new Date('2028-12-31T23:59:59Z');
   const isPilotActive = new Date() <= pilotExpiry;
   const isPro = storedPlan === 'pro' || isPilotActive;
 
@@ -52,15 +52,15 @@ export const getUserPlan = () => {
     proUntil,
     isPro,
     isPilotActive,
-    badgeText: "Free in Campus Pilot • Until Oct 31",
-    englishBadge: "Free in Campus Pilot • Until Oct 31",
+    badgeText: "Free in Campus Pilot • Extended Access",
+    englishBadge: "Free in Campus Pilot • Extended Access",
   };
 };
 
 export const getDailyAnalysisUsage = () => {
   const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId') || 'guest';
   const today = new Date().toISOString().slice(0, 10);
-  const key = `miral_daily_transcript_analyses_${userId}_${today}`;
+  const key = `vanidarpan_daily_transcript_analyses_${userId}_${today}`;
   
   let count = 0;
   try {
@@ -88,4 +88,3 @@ export const getDailyAnalysisUsage = () => {
     }
   };
 };
-

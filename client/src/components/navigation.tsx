@@ -1,12 +1,12 @@
 // client/src/components/navigation.tsx
 import { Link, useLocation } from "wouter";
-import { Video, LayoutDashboard, User, LogOut, LogIn, Sparkles, Compass, Menu, X, ShieldCheck, HelpCircle, Mail, Tag, Building2 } from "lucide-react";
+import { Video, LayoutDashboard, User, LogOut, LogIn, Sparkles, Compass, Menu, X, HelpCircle, Mail, Tag, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState } from "react";
-import { logout, getCurrentUser, getUserPlan } from "@/utils/auth";
-import { MiralLogo } from "@/components/miral-logo";
+import { logout, getCurrentUser } from "@/utils/auth";
+import { VaniDarpanLogo } from "@/components/miral-logo";
 
 export function Navigation() {
   const [location] = useLocation();
@@ -40,7 +40,7 @@ export function Navigation() {
         {/* Brand & Nav */}
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center">
-            <MiralLogo width={132} height={34} />
+            <VaniDarpanLogo width={140} height={34} />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">
@@ -72,7 +72,7 @@ export function Navigation() {
                   <User className="h-3.5 w-3.5 text-primary" />
                   <span className="hidden sm:inline">{user.name}</span>
                   <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/25 py-0.5 px-2 hidden md:inline-flex">
-                    Pro Pilot • Free until Oct 31
+                    Pro Pilot • Extended Access
                   </Badge>
                 </Button>
               </Link>

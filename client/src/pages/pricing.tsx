@@ -133,7 +133,7 @@ export default function Pricing() {
                   Placement Intensive
                 </Badge>
                 <Badge className="bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-[10px] font-bold px-2.5 py-0.5">
-                  Free Campus Pilot • Until Oct 31
+                  Free Campus Pilot • Active Access
                 </Badge>
               </div>
               <CardTitle className="text-xl font-bold text-foreground">Pro Placement Pass</CardTitle>
@@ -148,7 +148,7 @@ export default function Pricing() {
                     100% Free in Pilot
                   </Badge>
                 </div>
-                <span className="text-[11px] text-muted-foreground">Standard ₹199/mo or ₹499 Season Pass activates after 31 Oct 2026</span>
+                <span className="text-[11px] text-muted-foreground">Standard plan fees fully waived during active campus pilot</span>
               </div>
             </CardHeader>
 
@@ -355,7 +355,7 @@ export default function Pricing() {
         <div className="p-6 rounded-2xl border border-border/60 bg-muted/20 space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
             <ShieldCheck className="h-4 w-4" />
-            <span>The MIRAL Edge for Universities & Students</span>
+            <span>The VaniDarpan Edge for Universities & Students</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-muted-foreground leading-relaxed">
             <div className="p-4 rounded-xl bg-card border border-border/40 space-y-1.5">

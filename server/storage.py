@@ -132,7 +132,7 @@ class DatabaseStorage:
             password=hashed_password,
             name=name.strip() if name else None,
             plan="free",
-            pro_until=datetime(2026, 10, 31, 23, 59, 59)
+            pro_until=datetime(2028, 12, 31, 23, 59, 59)
         )
         
         db.add(new_user)

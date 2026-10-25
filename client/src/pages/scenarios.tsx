@@ -300,7 +300,7 @@ I'm looking to join a fast-moving team where I can take ownership of critical fe
               </Badge>
             </div>
             <CardDescription className="text-xs text-muted-foreground mt-1">
-              Have your own resume intro, project speech, or GD notes prepared? Paste it here to read while MIRAL tracks your eye contact and vocal pace.
+              Have your own resume intro, project speech, or GD notes prepared? Paste it here to read while VaniDarpan tracks your eye contact and vocal pace.
             </CardDescription>
           </CardHeader>
 

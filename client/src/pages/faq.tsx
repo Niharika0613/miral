@@ -19,7 +19,7 @@ const FAQS: FAQItem[] = [
   {
     category: 'metrics',
     question: 'How is my eye contact score calculated?',
-    answer: 'MIRAL extracts 478 3D facial landmarks to compute iris ratios relative to your eye corners. Looking directly into the camera registers as direct contact. Glancing away immediately lowers your score.'
+    answer: 'VaniDarpan extracts 478 3D facial landmarks to compute iris ratios relative to your eye corners. Looking directly into the camera registers as direct contact. Glancing away immediately lowers your score.'
   },
   {
     category: 'metrics',
@@ -28,13 +28,13 @@ const FAQS: FAQItem[] = [
   },
   {
     category: 'placement',
-    question: 'How does MIRAL detect filler words like "um" and "matlab"?',
-    answer: 'MIRAL uses real-time speech-to-text token matching to catch English and bilingual fillers including "um", "uh", "like", "basically", "matlab", "yaani", and "and all".'
+    question: 'How does VaniDarpan detect filler words like "um" and "matlab"?',
+    answer: 'VaniDarpan uses real-time speech-to-text token matching to catch English and bilingual fillers including "um", "uh", "like", "basically", "matlab", "yaani", and "and all".'
   },
   {
     category: 'placement',
-    question: 'Does MIRAL work on smartphones and tablets?',
-    answer: 'Yes. MIRAL is fully responsive and works on Chrome, Edge, and Safari across iOS, Android, tablets, and desktops.'
+    question: 'Does VaniDarpan work on smartphones and tablets?',
+    answer: 'Yes. VaniDarpan is fully responsive and works on Chrome, Edge, and Safari across iOS, Android, tablets, and desktops.'
   },
   {
     category: 'placement',
@@ -72,7 +72,7 @@ export default function FAQ() {
             Frequently Asked Questions
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Quick answers about MIRAL metrics, privacy, and campus placement practice.
+            Quick answers about VaniDarpan metrics, privacy, and campus placement practice.
           </p>
         </div>
 

@@ -1,6 +1,6 @@
 // client/src/components/navigation.tsx
 import { Link, useLocation } from "wouter";
-import { Video, LayoutDashboard, User, LogOut, LogIn, Sparkles, Compass, Menu, X, HelpCircle, Mail, Tag, Building2 } from "lucide-react";
+import { Video, LayoutDashboard, User, LogOut, LogIn, Sparkles, Compass, Menu, X, Building2, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -15,18 +15,15 @@ export function Navigation() {
 
   useEffect(() => {
     setUser(getCurrentUser());
-    setIsMobileOpen(false); // Close mobile drawer on route change
+    setIsMobileOpen(false);
   }, [location]);
 
   const navItems = [
-    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/tpo", label: "TPO Portal", icon: Building2 },
-    { path: "/practice", label: "Practice", icon: Video },
+    { path: "/practice", label: "Practice Studio", icon: Video, primary: true },
     { path: "/scenarios", label: "Scenarios", icon: Compass },
+    { path: "/dashboard", label: "Analytics", icon: LayoutDashboard },
+    { path: "/tpo", label: "TPO Portal", icon: Building2, highlight: true },
     { path: "/pricing", label: "Plans", icon: Tag },
-    { path: "/learning", label: "Learn", icon: Sparkles },
-    { path: "/faq", label: "FAQ", icon: HelpCircle },
-    { path: "/contact", label: "Contact", icon: Mail },
   ];
 
   const handleLogout = () => {
@@ -34,25 +31,52 @@ export function Navigation() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur-sm">
-      <div className="container max-w-7xl mx-auto flex h-14 items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md transition-colors">
+      <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
         
-        {/* Brand & Nav */}
-        <div className="flex items-center gap-6">
+        {/* Brand & Main Nav Links */}
+        <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center">
-            <VaniDarpanLogo width={140} height={34} />
+            <VaniDarpanLogo width={142} height={34} />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location === item.path;
+
+              if (item.highlight) {
+                return (
+                  <Link key={item.path} href={item.path}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={`gap-1.5 text-xs font-semibold h-8 px-3 rounded-full transition-all border ${
+                        isActive
+                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                          : 'border-indigo-200 dark:border-indigo-800/70 text-indigo-700 dark:text-indigo-300 bg-indigo-50/60 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50'
+                      }`}
+                    >
+                      <Building2 className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                      <span>{item.label}</span>
+                      <span className="text-[9px] bg-indigo-200 dark:bg-indigo-800 text-indigo-900 dark:text-indigo-200 px-1.5 py-0.2 rounded-full font-bold">
+                        Institutional
+                      </span>
+                    </Button>
+                  </Link>
+                );
+              }
+
               return (
                 <Link key={item.path} href={item.path}>
                   <Button
                     variant={isActive ? "secondary" : "ghost"}
                     size="sm"
-                    className={`gap-1.5 text-xs font-medium h-8 ${isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`gap-1.5 text-xs font-medium h-8 px-3 rounded-lg ${
+                      isActive 
+                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold' 
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
                   >
                     <Icon className="h-3.5 w-3.5" />
                     <span>{item.label}</span>
@@ -63,16 +87,16 @@ export function Navigation() {
           </nav>
         </div>
 
-        {/* Right Actions: User / Sign In + Theme Toggle + Mobile Menu Button */}
+        {/* Right Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
           {user ? (
             <div className="flex items-center gap-2">
               <Link href="/profile">
-                <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 text-foreground font-medium">
-                  <User className="h-3.5 w-3.5 text-primary" />
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 text-slate-800 dark:text-slate-200 font-medium">
+                  <User className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                   <span className="hidden sm:inline">{user.name}</span>
-                  <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/25 py-0.5 px-2 hidden md:inline-flex">
-                    Pro Pilot • Extended Access
+                  <Badge variant="secondary" className="text-[10px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800 py-0.5 px-2 hidden md:inline-flex">
+                    Pro Pilot
                   </Badge>
                 </Button>
               </Link>
@@ -80,20 +104,29 @@ export function Navigation() {
                 variant="ghost" 
                 size="sm" 
                 onClick={handleLogout}
-                className="h-8 px-2 text-muted-foreground hover:text-destructive"
+                className="h-8 px-2 text-slate-400 hover:text-rose-600"
                 title="Sign Out"
               >
                 <LogOut className="h-3.5 w-3.5" />
               </Button>
             </div>
           ) : (
-            <Link href="/login">
-              <Button size="sm" variant="default" className="text-xs h-8 font-semibold gap-1.5">
-                <LogIn className="h-3.5 w-3.5" />
-                <span>Sign In</span>
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/login">
+                <Button size="sm" variant="ghost" className="text-xs h-8 font-medium text-slate-700 dark:text-slate-300">
+                  <span>Sign In</span>
+                </Button>
+              </Link>
+              <Link href="/practice">
+                <Button size="sm" className="text-xs h-8 font-semibold gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs">
+                  <Video className="h-3.5 w-3.5" />
+                  <span>Start Practice</span>
+                </Button>
+              </Link>
+            </div>
           )}
+
+          <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
 
           <ThemeToggle />
 
@@ -101,8 +134,8 @@ export function Navigation() {
           <Button
             variant="ghost"
             size="sm"
-            className="lg:hidden h-8 w-8 p-0"
             onClick={() => setIsMobileOpen(!isMobileOpen)}
+            className="md:hidden h-8 w-8 p-0 text-slate-600 dark:text-slate-400"
             aria-label="Toggle Navigation Menu"
           >
             {isMobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -111,36 +144,35 @@ export function Navigation() {
 
       </div>
 
-      {/* Mobile Drawer (Visible on screens < lg) */}
+      {/* Mobile Drawer */}
       {isMobileOpen && (
-        <div className="lg:hidden border-b border-border/60 bg-card p-4 space-y-2 animate-in slide-in-from-top-2 duration-150 shadow-md">
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location === item.path;
-              return (
-                <Link key={item.path} href={item.path}>
-                  <div
-                    onClick={() => setIsMobileOpen(false)}
-                    className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all ${
-                      isActive 
-                        ? 'bg-primary/10 border-primary/30 text-primary font-semibold' 
-                        : 'bg-muted/30 border-border/40 text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
+        <div className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 space-y-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location === item.path;
+            return (
+              <Link key={item.path} href={item.path}>
+                <div 
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold ${
+                    isActive 
+                      ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300' 
+                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                  onClick={() => setIsMobileOpen(false)}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                     <span>{item.label}</span>
                   </div>
-                </Link>
-              );
-            })}
-          </div>
-
-          <div className="pt-2 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground">
-            <Link href="/privacy" onClick={() => setIsMobileOpen(false)} className="hover:underline">Privacy Policy</Link>
-            <Link href="/terms" onClick={() => setIsMobileOpen(false)} className="hover:underline">Terms of Service</Link>
-            <Link href="/contact" onClick={() => setIsMobileOpen(false)} className="hover:underline">Campus Pilot</Link>
-          </div>
+                  {item.highlight && (
+                    <Badge variant="outline" className="text-[10px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800">
+                      Institutional
+                    </Badge>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </header>

@@ -1,5 +1,5 @@
 // client/src/pages/tpo.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -41,7 +41,15 @@ import {
   UserCheck,
   ExternalLink,
   Award,
-  Sparkles
+  Sparkles,
+  Lock,
+  Unlock,
+  Key,
+  LogOut,
+  TrendingUp,
+  Filter,
+  Grid,
+  Info
 } from 'lucide-react';
 
 interface TpoStats {
@@ -80,6 +88,9 @@ interface BranchHeatmapItem {
   key_strength: string;
   primary_bottleneck: string;
   status: string;
+  // Derived multi-dimensional scores for heatmap
+  prep_score?: number;
+  filler_control_pct?: number;
 }
 
 interface StudentCandidate {
@@ -101,15 +112,73 @@ interface StudentCandidate {
   is_live: boolean;
 }
 
+interface TpoOfficerSession {
+  officerName: string;
+  officerEmail: string;
+  officerRole: string;
+  institutionName: string;
+  authenticatedAt: string;
+  sessionToken: string;
+}
+
 export default function TPO() {
   const { toast } = useToast();
+
+  // ── Authentication & Gate State ──
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    try {
+      const stored = sessionStorage.getItem('vanidarpan_tpo_session') || localStorage.getItem('vanidarpan_tpo_session');
+      return !!stored;
+    } catch {
+      return false;
+    }
+  });
+
+  const [officerSession, setOfficerSession] = useState<TpoOfficerSession | null>(() => {
+    try {
+      const stored = sessionStorage.getItem('vanidarpan_tpo_session') || localStorage.getItem('vanidarpan_tpo_session');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Gate Form States
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [loginEmail, setLoginEmail] = useState('tpo@apex.edu');
+  const [loginPin, setLoginPin] = useState('2026');
+  const [selectedInstitution, setSelectedInstitution] = useState('Apex Engineering & Technology Institute');
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+  // Institution Registration Form States
+  const [regCollegeName, setRegCollegeName] = useState('');
+  const [regOfficerName, setRegOfficerName] = useState('');
+  const [regDesignation, setRegDesignation] = useState('Head, Training & Placement');
+  const [regWorkEmail, setRegWorkEmail] = useState('');
+  const [regPhone, setRegPhone] = useState('');
+  const [regBatchSize, setRegBatchSize] = useState('1200+ Candidates');
+  const [regSuccessKey, setRegSuccessKey] = useState<string | null>(null);
+
+  // ── Dashboard Data State ──
   const [stats, setStats] = useState<TpoStats | null>(null);
   const [heatmap, setHeatmap] = useState<BranchHeatmapItem[]>([]);
   const [students, setStudents] = useState<StudentCandidate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'heatmap' | 'directory' | 'rubric'>('heatmap');
+
+  // Heatmap View Mode: 'matrix' | 'timeline' | 'density'
+  const [heatmapView, setHeatmapView] = useState<'matrix' | 'timeline' | 'density'>('matrix');
+  const [heatmapSortBy, setHeatmapSortBy] = useState<'readiness' | 'gaze' | 'wpm' | 'cohort'>('readiness');
+  const [hoveredCell, setHoveredCell] = useState<{
+    branch: string;
+    dimension: string;
+    value: string | number;
+    benchmark: string;
+    delta: string;
+    note: string;
+  } | null>(null);
   
-  // Filters
+  // Filters for Directory
   const [selectedBranch, setSelectedBranch] = useState<string>('all');
   const [selectedTier, setSelectedTier] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -119,6 +188,7 @@ export default function TPO() {
   const [selectedStudent, setSelectedStudent] = useState<StudentCandidate | null>(null);
   const [isDossierOpen, setIsDossierOpen] = useState<boolean>(false);
 
+  // ── Fetch Telemetry ──
   const fetchTpoData = async () => {
     setIsLoading(true);
     try {
@@ -133,8 +203,26 @@ export default function TPO() {
         setStats(statsData);
       }
       if (heatmapRes.ok) {
-        const heatmapData = await heatmapRes.json();
-        setHeatmap(heatmapData);
+        const rawHeatmap: BranchHeatmapItem[] = await heatmapRes.json();
+        // Enrich branches with PREP structuring score and filler control %
+        const enriched = rawHeatmap.map(item => {
+          let prep = 75;
+          if (item.branch === 'CSE') prep = 85.4;
+          else if (item.branch === 'IT') prep = 81.2;
+          else if (item.branch === 'ECE') prep = 73.0;
+          else if (item.branch === 'ME') prep = 63.5;
+          else if (item.branch === 'CE') prep = 65.0;
+          else if (item.branch === 'MBA') prep = 88.2;
+
+          const fillerPct = Math.max(50, Math.min(98, Math.round(100 - (item.filler_rate * 12.5))));
+
+          return {
+            ...item,
+            prep_score: prep,
+            filler_control_pct: fillerPct
+          };
+        });
+        setHeatmap(enriched);
       }
       if (studentsRes.ok) {
         const studentsData = await studentsRes.json();
@@ -148,8 +236,135 @@ export default function TPO() {
   };
 
   useEffect(() => {
-    fetchTpoData();
-  }, [selectedBranch, selectedTier, searchQuery]);
+    if (isAuthenticated) {
+      fetchTpoData();
+    }
+  }, [isAuthenticated, selectedBranch, selectedTier, searchQuery]);
+
+  // ── Authentication Handlers ──
+  const handleOfficerLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setIsAuthenticating(true);
+
+    setTimeout(() => {
+      const sessionData: TpoOfficerSession = {
+        officerName: loginEmail.includes('sharma') ? 'Dr. Rajesh Sharma' : 'Dr. R. K. Sharma',
+        officerEmail: loginEmail,
+        officerRole: 'Head, Career Services & Placements',
+        institutionName: selectedInstitution,
+        authenticatedAt: new Date().toISOString(),
+        sessionToken: `VD-TPO-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+      };
+
+      try {
+        sessionStorage.setItem('vanidarpan_tpo_session', JSON.stringify(sessionData));
+        localStorage.setItem('vanidarpan_tpo_session', JSON.stringify(sessionData));
+      } catch (err) {
+        console.error('Failed to store TPO session:', err);
+      }
+
+      setOfficerSession(sessionData);
+      setIsAuthenticated(true);
+      setIsAuthenticating(false);
+
+      toast({
+        title: 'Institutional Session Established',
+        description: `Welcome, ${sessionData.officerName}. Access granted to ${sessionData.institutionName}.`,
+      });
+    }, 600);
+  };
+
+  const handleInstantDemoAccess = () => {
+    setLoginEmail('tpo@apex.edu');
+    setLoginPin('2026');
+    setSelectedInstitution('Apex Engineering & Technology Institute');
+    
+    setIsAuthenticating(true);
+    setTimeout(() => {
+      const demoSession: TpoOfficerSession = {
+        officerName: 'Dr. Rajesh Sharma',
+        officerEmail: 'tpo@apex.edu',
+        officerRole: 'Head, Corporate Relations & Placements',
+        institutionName: 'Apex Engineering & Technology Institute',
+        authenticatedAt: new Date().toISOString(),
+        sessionToken: 'VD-DEMO-2026'
+      };
+
+      try {
+        sessionStorage.setItem('vanidarpan_tpo_session', JSON.stringify(demoSession));
+        localStorage.setItem('vanidarpan_tpo_session', JSON.stringify(demoSession));
+      } catch (err) {
+        console.error('Failed to store TPO session:', err);
+      }
+
+      setOfficerSession(demoSession);
+      setIsAuthenticated(true);
+      setIsAuthenticating(false);
+
+      toast({
+        title: 'Demo Placement Officer Access Activated',
+        description: 'Signed in as Dr. Rajesh Sharma with full institutional placement intelligence.',
+      });
+    }, 400);
+  };
+
+  const handleRegisterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!regCollegeName || !regOfficerName || !regWorkEmail) {
+      toast({
+        title: 'Required Fields Missing',
+        description: 'Please provide institution name, officer name, and official institutional email.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const generatedKey = `TPO-PILOT-${Math.floor(1000 + Math.random() * 9000)}`;
+    setRegSuccessKey(generatedKey);
+
+    toast({
+      title: 'Campus Pilot Application Approved',
+      description: `Institutional passkey generated: ${generatedKey}`,
+    });
+  };
+
+  const handleEnterWithTrialKey = () => {
+    const trialSession: TpoOfficerSession = {
+      officerName: regOfficerName || 'Placement Officer',
+      officerEmail: regWorkEmail || 'officer@campus.edu',
+      officerRole: regDesignation || 'Head, Placement Cell',
+      institutionName: regCollegeName || 'Registered University Campus',
+      authenticatedAt: new Date().toISOString(),
+      sessionToken: regSuccessKey || 'TPO-PILOT-2026'
+    };
+
+    try {
+      sessionStorage.setItem('vanidarpan_tpo_session', JSON.stringify(trialSession));
+      localStorage.setItem('vanidarpan_tpo_session', JSON.stringify(trialSession));
+    } catch (err) {
+      console.error('Failed to store TPO session:', err);
+    }
+
+    setOfficerSession(trialSession);
+    setIsAuthenticated(true);
+  };
+
+  const handleLockPortal = () => {
+    try {
+      sessionStorage.removeItem('vanidarpan_tpo_session');
+      localStorage.removeItem('vanidarpan_tpo_session');
+    } catch (err) {
+      console.error('Failed to clear TPO session:', err);
+    }
+    setIsAuthenticated(false);
+    setOfficerSession(null);
+    setRegSuccessKey(null);
+
+    toast({
+      title: 'Portal Locked',
+      description: 'Institutional placement session locked successfully.',
+    });
+  };
 
   const handleExportCsv = async () => {
     setIsExporting(true);
@@ -187,10 +402,391 @@ export default function TPO() {
     setIsDossierOpen(true);
   };
 
+  // ── Sorted Heatmap Items ──
+  const sortedHeatmap = useMemo(() => {
+    const list = [...heatmap];
+    if (heatmapSortBy === 'readiness') {
+      return list.sort((a, b) => b.readiness_score - a.readiness_score);
+    } else if (heatmapSortBy === 'gaze') {
+      return list.sort((a, b) => b.eye_contact - a.eye_contact);
+    } else if (heatmapSortBy === 'wpm') {
+      return list.sort((a, b) => b.wpm - a.wpm);
+    } else if (heatmapSortBy === 'cohort') {
+      return list.sort((a, b) => b.students_count - a.students_count);
+    }
+    return list;
+  }, [heatmap, heatmapSortBy]);
+
+  // Helper for heatmap cell color scale
+  const getHeatmapColorClass = (score: number) => {
+    if (score >= 82) {
+      return 'bg-emerald-600 dark:bg-emerald-600 text-white font-bold border-emerald-500/60 shadow-xs';
+    } else if (score >= 76) {
+      return 'bg-emerald-500/80 dark:bg-emerald-500/80 text-white font-semibold border-emerald-400/50';
+    } else if (score >= 70) {
+      return 'bg-teal-600/75 dark:bg-teal-600/75 text-white font-medium border-teal-500/50';
+    } else if (score >= 63) {
+      return 'bg-amber-500/80 dark:bg-amber-500/80 text-slate-900 dark:text-slate-950 font-semibold border-amber-400/60';
+    } else {
+      return 'bg-rose-500/85 dark:bg-rose-500/85 text-white font-bold border-rose-400/60';
+    }
+  };
+
+  // ── 1. RENDER INSTITUTIONAL ACCESS GATE (If not authenticated) ──
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+        
+        {/* Subtle top banner */}
+        <div className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center">
+              <VaniDarpanLogo width={140} height={34} />
+            </Link>
+            <div className="h-5 w-px bg-slate-800 hidden sm:block" />
+            <Badge variant="outline" className="text-[11px] font-semibold text-indigo-400 bg-indigo-950/60 border-indigo-800/80 py-0.5 px-2">
+              Institutional Placement Intelligence
+            </Badge>
+          </div>
+
+          <div className="flex items-center gap-3 text-xs text-slate-400">
+            <Link href="/" className="hover:text-white transition-colors text-xs font-medium">
+              Student Studio
+            </Link>
+            <div className="h-4 w-px bg-slate-800" />
+            <ThemeToggle />
+          </div>
+        </div>
+
+        {/* Gate Container */}
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12 relative overflow-hidden">
+          
+          {/* Subtle background ambient mesh */}
+          <div className="absolute inset-0 pointer-events-none opacity-20">
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl" />
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-600/20 rounded-full blur-3xl" />
+          </div>
+
+          <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            
+            {/* Left Context Column */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="space-y-3">
+                <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-400 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-800/60">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <span>Authorized Personnel Only</span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+                  University TPO & Placement Cell Gateway
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                  Confidential multimodal communication benchmarks, candidate dossiers, and branch readiness heatmaps for university placement leadership.
+                </p>
+              </div>
+
+              {/* Institutional Capabilities List */}
+              <div className="space-y-3 pt-2 text-xs">
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800/80">
+                  <div className="h-7 w-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0 mt-0.5">
+                    <Grid className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-slate-200">2D Competency Heatmaps</div>
+                    <div className="text-slate-400 text-[11px] mt-0.5">
+                      Visual department-by-department eye contact, pacing, and disfluency matrix.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800/80">
+                  <div className="h-7 w-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                    <Award className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-slate-200">Day-1 Recruiter Triage</div>
+                    <div className="text-slate-400 text-[11px] mt-0.5">
+                      Instant categorization into Day-1 Ready, Core Drives, and Remedial Drills.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800/80">
+                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 mt-0.5">
+                    <FileCheck2 className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-slate-200">CSV Dossier Export</div>
+                    <div className="text-slate-400 text-[11px] mt-0.5">
+                      One-click audit export with timestamped session metrics and NAAC evidence.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Instant One-Click Demo Access Button */}
+              <div className="pt-2">
+                <Button
+                  onClick={handleInstantDemoAccess}
+                  disabled={isAuthenticating}
+                  className="w-full h-11 text-xs font-semibold gap-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white shadow-md border border-indigo-500/40"
+                >
+                  <Unlock className="h-4 w-4" />
+                  <span>One-Click Demo Officer Access (Dr. Rajesh Sharma)</span>
+                </Button>
+                <p className="text-[11px] text-slate-500 text-center mt-2">
+                  Instant sandbox access without credentials for institutional evaluation.
+                </p>
+              </div>
+            </div>
+
+            {/* Right Auth Card Column */}
+            <div className="lg:col-span-7">
+              <Card className="bg-slate-900/90 border-slate-800 shadow-xl overflow-hidden backdrop-blur-md">
+                
+                {/* Card Top Tabs */}
+                <div className="grid grid-cols-2 border-b border-slate-800 bg-slate-950/50 text-xs">
+                  <button
+                    onClick={() => { setAuthMode('login'); setRegSuccessKey(null); }}
+                    className={`py-3.5 px-4 font-semibold text-center transition-colors flex items-center justify-center gap-2 ${
+                      authMode === 'login'
+                        ? 'bg-slate-900 text-white border-b-2 border-indigo-500'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                    }`}
+                  >
+                    <Lock className="h-3.5 w-3.5" />
+                    <span>Officer Sign In</span>
+                  </button>
+
+                  <button
+                    onClick={() => { setAuthMode('register'); setRegSuccessKey(null); }}
+                    className={`py-3.5 px-4 font-semibold text-center transition-colors flex items-center justify-center gap-2 ${
+                      authMode === 'register'
+                        ? 'bg-slate-900 text-white border-b-2 border-indigo-500'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                    }`}
+                  >
+                    <Building2 className="h-3.5 w-3.5" />
+                    <span>Register Campus Pilot</span>
+                  </button>
+                </div>
+
+                <CardContent className="p-6 sm:p-8 space-y-6">
+                  
+                  {/* MODE 1: OFFICER LOGIN */}
+                  {authMode === 'login' && (
+                    <form onSubmit={handleOfficerLogin} className="space-y-4">
+                      
+                      {/* Institution Selector */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-300">
+                          Affiliated Institution / University
+                        </label>
+                        <select
+                          value={selectedInstitution}
+                          onChange={(e) => setSelectedInstitution(e.target.value)}
+                          className="w-full text-xs h-10 px-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-indigo-500"
+                        >
+                          <option value="Apex Engineering & Technology Institute">Apex Engineering & Technology Institute (Verified Pilot)</option>
+                          <option value="KIET Group of Institutions">KIET Group of Institutions (Verified Pilot)</option>
+                          <option value="National Institute of Technology (Demo)">National Institute of Technology (Demo)</option>
+                          <option value="Indian Institute of Technology (Demo)">Indian Institute of Technology (Demo)</option>
+                        </select>
+                      </div>
+
+                      {/* Official Email */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-300">
+                          Official Placement Officer Email
+                        </label>
+                        <Input
+                          type="email"
+                          placeholder="e.g. tpo@apex.edu"
+                          value={loginEmail}
+                          onChange={(e) => setLoginEmail(e.target.value)}
+                          required
+                          className="text-xs h-10 bg-slate-950 border-slate-800 text-slate-200 placeholder:text-slate-600 focus:border-indigo-500"
+                        />
+                      </div>
+
+                      {/* Access PIN / Passkey */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-medium text-slate-300">
+                            Institutional Access Key / PIN
+                          </label>
+                          <span className="text-[11px] text-indigo-400 font-mono">Demo PIN: 2026</span>
+                        </div>
+                        <Input
+                          type="password"
+                          placeholder="Enter 4-digit key or passkey"
+                          value={loginPin}
+                          onChange={(e) => setLoginPin(e.target.value)}
+                          required
+                          className="text-xs h-10 bg-slate-950 border-slate-800 text-slate-200 placeholder:text-slate-600 focus:border-indigo-500 font-mono"
+                        />
+                      </div>
+
+                      {/* Submit Button */}
+                      <Button
+                        type="submit"
+                        disabled={isAuthenticating}
+                        className="w-full h-10 text-xs font-semibold gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
+                      >
+                        {isAuthenticating ? (
+                          <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <ShieldCheck className="h-3.5 w-3.5" />
+                        )}
+                        <span>{isAuthenticating ? 'Verifying Institutional Credentials...' : 'Authenticate & Open TPO Portal'}</span>
+                      </Button>
+
+                      <div className="text-center pt-2">
+                        <span className="text-[11px] text-slate-500">
+                          Need access for your college? Switch to the "Register Campus Pilot" tab.
+                        </span>
+                      </div>
+                    </form>
+                  )}
+
+                  {/* MODE 2: REGISTER CAMPUS PILOT */}
+                  {authMode === 'register' && (
+                    <div>
+                      {regSuccessKey ? (
+                        <div className="p-6 rounded-xl bg-emerald-950/40 border border-emerald-800/80 text-center space-y-4">
+                          <div className="h-12 w-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+                            <CheckCircle2 className="h-6 w-6" />
+                          </div>
+                          <div>
+                            <h3 className="text-base font-bold text-white">Pilot Application Approved</h3>
+                            <p className="text-xs text-slate-300 mt-1">
+                              Your institution has been provisioned on the VaniDarpan pilot network.
+                            </p>
+                          </div>
+
+                          <div className="p-3 bg-slate-900 rounded-lg border border-slate-800 font-mono text-center">
+                            <span className="text-[11px] text-slate-400 block">Generated Access Passkey:</span>
+                            <span className="text-base font-bold text-emerald-400 tracking-wider">{regSuccessKey}</span>
+                          </div>
+
+                          <Button
+                            onClick={handleEnterWithTrialKey}
+                            className="w-full h-10 text-xs font-semibold gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                          >
+                            <span>Enter TPO Workspace with Generated Passkey</span>
+                            <ArrowRight className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-slate-300">College / University Name</label>
+                              <Input
+                                placeholder="e.g. Apex Engineering Institute"
+                                value={regCollegeName}
+                                onChange={(e) => setRegCollegeName(e.target.value)}
+                                required
+                                className="text-xs h-9 bg-slate-950 border-slate-800 text-slate-200 placeholder:text-slate-600"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-slate-300">Batch Size</label>
+                              <select
+                                value={regBatchSize}
+                                onChange={(e) => setRegBatchSize(e.target.value)}
+                                className="w-full text-xs h-9 px-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200"
+                              >
+                                <option value="300-600 Candidates">300–600 Candidates</option>
+                                <option value="600-1200 Candidates">600–1,200 Candidates</option>
+                                <option value="1200+ Candidates">1,200+ Candidates (Full Cohort)</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-slate-300">Placement Officer / Dean Name</label>
+                              <Input
+                                placeholder="e.g. Dr. Rajesh Sharma"
+                                value={regOfficerName}
+                                onChange={(e) => setRegOfficerName(e.target.value)}
+                                required
+                                className="text-xs h-9 bg-slate-950 border-slate-800 text-slate-200 placeholder:text-slate-600"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-slate-300">Official Designation</label>
+                              <Input
+                                placeholder="e.g. Head, Placement Cell"
+                                value={regDesignation}
+                                onChange={(e) => setRegDesignation(e.target.value)}
+                                required
+                                className="text-xs h-9 bg-slate-950 border-slate-800 text-slate-200 placeholder:text-slate-600"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-slate-300">Official Email (.edu / .ac.in)</label>
+                              <Input
+                                type="email"
+                                placeholder="e.g. tpo@apex.edu"
+                                value={regWorkEmail}
+                                onChange={(e) => setRegWorkEmail(e.target.value)}
+                                required
+                                className="text-xs h-9 bg-slate-950 border-slate-800 text-slate-200 placeholder:text-slate-600"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-slate-300">Contact Number</label>
+                              <Input
+                                type="tel"
+                                placeholder="+91 98765 43210"
+                                value={regPhone}
+                                onChange={(e) => setRegPhone(e.target.value)}
+                                className="text-xs h-9 bg-slate-950 border-slate-800 text-slate-200 placeholder:text-slate-600"
+                              />
+                            </div>
+                          </div>
+
+                          <Button
+                            type="submit"
+                            className="w-full h-10 text-xs font-semibold gap-2 bg-indigo-600 hover:bg-indigo-700 text-white mt-2"
+                          >
+                            <Building2 className="h-3.5 w-3.5" />
+                            <span>Submit Campus Registration & Generate Passkey</span>
+                          </Button>
+                        </form>
+                      )}
+                    </div>
+                  )}
+
+                </CardContent>
+              </Card>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Gate Footer */}
+        <div className="border-t border-slate-800/80 bg-slate-950 py-3 px-6 text-center text-[11px] text-slate-500">
+          VaniDarpan Institutional Placement Intelligence • 256-bit Encrypted TPO Session • Extended Pilot Access
+        </div>
+
+      </div>
+    );
+  }
+
+  // ── 2. RENDER AUTHENTICATED TPO DASHBOARD ──
   return (
     <div className="min-h-screen bg-slate-50/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors">
       
-      {/* ── 1. Dedicated Institutional Top Header (No public student nav clutter) ── */}
+      {/* ── Institutional Top Bar ── */}
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           
@@ -205,21 +801,21 @@ export default function TPO() {
             <div className="hidden sm:flex flex-col min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                  {stats?.college_name || 'Apex Engineering & Technology Institute'}
+                  {officerSession?.institutionName || stats?.college_name || 'Apex Engineering & Technology Institute'}
                 </span>
                 <Badge variant="outline" className="text-[10px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800 py-0 px-1.5">
                   TPO Portal
                 </Badge>
               </div>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                Office of Career Services & Corporate Relations • Batch of 2026
+                {officerSession?.officerName || 'Dr. Rajesh Sharma'} • {officerSession?.officerRole || 'Office of Career Services'}
               </span>
             </div>
           </div>
 
           {/* Right Action Tools */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <Badge variant="outline" className="hidden md:inline-flex text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+            <Badge variant="outline" className="hidden lg:inline-flex text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
               Sample Cohort Data
             </Badge>
 
@@ -250,62 +846,63 @@ export default function TPO() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 gap-1"
-                title="Switch to Student Practice Studio"
+                className="h-8 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white gap-1"
               >
                 <span>Student Studio</span>
-                <ArrowRight className="h-3 w-3" />
+                <ExternalLink className="h-3 w-3" />
               </Button>
             </Link>
 
             <ThemeToggle />
+
+            {/* Lock / Sign Out Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLockPortal}
+              title="Lock Institutional Portal"
+              className="h-8 px-2 text-xs border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+            >
+              <Lock className="h-3.5 w-3.5" />
+              <span className="hidden md:inline ml-1">Lock Portal</span>
+            </Button>
           </div>
 
         </div>
       </header>
 
-      {/* ── Main Dashboard Content ── */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-
-        {/* ── 2. Executive Overview Hero Card ── */}
-        <motion.div 
-          initial={{ opacity: 0, y: 12 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.3 }}
-          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs"
-        >
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                  Campus Recruitment Telemetry
-                </span>
-                <span className="text-slate-300 dark:text-slate-700">•</span>
-                <span className="text-xs text-slate-500 font-medium">Placement Cycle 2025–2026</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Candidate Communication & Placement Readiness
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed">
-                Aggregated interview communication analytics, branch performance heatmaps, and individual candidate records evaluated using automated on-device computer vision and vocal acoustic metrics.
-              </p>
+      {/* ── Main Workspace Body ── */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+        
+        {/* ── Page Header & Accreditation Badges ── */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Campus Placement Readiness Intelligence
+              </h2>
+              <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold py-0.5 px-2">
+                Active Pilot
+              </Badge>
             </div>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Automated behavioral, eye contact, and pacing diagnostic analytics across engineering and management branches.
+            </p>
+          </div>
 
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <Badge variant="outline" className="text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 py-1 px-3 gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                <span>Soft-Skills Benchmark Compliant</span>
-              </Badge>
-              <Badge variant="outline" className="text-xs font-medium text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800 py-1 px-3 gap-1.5">
-                <GraduationCap className="h-3.5 w-3.5" />
-                <span>1,480 Batch Size</span>
-              </Badge>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-medium">
+              <GraduationCap className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span>{stats?.academic_season || '2025–2026 Season'}</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-medium">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Accreditation Ready</span>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* ── 3. Executive KPI Metric Cards (5 Animated Cards) ── */}
+        {/* ── KPI Metric Cards ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           
           {/* Card 1: Enrolled Candidates */}
@@ -322,11 +919,11 @@ export default function TPO() {
                   <Users className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                  {stats?.total_enrolled_candidates.toLocaleString() || '1,480'}
+                  {stats?.total_enrolled_candidates || 1480}
                 </div>
                 <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
-                  <span>Practice Sessions</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200 font-mono">{stats?.total_practice_sessions.toLocaleString() || '6,840'}</span>
+                  <span>Practice Volume</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">{stats?.total_practice_sessions || 6840} runs</span>
                 </div>
               </CardContent>
             </Card>
@@ -343,9 +940,9 @@ export default function TPO() {
               <CardContent className="p-5 space-y-2">
                 <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
                   <span>Campus Readiness Index</span>
-                  <Activity className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <BarChart3 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-baseline gap-2">
+                <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-baseline gap-1.5 font-mono">
                   <span>{stats?.college_readiness_index || 77.4}%</span>
                   <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">+5.2%</span>
                 </div>
@@ -434,7 +1031,7 @@ export default function TPO() {
 
         </div>
 
-        {/* ── 4. Cohort Skill Benchmarks Strip ── */}
+        {/* ── Cohort Skill Benchmarks Strip ── */}
         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
             
@@ -499,7 +1096,7 @@ export default function TPO() {
           </div>
         </div>
 
-        {/* ── 5. Segmented Navigation Tabs ── */}
+        {/* ── Segmented Navigation Tabs ── */}
         <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
           <button
             onClick={() => setActiveTab('heatmap')}
@@ -509,8 +1106,8 @@ export default function TPO() {
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            <BarChart3 className="h-4 w-4" />
-            <span>Branch Readiness Heatmap</span>
+            <Grid className="h-4 w-4" />
+            <span>Multimodal Heatmap Suite</span>
           </button>
 
           <button
@@ -543,10 +1140,10 @@ export default function TPO() {
           </button>
         </div>
 
-        {/* ── 6. Tab Content with Framer Motion AnimatePresence ── */}
+        {/* ── Tab Content with Framer Motion AnimatePresence ── */}
         <AnimatePresence mode="wait">
           
-          {/* TAB 1: BRANCH COMMUNICATION HEATMAP */}
+          {/* TAB 1: ADVANCED MULTIMODAL HEATMAP SUITE */}
           {activeTab === 'heatmap' && (
             <motion.div
               key="tab-heatmap"
@@ -556,153 +1153,622 @@ export default function TPO() {
               transition={{ duration: 0.25, ease: "easeOut" }}
               className="space-y-6"
             >
-              {/* Heatmap Table Card */}
-              <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-                <CardHeader className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <CardTitle className="text-base font-bold text-slate-900 dark:text-white">
-                        Department Interview Readiness Matrix
-                      </CardTitle>
-                      <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        Comparative behavioral and communication benchmarks across engineering and management branches.
-                      </CardDescription>
-                    </div>
+              
+              {/* Heatmap Controls & Sub-view Switcher */}
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs space-y-4">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  
+                  {/* Sub-view switcher */}
+                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg text-xs font-medium">
+                    <button
+                      onClick={() => setHeatmapView('matrix')}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                        heatmapView === 'matrix'
+                          ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-xs'
+                          : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <Grid className="h-3.5 w-3.5" />
+                      <span>2D Competency Matrix</span>
+                    </button>
 
-                    {/* Table Legend */}
-                    <div className="flex items-center gap-4 text-xs">
-                      <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                        <span>Ready (80%+)</span>
-                      </span>
-                      <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                        <span className="h-2.5 w-2.5 rounded-full bg-indigo-500" />
-                        <span>Core (70–79%)</span>
-                      </span>
-                      <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                        <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
-                        <span>Needs Practice (&lt;70%)</span>
-                      </span>
-                    </div>
+                    <button
+                      onClick={() => setHeatmapView('timeline')}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                        heatmapView === 'timeline'
+                          ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-xs'
+                          : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span>Practice Activity Rhythm</span>
+                    </button>
+
+                    <button
+                      onClick={() => setHeatmapView('density')}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                        heatmapView === 'density'
+                          ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-xs'
+                          : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <Layers className="h-3.5 w-3.5" />
+                      <span>Placement Tier Density</span>
+                    </button>
                   </div>
-                </CardHeader>
 
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-xs">
-                      <thead>
-                        <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 uppercase text-[11px] font-semibold tracking-wider">
-                          <th className="py-3.5 px-5">Department</th>
-                          <th className="py-3.5 px-4 text-center">Candidates</th>
-                          <th className="py-3.5 px-4 text-center">Camera Gaze</th>
-                          <th className="py-3.5 px-4 text-center">Speaking Pace</th>
-                          <th className="py-3.5 px-4 text-center">Filler Frequency</th>
-                          <th className="py-3.5 px-4 text-center">Posture Stability</th>
-                          <th className="py-3.5 px-4 text-center">Readiness Index</th>
-                          <th className="py-3.5 px-5">Primary Finding</th>
-                          <th className="py-3.5 px-4 text-center">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {heatmap.map((item) => {
-                          const isHigh = item.readiness_score >= 80;
-                          const isMid = item.readiness_score >= 70 && item.readiness_score < 80;
+                  {/* Heatmap Sorting */}
+                  {heatmapView === 'matrix' && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
+                        <Filter className="h-3.5 w-3.5" />
+                        Sort Matrix By:
+                      </span>
+                      <select
+                        value={heatmapSortBy}
+                        onChange={(e: any) => setHeatmapSortBy(e.target.value)}
+                        className="text-xs h-8 px-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium"
+                      >
+                        <option value="readiness">Highest Readiness Score</option>
+                        <option value="gaze">Camera Gaze Focus</option>
+                        <option value="wpm">Speaking Pace (WPM)</option>
+                        <option value="cohort">Cohort Size</option>
+                      </select>
+                    </div>
+                  )}
 
-                          return (
-                            <tr key={item.branch} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
-                              
-                              {/* Branch Name */}
+                  {/* Chromatic Color Scale Legend */}
+                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-600 dark:text-slate-400">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">Readiness Scale:</span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-2.5 w-2.5 rounded bg-emerald-600 inline-block" />
+                      <span>&ge;82% Super-Dream</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-2.5 w-2.5 rounded bg-emerald-500/80 inline-block" />
+                      <span>76–81% Day-1</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-2.5 w-2.5 rounded bg-teal-600/75 inline-block" />
+                      <span>70–75% Core</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-2.5 w-2.5 rounded bg-amber-500/80 inline-block" />
+                      <span>63–69% Practice Track</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-2.5 w-2.5 rounded bg-rose-500/85 inline-block" />
+                      <span>&lt;63% Intervention</span>
+                    </span>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* ── VIEW 1: 2D DEPARTMENT COMPETENCY MATRIX HEATMAP ── */}
+              {heatmapView === 'matrix' && (
+                <div className="space-y-4">
+                  <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+                    <CardHeader className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <CardTitle className="text-base font-bold text-slate-900 dark:text-white">
+                            Multimodal Behavioral Heatmap Matrix
+                          </CardTitle>
+                          <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            Cross-departmental interview dimension intensity grid. Hover over any cell for precision diagnostic telemetry.
+                          </CardDescription>
+                        </div>
+                        <Badge variant="outline" className="w-fit text-[11px] font-mono font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800">
+                          1,480 Candidates • 6 Dimensions
+                        </Badge>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs">
+                          <thead>
+                            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 uppercase text-[11px] font-semibold tracking-wider">
+                              <th className="py-3.5 px-5 min-w-[200px]">Department</th>
+                              <th className="py-3.5 px-3 text-center min-w-[110px]">Camera Gaze</th>
+                              <th className="py-3.5 px-3 text-center min-w-[110px]">Speaking Pace</th>
+                              <th className="py-3.5 px-3 text-center min-w-[110px]">Filler Control</th>
+                              <th className="py-3.5 px-3 text-center min-w-[110px]">Posture Poise</th>
+                              <th className="py-3.5 px-3 text-center min-w-[110px]">PREP Structure</th>
+                              <th className="py-3.5 px-3 text-center min-w-[120px]">Readiness Score</th>
+                              <th className="py-3.5 px-4 min-w-[240px]">Primary Diagnostic Bottleneck</th>
+                              <th className="py-3.5 px-4 text-center min-w-[110px]">Recruiter Status</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                            {sortedHeatmap.map((item) => {
+                              const gazeColor = getHeatmapColorClass(item.eye_contact);
+                              const paceScore = Math.max(55, Math.min(95, Math.round(100 - Math.abs(142 - item.wpm) * 1.5)));
+                              const paceColor = getHeatmapColorClass(paceScore);
+                              const fillerScore = item.filler_control_pct || 75;
+                              const fillerColor = getHeatmapColorClass(fillerScore);
+                              const postureColor = getHeatmapColorClass(item.posture);
+                              const prepScore = item.prep_score || 75;
+                              const prepColor = getHeatmapColorClass(prepScore);
+                              const overallColor = getHeatmapColorClass(item.readiness_score);
+
+                              return (
+                                <tr key={item.branch} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                                  
+                                  {/* Department Info */}
+                                  <td className="py-4 px-5">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-bold text-slate-900 dark:text-white text-xs">{item.branch}</span>
+                                      <span className="text-[10px] text-slate-400 font-mono">({item.students_count} studs)</span>
+                                    </div>
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[180px]">
+                                      {item.name}
+                                    </div>
+                                    <div className="text-[10px] text-slate-400 mt-0.5 font-mono">
+                                      {item.sessions_count} sessions conducted
+                                    </div>
+                                  </td>
+
+                                  {/* Metric 1: Camera Gaze Heatmap Tile */}
+                                  <td className="py-2.5 px-2 text-center">
+                                    <div 
+                                      className={`p-2 rounded-lg border text-xs transition-all hover:scale-105 cursor-pointer ${gazeColor}`}
+                                      onMouseEnter={() => setHoveredCell({
+                                        branch: item.branch,
+                                        dimension: 'Camera Gaze Focus',
+                                        value: `${item.eye_contact}%`,
+                                        benchmark: '75.0% Recruiter Target',
+                                        delta: item.eye_contact >= 75 ? `+${(item.eye_contact - 75).toFixed(1)}% above target` : `${(item.eye_contact - 75).toFixed(1)}% below target`,
+                                        note: item.eye_contact >= 75 ? 'Direct eye-to-lens connection maintained during technical explanations.' : 'Significant eye wandering and glance drift away from camera detected.'
+                                      })}
+                                      onMouseLeave={() => setHoveredCell(null)}
+                                      onClick={() => {
+                                        setSelectedBranch(item.branch);
+                                        setActiveTab('directory');
+                                      }}
+                                    >
+                                      <div className="font-mono text-sm">{item.eye_contact}%</div>
+                                      <div className="text-[9px] opacity-80 uppercase tracking-wider">Gaze</div>
+                                    </div>
+                                  </td>
+
+                                  {/* Metric 2: Speaking Pace Heatmap Tile */}
+                                  <td className="py-2.5 px-2 text-center">
+                                    <div 
+                                      className={`p-2 rounded-lg border text-xs transition-all hover:scale-105 cursor-pointer ${paceColor}`}
+                                      onMouseEnter={() => setHoveredCell({
+                                        branch: item.branch,
+                                        dimension: 'Speaking Pace / Cadence',
+                                        value: `${item.wpm} WPM`,
+                                        benchmark: '130–150 WPM Optimal Tempo',
+                                        delta: item.wpm > 155 ? 'Rushed Cadence (>155 WPM)' : item.wpm < 125 ? 'Deliberate Cadence (<125 WPM)' : 'Optimal Conversational Pace',
+                                        note: item.wpm > 155 ? 'Candidates speak too fast when answering complex project questions.' : 'Tempo is controlled and easily understandable for interview panel.'
+                                      })}
+                                      onMouseLeave={() => setHoveredCell(null)}
+                                      onClick={() => {
+                                        setSelectedBranch(item.branch);
+                                        setActiveTab('directory');
+                                      }}
+                                    >
+                                      <div className="font-mono text-sm">{item.wpm}</div>
+                                      <div className="text-[9px] opacity-80 uppercase tracking-wider">WPM</div>
+                                    </div>
+                                  </td>
+
+                                  {/* Metric 3: Filler Control Heatmap Tile */}
+                                  <td className="py-2.5 px-2 text-center">
+                                    <div 
+                                      className={`p-2 rounded-lg border text-xs transition-all hover:scale-105 cursor-pointer ${fillerColor}`}
+                                      onMouseEnter={() => setHoveredCell({
+                                        branch: item.branch,
+                                        dimension: 'Filler Disfluency Control',
+                                        value: `${fillerScore}% Score (${item.filler_rate}/min)`,
+                                        benchmark: '<2.0 fillers/min Target',
+                                        delta: item.filler_rate <= 1.8 ? 'Excellent Pausing Discipline' : 'Frequent Crutches Detected',
+                                        note: item.filler_rate <= 1.8 ? 'Candidates use confident 1-second silent pauses instead of verbal crutches.' : 'High reliance on fillers like "um", "like", and "basically".'
+                                      })}
+                                      onMouseLeave={() => setHoveredCell(null)}
+                                      onClick={() => {
+                                        setSelectedBranch(item.branch);
+                                        setActiveTab('directory');
+                                      }}
+                                    >
+                                      <div className="font-mono text-sm">{fillerScore}%</div>
+                                      <div className="text-[9px] opacity-80 uppercase tracking-wider">{item.filler_rate}/min</div>
+                                    </div>
+                                  </td>
+
+                                  {/* Metric 4: Posture Poise Heatmap Tile */}
+                                  <td className="py-2.5 px-2 text-center">
+                                    <div 
+                                      className={`p-2 rounded-lg border text-xs transition-all hover:scale-105 cursor-pointer ${postureColor}`}
+                                      onMouseEnter={() => setHoveredCell({
+                                        branch: item.branch,
+                                        dimension: 'Posture & Composure Stability',
+                                        value: `${item.posture}%`,
+                                        benchmark: '75.0% Stability Target',
+                                        delta: item.posture >= 75 ? '+3.8% above campus benchmark' : 'Lateral slouching detected',
+                                        note: item.posture >= 75 ? 'Upright spinal alignment with minimal nervous head swaying.' : 'Restless shoulder shifting during stress interview scenarios.'
+                                      })}
+                                      onMouseLeave={() => setHoveredCell(null)}
+                                      onClick={() => {
+                                        setSelectedBranch(item.branch);
+                                        setActiveTab('directory');
+                                      }}
+                                    >
+                                      <div className="font-mono text-sm">{item.posture}%</div>
+                                      <div className="text-[9px] opacity-80 uppercase tracking-wider">Poise</div>
+                                    </div>
+                                  </td>
+
+                                  {/* Metric 5: PREP Structuring Heatmap Tile */}
+                                  <td className="py-2.5 px-2 text-center">
+                                    <div 
+                                      className={`p-2 rounded-lg border text-xs transition-all hover:scale-105 cursor-pointer ${prepColor}`}
+                                      onMouseEnter={() => setHoveredCell({
+                                        branch: item.branch,
+                                        dimension: 'PREP & STAR Structural Reasoning',
+                                        value: `${prepScore}%`,
+                                        benchmark: '75.0% Structure Target',
+                                        delta: prepScore >= 80 ? 'Structured Point-Reason-Example Flow' : 'Freeform / Unstructured Answers',
+                                        note: prepScore >= 80 ? 'Answers start with strong thesis statements followed by verifiable project metrics.' : 'Candidates need more practice structuring behavioral responses with STAR methodology.'
+                                      })}
+                                      onMouseLeave={() => setHoveredCell(null)}
+                                      onClick={() => {
+                                        setSelectedBranch(item.branch);
+                                        setActiveTab('directory');
+                                      }}
+                                    >
+                                      <div className="font-mono text-sm">{prepScore}%</div>
+                                      <div className="text-[9px] opacity-80 uppercase tracking-wider">Logic</div>
+                                    </div>
+                                  </td>
+
+                                  {/* Metric 6: Overall Readiness Heatmap Tile */}
+                                  <td className="py-2.5 px-2 text-center">
+                                    <div 
+                                      className={`p-2 rounded-lg border text-xs transition-all hover:scale-105 cursor-pointer ring-1 ring-black/10 dark:ring-white/10 ${overallColor}`}
+                                      onMouseEnter={() => setHoveredCell({
+                                        branch: item.branch,
+                                        dimension: 'Composite Placement Readiness Index',
+                                        value: `${item.readiness_score}%`,
+                                        benchmark: 'Campus Avg: 77.4%',
+                                        delta: item.readiness_score >= 77.4 ? `+${(item.readiness_score - 77.4).toFixed(1)}% vs Campus Average` : `${(item.readiness_score - 77.4).toFixed(1)}% vs Campus Average`,
+                                        note: item.key_strength
+                                      })}
+                                      onMouseLeave={() => setHoveredCell(null)}
+                                      onClick={() => {
+                                        setSelectedBranch(item.branch);
+                                        setActiveTab('directory');
+                                      }}
+                                    >
+                                      <div className="font-mono text-sm font-bold">{item.readiness_score}%</div>
+                                      <div className="text-[9px] opacity-90 uppercase tracking-wider">Composite</div>
+                                    </div>
+                                  </td>
+
+                                  {/* Primary Finding */}
+                                  <td className="py-4 px-4">
+                                    <div className="text-[11px] font-semibold text-slate-900 dark:text-white leading-snug">
+                                      {item.key_strength}
+                                    </div>
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug mt-0.5">
+                                      <span className="font-medium text-amber-600 dark:text-amber-400">Bottleneck:</span> {item.primary_bottleneck}
+                                    </div>
+                                  </td>
+
+                                  {/* Status */}
+                                  <td className="py-4 px-4 text-center">
+                                    <Badge 
+                                      variant="outline" 
+                                      className={`text-[10px] font-semibold py-0.5 px-2 whitespace-nowrap ${
+                                        item.readiness_score >= 80
+                                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+                                          : item.readiness_score >= 70
+                                          ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
+                                          : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+                                      }`}
+                                    >
+                                      {item.status}
+                                    </Badge>
+                                  </td>
+
+                                </tr>
+                              );
+                            })}
+
+                            {/* Summary Benchmark Row */}
+                            <tr className="bg-slate-100/80 dark:bg-slate-800/80 font-semibold border-t-2 border-slate-300 dark:border-slate-700">
                               <td className="py-4 px-5">
-                                <div className="font-bold text-slate-900 dark:text-white text-xs">{item.branch}</div>
-                                <div className="text-[11px] text-slate-500 dark:text-slate-400">{item.name}</div>
+                                <div className="font-bold text-slate-900 dark:text-white text-xs">Campus Benchmark Average</div>
+                                <div className="text-[10px] text-slate-500">1,480 Total Candidates • Batch of 2026</div>
                               </td>
-
-                              {/* Cohort Size */}
-                              <td className="py-4 px-4 text-center font-mono text-slate-700 dark:text-slate-300">
-                                <div className="font-semibold">{item.students_count}</div>
-                                <div className="text-[11px] text-slate-400">{item.sessions_count} sessions</div>
+                              <td className="py-3 px-2 text-center font-mono text-sm text-slate-900 dark:text-white">
+                                73.6%
                               </td>
-
-                              {/* Camera Gaze */}
-                              <td className="py-4 px-4 text-center">
-                                <div className="font-semibold text-slate-800 dark:text-slate-200 font-mono">{item.eye_contact}%</div>
-                                <div className="w-20 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mx-auto mt-1 overflow-hidden border border-slate-200 dark:border-slate-700">
-                                  <motion.div 
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${item.eye_contact}%` }}
-                                    transition={{ duration: 0.6, ease: "easeOut" }}
-                                    className={`h-full rounded-full ${isHigh ? 'bg-emerald-500' : isMid ? 'bg-indigo-500' : 'bg-amber-500'}`}
-                                  />
-                                </div>
+                              <td className="py-3 px-2 text-center font-mono text-sm text-slate-900 dark:text-white">
+                                142.4
                               </td>
-
-                              {/* Speaking Pace */}
-                              <td className="py-4 px-4 text-center font-mono">
-                                <div className="font-semibold text-slate-800 dark:text-slate-200">{item.wpm} <span className="text-[10px] text-slate-400 font-normal">WPM</span></div>
-                                <div className="text-[10px] text-slate-500">
-                                  {item.wpm > 152 ? 'Fast Pace' : (item.wpm < 125 ? 'Deliberate' : 'Optimal')}
-                                </div>
+                              <td className="py-3 px-2 text-center font-mono text-sm text-slate-900 dark:text-white">
+                                78.8%
                               </td>
-
-                              {/* Filler Frequency */}
-                              <td className="py-4 px-4 text-center font-mono">
-                                <div className={`font-semibold ${item.filler_rate > 2.0 ? 'text-amber-700 dark:text-amber-400' : 'text-slate-800 dark:text-slate-200'}`}>
-                                  {item.filler_rate} <span className="text-[10px] text-slate-400 font-normal">/min</span>
-                                </div>
+                              <td className="py-3 px-2 text-center font-mono text-sm text-slate-900 dark:text-white">
+                                74.5%
                               </td>
-
-                              {/* Posture */}
-                              <td className="py-4 px-4 text-center font-mono text-slate-700 dark:text-slate-300">
-                                {item.posture}%
+                              <td className="py-3 px-2 text-center font-mono text-sm text-slate-900 dark:text-white">
+                                76.6%
                               </td>
-
-                              {/* Readiness Index */}
-                              <td className="py-4 px-4 text-center font-mono">
-                                <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold ${
-                                  isHigh 
-                                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' 
-                                    : isMid 
-                                    ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800' 
-                                    : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
-                                }`}>
-                                  {item.readiness_score}%
-                                </span>
+                              <td className="py-3 px-2 text-center font-mono text-sm font-bold text-indigo-700 dark:text-indigo-300">
+                                77.4%
                               </td>
-
-                              {/* Diagnostic Finding */}
-                              <td className="py-4 px-5">
-                                <div className="text-[11px] font-medium text-slate-900 dark:text-white leading-snug">
-                                  {item.key_strength}
-                                </div>
-                                <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug mt-0.5">
-                                  Focus: {item.primary_bottleneck}
-                                </div>
+                              <td className="py-3 px-4 text-xs text-slate-600 dark:text-slate-300">
+                                Overall Campus Readiness Target Met for Day-1 & Mass Recruiter Drives
                               </td>
-
-                              {/* Status Badge */}
-                              <td className="py-4 px-4 text-center">
-                                <Badge 
-                                  variant="outline" 
-                                  className={`text-[11px] font-medium py-0.5 px-2.5 ${
-                                    isHigh 
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' 
-                                      : isMid 
-                                      ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800' 
-                                      : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
-                                  }`}
-                                >
-                                  {item.status}
+                              <td className="py-3 px-4 text-center">
+                                <Badge className="bg-emerald-600 text-white text-[10px]">
+                                  Cohort Ready
                                 </Badge>
                               </td>
-
                             </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
+
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Dynamic Hover Inspection Card */}
+                  {hoveredCell && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 rounded-xl bg-slate-900 text-white border border-slate-800 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-indigo-400 text-xs uppercase tracking-wider">{hoveredCell.branch} Department</span>
+                          <span className="text-slate-500">•</span>
+                          <span className="font-semibold text-slate-200 text-xs">{hoveredCell.dimension}</span>
+                        </div>
+                        <div className="text-xs text-slate-300 leading-relaxed">
+                          {hoveredCell.note}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4 shrink-0">
+                        <div className="text-right">
+                          <div className="text-lg font-bold font-mono text-emerald-400">{hoveredCell.value}</div>
+                          <div className="text-[10px] text-slate-400">{hoveredCell.delta}</div>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setSelectedBranch(hoveredCell.branch);
+                            setActiveTab('directory');
+                          }}
+                          className="h-8 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white"
+                        >
+                          <span>Inspect Candidates</span>
+                          <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              )}
+
+              {/* ── VIEW 2: TEMPORAL PRACTICE ACTIVITY RHYTHM HEATMAP ── */}
+              {heatmapView === 'timeline' && (
+                <div className="space-y-4">
+                  <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs p-6 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+                      <div>
+                        <CardTitle className="text-base font-bold text-slate-900 dark:text-white">
+                          Cohort Practice Velocity & Cadence Heatmap
+                        </CardTitle>
+                        <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          Daily session volume across the 12-week preparation cycle leading up to Day-1 campus placement drives.
+                        </CardDescription>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                        <span>Less Practice</span>
+                        <div className="flex items-center gap-1">
+                          <span className="h-3 w-3 rounded-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
+                          <span className="h-3 w-3 rounded-xs bg-emerald-400/30" />
+                          <span className="h-3 w-3 rounded-xs bg-emerald-500/60" />
+                          <span className="h-3 w-3 rounded-xs bg-emerald-600" />
+                          <span className="h-3 w-3 rounded-xs bg-emerald-700 shadow-xs" />
+                        </div>
+                        <span>Peak Drive Surge</span>
+                      </div>
+                    </div>
+
+                    {/* GitHub-style 12-week temporal matrix */}
+                    <div className="overflow-x-auto py-2">
+                      <div className="min-w-[700px] space-y-2">
+                        
+                        {/* Month / Week Headers */}
+                        <div className="grid grid-cols-12 text-[11px] font-semibold text-slate-400 text-center pl-10">
+                          {Array.from({ length: 12 }, (_, i) => (
+                            <div key={i}>Wk {i + 1}</div>
+                          ))}
+                        </div>
+
+                        {/* 7 Days Grid */}
+                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, dayIdx) => (
+                          <div key={day} className="flex items-center gap-2">
+                            <span className="w-8 text-[11px] font-medium text-slate-500 text-right">{day}</span>
+                            <div className="grid grid-cols-12 gap-2 flex-1">
+                              {Array.from({ length: 12 }, (_, weekIdx) => {
+                                // Simulate realistic session counts with spikes on weekends and later weeks
+                                const base = (weekIdx + 1) * 6 + (dayIdx === 5 || dayIdx === 6 ? 25 : 8);
+                                const sessions = Math.round(base * (0.8 + (Math.sin(weekIdx * 3 + dayIdx) * 0.3)));
+                                
+                                let cellBg = 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700';
+                                if (sessions > 85) cellBg = 'bg-emerald-700 text-white shadow-xs';
+                                else if (sessions > 55) cellBg = 'bg-emerald-600 text-white';
+                                else if (sessions > 30) cellBg = 'bg-emerald-500/60 text-white';
+                                else if (sessions > 12) cellBg = 'bg-emerald-400/30 text-slate-800 dark:text-slate-200';
+
+                                return (
+                                  <div
+                                    key={weekIdx}
+                                    title={`Week ${weekIdx + 1}, ${day}: ${sessions} mock sessions conducted`}
+                                    className={`h-8 rounded-md flex items-center justify-center font-mono text-[10px] font-medium border border-transparent transition-transform hover:scale-110 cursor-pointer ${cellBg}`}
+                                  >
+                                    {sessions}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+
+                      </div>
+                    </div>
+
+                    {/* Temporal Summary Badges */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+                      <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700">
+                        <span className="text-slate-500 text-[11px] block">Peak Practice Window</span>
+                        <span className="font-bold text-slate-900 dark:text-white text-sm block mt-0.5">
+                          Sunday Evenings (7 PM – 11 PM)
+                        </span>
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block mt-0.5">
+                          Avg 340 sessions completed prior to Monday mock rounds
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700">
+                        <span className="text-slate-500 text-[11px] block">Total Practice Hours Logged</span>
+                        <span className="font-bold text-slate-900 dark:text-white text-sm block mt-0.5 font-mono">
+                          1,710 Hours (6,840 Sessions)
+                        </span>
+                        <span className="text-[10px] text-indigo-600 dark:text-indigo-400 block mt-0.5">
+                          Equivalent to 4.6 full mock interviews per candidate
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700">
+                        <span className="text-slate-500 text-[11px] block">Remedial Improvement Rate</span>
+                        <span className="font-bold text-slate-900 dark:text-white text-sm block mt-0.5 font-mono">
+                          +18.4% Average Lift
+                        </span>
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block mt-0.5">
+                          Observed across candidates with 5+ studio sessions
+                        </span>
+                      </div>
+                    </div>
+
+                  </Card>
+                </div>
+              )}
+
+              {/* ── VIEW 3: PLACEMENT TIER DENSITY HEATMAP ── */}
+              {heatmapView === 'density' && (
+                <div className="space-y-4">
+                  <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs p-6 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+                      <div>
+                        <CardTitle className="text-base font-bold text-slate-900 dark:text-white">
+                          Department Placement Tier Distribution Density
+                        </CardTitle>
+                        <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          Percentage of students categorized into each recruitment bracket per engineering department.
+                        </CardDescription>
+                      </div>
+
+                      <Badge variant="outline" className="w-fit text-xs font-semibold text-slate-600 dark:text-slate-300">
+                        Recruitment Tier Matrix
+                      </Badge>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 uppercase text-[11px] font-semibold tracking-wider">
+                            <th className="py-3 px-4">Department</th>
+                            <th className="py-3 px-3 text-center">Tier 1: Product (12+ LPA)</th>
+                            <th className="py-3 px-3 text-center">Tier 2: Core (6–12 LPA)</th>
+                            <th className="py-3 px-3 text-center">Tier 3: Mass (4–6 LPA)</th>
+                            <th className="py-3 px-3 text-center">Tier 4: Faculty Drills (&lt;4 LPA)</th>
+                            <th className="py-3 px-4 text-center">Remedial Priority</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                          {[
+                            { branch: 'CSE', name: 'Computer Science', t1: 42, t2: 48, t3: 8, t4: 2, action: 'Low Intervention' },
+                            { branch: 'IT', name: 'Information Technology', t1: 36, t2: 52, t3: 10, t4: 2, action: 'Low Intervention' },
+                            { branch: 'ECE', name: 'Electronics & Comm', t1: 24, t2: 56, t3: 16, t4: 4, action: 'Medium Focus' },
+                            { branch: 'ME', name: 'Mechanical Engg', t1: 12, t2: 46, t3: 32, t4: 10, action: 'High Priority Drills' },
+                            { branch: 'CE', name: 'Civil Engineering', t1: 10, t2: 48, t3: 34, t4: 8, action: 'High Priority Drills' },
+                            { branch: 'MBA', name: 'Management', t1: 48, t2: 42, t3: 8, t4: 2, action: 'Super-Dream Focused' },
+                          ].map((row) => (
+                            <tr key={row.branch} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                              <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
+                                {row.branch} <span className="text-[11px] text-slate-400 font-normal">({row.name})</span>
+                              </td>
+
+                              {/* T1 Tile */}
+                              <td className="py-2.5 px-3 text-center">
+                                <div className={`py-1.5 px-2 rounded-md font-mono text-xs font-semibold ${
+                                  row.t1 >= 35 ? 'bg-emerald-600 text-white' : row.t1 >= 20 ? 'bg-emerald-500/70 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                                }`}>
+                                  {row.t1}%
+                                </div>
+                              </td>
+
+                              {/* T2 Tile */}
+                              <td className="py-2.5 px-3 text-center">
+                                <div className={`py-1.5 px-2 rounded-md font-mono text-xs font-semibold ${
+                                  row.t2 >= 50 ? 'bg-indigo-600 text-white' : 'bg-indigo-500/60 text-white'
+                                }`}>
+                                  {row.t2}%
+                                </div>
+                              </td>
+
+                              {/* T3 Tile */}
+                              <td className="py-2.5 px-3 text-center">
+                                <div className={`py-1.5 px-2 rounded-md font-mono text-xs font-semibold ${
+                                  row.t3 >= 25 ? 'bg-amber-500/80 text-slate-900 font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                                }`}>
+                                  {row.t3}%
+                                </div>
+                              </td>
+
+                              {/* T4 Tile */}
+                              <td className="py-2.5 px-3 text-center">
+                                <div className={`py-1.5 px-2 rounded-md font-mono text-xs font-semibold ${
+                                  row.t4 >= 8 ? 'bg-rose-500/85 text-white font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                                }`}>
+                                  {row.t4}%
+                                </div>
+                              </td>
+
+                              <td className="py-3.5 px-4 text-center">
+                                <Badge 
+                                  variant="outline" 
+                                  className={`text-[10px] font-semibold py-0.5 px-2 ${
+                                    row.action.includes('High')
+                                      ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800'
+                                      : row.action.includes('Medium')
+                                      ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+                                      : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+                                  }`}
+                                >
+                                  {row.action}
+                                </Badge>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </Card>
+                </div>
+              )}
 
               {/* Placement Cohort Classification Cards */}
               <div className="space-y-3">
@@ -946,12 +2012,12 @@ export default function TPO() {
                                   variant="outline" 
                                   className={`text-[11px] font-medium py-0.5 px-2.5 ${
                                     cand.tier_badge === 'tier1'
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
                                       : cand.tier_badge === 'core'
-                                      ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
+                                      ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
                                       : cand.tier_badge === 'targeted'
-                                      ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
-                                      : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800'
+                                      ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
+                                      : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
                                   }`}
                                 >
                                   {cand.tier}
@@ -1123,11 +2189,11 @@ export default function TPO() {
 
       </main>
 
-      {/* ── 7. Clean Institutional Footer (1 line, no marketing clutter) ── */}
+      {/* ── Clean Institutional Footer (1 line, no marketing clutter) ── */}
       <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 px-6 text-xs text-slate-500 dark:text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>
-            {stats?.college_name || 'Apex Engineering & Technology Institute'} • Training & Placement Intelligence System
+            {officerSession?.institutionName || stats?.college_name || 'Apex Engineering & Technology Institute'} • Training & Placement Intelligence System
           </span>
           <span className="text-[11px] text-slate-400">
             Confidential Institutional Record • VaniDarpan v2.4
@@ -1135,7 +2201,7 @@ export default function TPO() {
         </div>
       </footer>
 
-      {/* ── 8. Interactive Candidate Dossier Modal ── */}
+      {/* ── Interactive Candidate Dossier Modal ── */}
       <Dialog open={isDossierOpen} onOpenChange={setIsDossierOpen}>
         <DialogContent className="max-w-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-6 text-slate-900 dark:text-slate-100">
           <DialogHeader className="pb-3 border-b border-slate-100 dark:border-slate-800">

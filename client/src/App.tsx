@@ -36,6 +36,7 @@ function AppRouter() {
       <Route path="/scenarios" component={Scenarios} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/learning" component={LearningResources} />
+      <Route path="/report" component={Report} />
       <Route path="/report/:id" component={Report} />
       <Route path="/verify/:id" component={VerifyCertificate} />
       <Route path="/verify" component={VerifyCertificate} />

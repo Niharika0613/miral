@@ -1,3 +1,56 @@
+
+import React, { Component, ErrorInfo, ReactNode } from "react";
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+export class ReportErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Report page error boundary caught error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="container max-w-3xl mx-auto px-4 py-16 text-center space-y-4">
+          <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-rose-500/10 text-rose-600 mb-2">
+            <Activity className="h-6 w-6" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground">Session Report Recovery</h2>
+          <p className="text-sm text-muted-foreground">
+            A temporary issue occurred while rendering this session report. Your recorded session data is safe.
+          </p>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <Button onClick={() => window.location.reload()} size="sm">
+              Reload Report
+            </Button>
+            <Button variant="outline" onClick={() => window.location.href = '/dashboard'} size="sm">
+              Return to Dashboard
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // client/src/pages/report.tsx
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -271,15 +324,18 @@ function AICoachSection({ session, transcriptAnalysis: externalAnalysis }: AICoa
     // 3. Articulation & fillers
     let clarityText = "";
     let clarityStatus = "";
+    const safeHighlights = Array.isArray(analysis?.highlightPhrases) ? analysis.highlightPhrases : [];
+    const safeDetected = Array.isArray(analysis?.detectedWords) ? analysis.detectedWords : [];
+
     if (fillers === 0) {
       clarityText = `Zero filler words detected. Articulation was disciplined, concise, and clean throughout.`;
       clarityStatus = "Disciplined";
     } else if (fillers <= 2) {
-      const sample = analysis.highlightPhrases.slice(0, 2).join(', ');
+      const sample = safeHighlights.slice(0, 2).join(', ');
       clarityText = `Clean delivery with only ${fillers} minor hesitation phrase(s)${sample ? ` (${sample})` : ''} noted. Keep breathing steadily through explanations.`;
       clarityStatus = "Strong Fluency";
     } else {
-      const sample = analysis.highlightPhrases.slice(0, 3).join(', ');
+      const sample = safeHighlights.slice(0, 3).join(', ');
       clarityText = `Detected ${fillers} verbal hesitation / repetition moment(s)${sample ? ` (${sample})` : ''}. Replace reflexive pause crutches with an unhurried 1-second silent breath while formulating thoughts.`;
       clarityStatus = "Hesitations Noted";
     }
@@ -290,7 +346,7 @@ function AICoachSection({ session, transcriptAnalysis: externalAnalysis }: AICoa
     if (wordsCount < 30 && duration >= 25) {
       drillTitle = "The 60-Second Answer Expansion Drill";
       drillDescription = "Re-record your response with 3 distinct sentences: (1) Greeting & Full Name, (2) Degree Specialization & Key Technical Skill, (3) 1 Major Capstone Project and career ambition.";
-    } else if (fillers > 1 || analysis.detectedWords.some(d => d.type === 'repetition')) {
+    } else if (fillers > 1 || safeDetected.some(d => d && d.type === 'repetition')) {
       drillTitle = "The 1-Second Breath & Single-Greeting Drill";
       drillDescription = "Re-record your opening: Take a silent 1-second breath before speaking, deliver exactly ONE crisp 'Good morning, my name is...', with zero repeated greetings or filler sounds.";
     } else if (eye < 70) {
@@ -379,7 +435,8 @@ function AICoachSection({ session, transcriptAnalysis: externalAnalysis }: AICoa
 
     // 5. Hesitation / Fillers
     if (fillers > 0) {
-      const sample = analysis.highlightPhrases.slice(0, 2).join(' & ');
+      const safeHighlights = Array.isArray(analysis?.highlightPhrases) ? analysis.highlightPhrases : [];
+      const sample = safeHighlights.slice(0, 2).join(' & ');
       list.push(`Hesitation Control: Detected ${fillers} verbal pause/filler moment(s)${sample ? ` (${sample})` : ''}. Replace reflexive sounds with an unhurried 1-second silent breath.`);
     }
 
@@ -1533,7 +1590,7 @@ function SessionFeedbackCard({ sessionId, onFeedbackSubmitted }: { sessionId: st
   );
 }
 
-export default function Report() {
+function ReportView() {
   const [, params] = useRoute('/report/:id');
   const [, setLocation] = useLocation();
   const sessionId = params?.id;
@@ -1609,62 +1666,110 @@ export default function Report() {
 
   const localBackupSession = useMemo(() => {
     try {
+      // 1. Check direct session_data cache
       if (sessionId) {
         const stored = sessionStorage.getItem(`session_data_${sessionId}`);
         if (stored) return JSON.parse(stored);
       }
+      
+      // 2. Check if sessionId exists inside allUserSessions
+      if (sessionId && Array.isArray(allUserSessions)) {
+        const match = allUserSessions.find((s: any) => s && s.id === sessionId);
+        if (match) return match;
+      }
+
+      // 3. Check last completed session in sessionStorage
       const lastCompleted = sessionStorage.getItem('last_completed_session');
       if (lastCompleted) {
-        const parsed = JSON.parse(lastCompleted);
-        if (!sessionId || parsed.id === sessionId || sessionId.startsWith('miral-') || sessionId.startsWith('local-')) {
-          return parsed;
-        }
+        try {
+          const parsed = JSON.parse(lastCompleted);
+          if (!sessionId || parsed.id === sessionId || sessionId.startsWith('miral-') || sessionId.startsWith('local-') || sessionId.startsWith('vanidarpan-')) {
+            return parsed;
+          }
+        } catch {}
       }
+
+      // 4. Check all local completed session keys in localStorage
       const userId = sessionStorage.getItem('userId') || localStorage.getItem('userId');
-      const userKey = userId ? `miral_completed_sessions_${userId}` : 'miral_completed_sessions_guest';
-      const allStored = localStorage.getItem(userKey) || localStorage.getItem('miral_completed_sessions');
-      if (allStored) {
-        const list = JSON.parse(allStored);
-        if (Array.isArray(list) && list.length > 0) {
-          const match = sessionId ? list.find((s: any) => s && s.id === sessionId) : list[0];
-          if (match) return match;
-          return list[0];
+      const candidateKeys = [
+        userId ? `vanidarpan_completed_sessions_${userId}` : null,
+        userId ? `miral_completed_sessions_${userId}` : null,
+        'vanidarpan_completed_sessions',
+        'miral_completed_sessions',
+        'vanidarpan_completed_sessions_guest',
+        'miral_completed_sessions_guest',
+        'last_completed_session'
+      ].filter(Boolean) as string[];
+
+      for (const k of candidateKeys) {
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const match = sessionId ? parsed.find((s: any) => s && s.id === sessionId) : parsed[0];
+              if (match) return match;
+              if (!sessionId) return parsed[0];
+            } else if (parsed && typeof parsed === 'object' && parsed.id) {
+              if (!sessionId || parsed.id === sessionId) return parsed;
+            }
+          } catch {}
         }
       }
+
+      // 5. Fallback: if no specific sessionId or not found, take first session from allUserSessions
+      if (Array.isArray(allUserSessions) && allUserSessions.length > 0) {
+        const match = sessionId ? allUserSessions.find((s: any) => s && s.id === sessionId) : allUserSessions[0];
+        if (match) return match;
+        if (!sessionId) return allUserSessions[0];
+      }
+
+      // 6. Last ditch fallback to last completed session regardless of ID match
+      if (lastCompleted) {
+        try { return JSON.parse(lastCompleted); } catch {}
+      }
+
       return null;
     } catch {
       return null;
     }
-  }, [sessionId]);
+  }, [sessionId, allUserSessions]);
 
   const activeSession = useMemo(() => {
-    if (!session && !localBackupSession) return null;
-    if (!session) return localBackupSession;
-    if (!localBackupSession) return session;
+    // Also check allUserSessions if session is null
+    const serverMatch = (sessionId && Array.isArray(allUserSessions))
+      ? allUserSessions.find((s: any) => s && s.id === sessionId)
+      : (!sessionId && Array.isArray(allUserSessions) && allUserSessions.length > 0 ? allUserSessions[0] : null);
 
-    // Merge: prioritize non-zero / valid values across both sources
-    const mergedDuration = getDuration(session) > 0 ? getDuration(session) : getDuration(localBackupSession);
-    const mergedEye = getEyeContact(session) > 0 ? getEyeContact(session) : getEyeContact(localBackupSession);
-    const mergedPosture = getPosture(session) > 0 ? getPosture(session) : getPosture(localBackupSession);
-    const mergedWpm = getWpm(session) > 0 ? getWpm(session) : getWpm(localBackupSession);
-    const mergedFillers = getFillers(session) >= 0 ? getFillers(session) : getFillers(localBackupSession);
-    const mergedConfidence = getConfidence(session) > 0 ? getConfidence(session) : (getConfidence(localBackupSession) > 0 ? getConfidence(localBackupSession) : 85);
+    const baseSession = session || serverMatch;
+
+    if (!baseSession && !localBackupSession) return null;
+    if (!baseSession) return localBackupSession;
+    if (!localBackupSession) return baseSession;
+
+    // Merge: prioritize non-zero / valid values across both sources safely
+    const mergedDuration = getDuration(baseSession) > 0 ? getDuration(baseSession) : getDuration(localBackupSession);
+    const mergedEye = getEyeContact(baseSession) > 0 ? getEyeContact(baseSession) : getEyeContact(localBackupSession);
+    const mergedPosture = getPosture(baseSession) > 0 ? getPosture(baseSession) : getPosture(localBackupSession);
+    const mergedWpm = getWpm(baseSession) > 0 ? getWpm(baseSession) : getWpm(localBackupSession);
+    const mergedFillers = getFillers(baseSession) >= 0 ? getFillers(baseSession) : getFillers(localBackupSession);
+    const mergedConfidence = getConfidence(baseSession) > 0 ? getConfidence(baseSession) : (getConfidence(localBackupSession) > 0 ? getConfidence(localBackupSession) : 85);
 
     return {
-      ...session,
-      ...localBackupSession,
+      ...(baseSession || {}),
+      ...(localBackupSession || {}),
       duration: mergedDuration,
       eyeContactPercentage: mergedEye,
       postureScore: mergedPosture,
       wordsPerMinute: mergedWpm,
       fillerWordsCount: mergedFillers,
       confidenceScore: mergedConfidence,
-      transcript: session.transcript || localBackupSession.transcript || '',
-      topic: session.topic || localBackupSession.topic || 'General Practice Session',
-      strengths: (session.strengths && session.strengths.length > 0) ? session.strengths : (localBackupSession.strengths || ["Consistent visual focus", "Clear vocal delivery"]),
-      improvements: (session.improvements && session.improvements.length > 0) ? session.improvements : (localBackupSession.improvements || ["Maintain 130-155 WPM speaking cadence", "Keep practicing to eliminate filler words"]),
+      transcript: baseSession?.transcript || localBackupSession?.transcript || '',
+      topic: baseSession?.topic || localBackupSession?.topic || 'General Practice Session',
+      strengths: (baseSession?.strengths && baseSession.strengths.length > 0) ? baseSession.strengths : (localBackupSession?.strengths || ["Consistent visual focus", "Clear vocal delivery"]),
+      improvements: (baseSession?.improvements && baseSession.improvements.length > 0) ? baseSession.improvements : (localBackupSession?.improvements || ["Maintain 130-155 WPM speaking cadence", "Keep practicing to eliminate filler words"]),
     };
-  }, [session, localBackupSession]);
+  }, [session, allUserSessions, sessionId, localBackupSession]);
 
   if (isLoading && !localBackupSession) {
     return (
@@ -1679,11 +1784,63 @@ export default function Report() {
   }
 
   if (!activeSession) {
+    const availableSessions = (Array.isArray(allUserSessions) && allUserSessions.length > 0)
+      ? allUserSessions
+      : [];
+
     return (
-      <div className="container max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
-        <h2 className="text-xl font-bold text-foreground">Session Report Unavailable</h2>
-        <p className="text-sm text-muted-foreground">The requested practice session could not be retrieved.</p>
-        <Button onClick={() => setLocation('/dashboard')}>Return to Dashboard</Button>
+      <div className="container max-w-4xl mx-auto px-4 py-16 space-y-6">
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 mb-2">
+            <Activity className="h-6 w-6" />
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">
+            {availableSessions.length > 0 ? "Select a Recorded Session Report" : "No Practice Sessions Recorded Yet"}
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            {availableSessions.length > 0
+              ? "Choose from your completed practice rounds below to inspect multimodal gaze metrics, pacing cadence, and AI coach recommendations."
+              : "Launch the Practice Studio to record your first session. Your 3D facial gaze telemetry, pacing analytics, and verbatim speech feedback will appear here automatically."}
+          </p>
+        </div>
+
+        {availableSessions.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            {availableSessions.slice(0, 6).map((s: any) => (
+              <Card
+                key={s.id}
+                className="p-4 border border-border/60 hover:border-primary/50 cursor-pointer transition-all hover:shadow-xs bg-card"
+                onClick={() => setLocation(`/report/${s.id}`)}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-sm text-foreground truncate">
+                    {s.topic || 'General Practice Session'}
+                  </span>
+                  <Badge variant="outline" className="text-xs">
+                    {getConfidence(s)} / 100
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
+                  <span>{new Date(s.createdAt || Date.now()).toLocaleDateString()}</span>
+                  <span>{Math.floor(getDuration(s) / 60)}m {getDuration(s) % 60}s</span>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+          <Button onClick={() => setLocation('/practice')} className="gap-2">
+            <Play className="h-4 w-4 fill-current" />
+            <span>Launch Practice Studio</span>
+          </Button>
+          <Button variant="outline" onClick={() => setLocation('/scenarios')}>
+            Explore Scenarios
+          </Button>
+          <Button variant="ghost" onClick={() => setLocation('/dashboard')}>
+            Return to Dashboard
+          </Button>
+        </div>
       </div>
     );
   }
@@ -2089,5 +2246,14 @@ export default function Report() {
         </div>
       )}
     </div>
+  );
+}
+
+
+export default function Report() {
+  return (
+    <ReportErrorBoundary>
+      <ReportView />
+    </ReportErrorBoundary>
   );
 }

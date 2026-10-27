@@ -166,9 +166,10 @@ export default function TPO() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'heatmap' | 'directory' | 'rubric'>('heatmap');
 
-  // Heatmap View Mode: 'matrix' | 'timeline' | 'density'
-  const [heatmapView, setHeatmapView] = useState<'matrix' | 'timeline' | 'density'>('matrix');
+  // Heatmap View Mode: '3d-cards' | 'matrix' | 'timeline' | 'density'
+  const [heatmapView, setHeatmapView] = useState<'3d-cards' | 'matrix' | 'timeline' | 'density'>('3d-cards');
   const [heatmapSortBy, setHeatmapSortBy] = useState<'readiness' | 'gaze' | 'wpm' | 'cohort'>('readiness');
+  const [heatmapDimensionFocus, setHeatmapDimensionFocus] = useState<'all' | 'gaze' | 'wpm' | 'fillers' | 'posture'>('all');
   const [hoveredCell, setHoveredCell] = useState<{
     branch: string;
     dimension: string;
@@ -540,7 +541,35 @@ export default function TPO() {
             </div>
 
             {/* Right Auth Card Column */}
-            <div className="lg:col-span-7">
+            <div className="lg:col-span-7 space-y-4">
+              
+              {/* Highlighted 1-Click Re-Entry Card when Locked */}
+              <div className="p-4 rounded-xl border-2 border-indigo-500/50 bg-gradient-to-r from-indigo-950/80 via-slate-900 to-indigo-950/80 backdrop-blur-md shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">
+                      Verified Officer Session Available
+                    </span>
+                    <Badge variant="outline" className="text-[10px] bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+                      1-Click Resume
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-slate-300">
+                    Dr. Rajesh Sharma &bull; Head of Placement & Training (Apex Institute)
+                  </p>
+                </div>
+                <Button
+                  onClick={handleInstantDemoAccess}
+                  disabled={isAuthenticating}
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 h-9 gap-1.5 shadow-md shadow-indigo-600/30 shrink-0"
+                >
+                  <Unlock className="h-3.5 w-3.5" />
+                  <span>Unlock & Resume Dashboard</span>
+                </Button>
+              </div>
+
               <Card className="bg-slate-900/90 border-slate-800 shadow-xl overflow-hidden backdrop-blur-md">
                 
                 {/* Card Top Tabs */}
@@ -1155,11 +1184,23 @@ export default function TPO() {
             >
               
               {/* Heatmap Controls & Sub-view Switcher */}
-              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs space-y-4">
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-4">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   
                   {/* Sub-view switcher */}
-                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg text-xs font-medium">
+                  <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg text-xs font-medium">
+                    <button
+                      onClick={() => setHeatmapView('3d-cards')}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                        heatmapView === '3d-cards'
+                          ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-bold shadow-xs'
+                          : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      <span>3D Department Cards</span>
+                    </button>
+
                     <button
                       onClick={() => setHeatmapView('matrix')}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
@@ -1169,7 +1210,7 @@ export default function TPO() {
                       }`}
                     >
                       <Grid className="h-3.5 w-3.5" />
-                      <span>2D Competency Matrix</span>
+                      <span>Executive Audit Table</span>
                     </button>
 
                     <button
@@ -1181,7 +1222,7 @@ export default function TPO() {
                       }`}
                     >
                       <Calendar className="h-3.5 w-3.5" />
-                      <span>Practice Activity Rhythm</span>
+                      <span>Activity Rhythm</span>
                     </button>
 
                     <button
@@ -1193,16 +1234,16 @@ export default function TPO() {
                       }`}
                     >
                       <Layers className="h-3.5 w-3.5" />
-                      <span>Placement Tier Density</span>
+                      <span>Tier Density</span>
                     </button>
                   </div>
 
                   {/* Heatmap Sorting */}
-                  {heatmapView === 'matrix' && (
+                  {(heatmapView === '3d-cards' || heatmapView === 'matrix') && (
                     <div className="flex items-center gap-2 text-xs">
                       <span className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
                         <Filter className="h-3.5 w-3.5" />
-                        Sort Matrix By:
+                        Sort By:
                       </span>
                       <select
                         value={heatmapSortBy}
@@ -1219,7 +1260,7 @@ export default function TPO() {
 
                   {/* Chromatic Color Scale Legend */}
                   <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-600 dark:text-slate-400">
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">Readiness Scale:</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">Readiness:</span>
                     <span className="flex items-center gap-1">
                       <span className="h-2.5 w-2.5 rounded bg-emerald-600 inline-block" />
                       <span>&ge;82% Super-Dream</span>
@@ -1234,16 +1275,259 @@ export default function TPO() {
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="h-2.5 w-2.5 rounded bg-amber-500/80 inline-block" />
-                      <span>63–69% Practice Track</span>
+                      <span>63–69% Practice</span>
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="h-2.5 w-2.5 rounded bg-rose-500/85 inline-block" />
-                      <span>&lt;63% Intervention</span>
+                      <span>&lt;63% Remedial</span>
                     </span>
                   </div>
 
                 </div>
+
+                {/* Dimension Focus Pills for 3D Cards */}
+                {heatmapView === '3d-cards' && (
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center gap-2">
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1">
+                      Highlight Dimension:
+                    </span>
+                    {[
+                      { id: 'all', label: 'All Dimensions', icon: BarChart3 },
+                      { id: 'gaze', label: 'Camera Gaze Focus', icon: Eye },
+                      { id: 'wpm', label: 'Cadence (WPM)', icon: Volume2 },
+                      { id: 'fillers', label: 'Filler Control', icon: Gauge },
+                      { id: 'posture', label: 'Posture Poise', icon: UserCheck }
+                    ].map(dim => {
+                      const Icon = dim.icon;
+                      const isActive = heatmapDimensionFocus === dim.id;
+                      return (
+                        <button
+                          key={dim.id}
+                          onClick={() => setHeatmapDimensionFocus(dim.id as any)}
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                            isActive
+                              ? 'bg-indigo-600 text-white shadow-2xs'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                          }`}
+                        >
+                          <Icon className="h-3 w-3" />
+                          <span>{dim.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
+
+              {/* ── VIEW 0: 3D DEPARTMENT COMPETENCY CARDS MATRIX ── */}
+              {heatmapView === '3d-cards' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    {sortedHeatmap.map((item) => {
+                      const gazeTarget = 75;
+                      const gazeDelta = item.eye_contact - gazeTarget;
+                      const isGazeFocused = heatmapDimensionFocus === 'gaze' || heatmapDimensionFocus === 'all';
+                      const isWpmFocused = heatmapDimensionFocus === 'wpm' || heatmapDimensionFocus === 'all';
+                      const isFillersFocused = heatmapDimensionFocus === 'fillers' || heatmapDimensionFocus === 'all';
+                      const isPostureFocused = heatmapDimensionFocus === 'posture' || heatmapDimensionFocus === 'all';
+
+                      return (
+                        <div
+                          key={item.branch}
+                          className="relative group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:shadow-xl hover:border-indigo-500/60 transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between overflow-hidden"
+                        >
+                          {/* Ambient Glow Accent */}
+                          <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-indigo-500/10 blur-xl group-hover:bg-indigo-500/20 transition-all pointer-events-none" />
+
+                          <div className="space-y-4 relative z-10">
+                            {/* Card Top: Department Name + Batch Count + Recruiter Tier */}
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                                    {item.branch}
+                                  </span>
+                                  <Badge variant="outline" className="text-[10px] font-mono py-0 px-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700">
+                                    {item.students_count} Candidates
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+                                  {item.name}
+                                </p>
+                              </div>
+
+                              <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider shrink-0 ${
+                                item.readiness_score >= 82
+                                  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                                  : item.readiness_score >= 76
+                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                                  : item.readiness_score >= 70
+                                  ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20'
+                                  : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+                              }`}>
+                                {item.recruiter_status}
+                              </div>
+                            </div>
+
+                            {/* Center Gauge / Metric Spotlight */}
+                            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
+                              <div>
+                                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
+                                  Placement Readiness
+                                </span>
+                                <div className="flex items-baseline gap-1 mt-0.5">
+                                  <span className="text-3xl font-extrabold text-slate-900 dark:text-white font-mono tracking-tight">
+                                    {item.readiness_score}%
+                                  </span>
+                                  <span className="text-xs text-slate-400">composite</span>
+                                </div>
+                                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium block mt-0.5">
+                                  {item.sessions_count} practice rounds logged
+                                </span>
+                              </div>
+
+                              {/* Circular Gauge Ring */}
+                              <div className="relative h-14 w-14 flex items-center justify-center shrink-0">
+                                <svg className="w-14 h-14 transform -rotate-90">
+                                  <circle
+                                    cx="28"
+                                    cy="28"
+                                    r="22"
+                                    stroke="currentColor"
+                                    strokeWidth="5"
+                                    className="text-slate-200 dark:text-slate-700/60 fill-none"
+                                  />
+                                  <circle
+                                    cx="28"
+                                    cy="28"
+                                    r="22"
+                                    stroke="currentColor"
+                                    strokeWidth="5"
+                                    strokeDasharray={138}
+                                    strokeDashoffset={138 - (138 * item.readiness_score) / 100}
+                                    strokeLinecap="round"
+                                    className={`fill-none transition-all duration-700 ${
+                                      item.readiness_score >= 82 ? 'text-emerald-500' : (item.readiness_score >= 76 ? 'text-emerald-400' : (item.readiness_score >= 70 ? 'text-teal-500' : 'text-amber-500'))
+                                    }`}
+                                  />
+                                </svg>
+                                <span className="absolute text-[11px] font-bold font-mono text-slate-900 dark:text-white">
+                                  {Math.round(item.readiness_score)}%
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* 4 Multi-Modal Telemetry Chips (Spacious & Legible) */}
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              {/* Camera Gaze */}
+                              <div className={`p-2.5 rounded-lg border transition-all ${
+                                heatmapDimensionFocus === 'gaze'
+                                  ? 'border-indigo-500 bg-indigo-50/60 dark:bg-indigo-950/40 ring-1 ring-indigo-500'
+                                  : 'border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60'
+                              }`}>
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[10px] font-semibold">
+                                  <span className="flex items-center gap-1">
+                                    <Eye className="h-3 w-3 text-indigo-500" />
+                                    Camera Gaze
+                                  </span>
+                                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{item.eye_contact}%</span>
+                                </div>
+                                <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
+                                  <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${item.eye_contact}%` }} />
+                                </div>
+                              </div>
+
+                              {/* Speaking Cadence */}
+                              <div className={`p-2.5 rounded-lg border transition-all ${
+                                heatmapDimensionFocus === 'wpm'
+                                  ? 'border-indigo-500 bg-indigo-50/60 dark:bg-indigo-950/40 ring-1 ring-indigo-500'
+                                  : 'border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60'
+                              }`}>
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[10px] font-semibold">
+                                  <span className="flex items-center gap-1">
+                                    <Volume2 className="h-3 w-3 text-indigo-500" />
+                                    Cadence
+                                  </span>
+                                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{item.wpm} WPM</span>
+                                </div>
+                                <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
+                                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min(100, (item.wpm / 165) * 100)}%` }} />
+                                </div>
+                              </div>
+
+                              {/* Filler Control */}
+                              <div className={`p-2.5 rounded-lg border transition-all ${
+                                heatmapDimensionFocus === 'fillers'
+                                  ? 'border-indigo-500 bg-indigo-50/60 dark:bg-indigo-950/40 ring-1 ring-indigo-500'
+                                  : 'border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60'
+                              }`}>
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[10px] font-semibold">
+                                  <span className="flex items-center gap-1">
+                                    <Gauge className="h-3 w-3 text-teal-500" />
+                                    Filler Control
+                                  </span>
+                                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{item.filler_control_pct || 75}%</span>
+                                </div>
+                                <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
+                                  <div className="h-full bg-teal-500 rounded-full" style={{ width: `${item.filler_control_pct || 75}%` }} />
+                                </div>
+                              </div>
+
+                              {/* Posture Poise */}
+                              <div className={`p-2.5 rounded-lg border transition-all ${
+                                heatmapDimensionFocus === 'posture'
+                                  ? 'border-indigo-500 bg-indigo-50/60 dark:bg-indigo-950/40 ring-1 ring-indigo-500'
+                                  : 'border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60'
+                              }`}>
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[10px] font-semibold">
+                                  <span className="flex items-center gap-1">
+                                    <UserCheck className="h-3 w-3 text-indigo-500" />
+                                    Posture Poise
+                                  </span>
+                                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{item.posture}%</span>
+                                </div>
+                                <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
+                                  <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${item.posture}%` }} />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Remedial Diagnostic Callout */}
+                            <div className="p-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/20 text-xs">
+                              <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-semibold text-[11px]">
+                                <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                                <span>Remedial Priority:</span>
+                              </div>
+                              <p className="text-slate-600 dark:text-slate-300 text-[11px] mt-1 leading-relaxed">
+                                {item.bottleneck}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Card Footer */}
+                          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between mt-4">
+                            <span className="text-[11px] text-slate-400">
+                              {item.sessions_count} benchmark runs
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 gap-1 h-8 px-2"
+                              onClick={() => {
+                                setSelectedBranch(item.branch);
+                                setActiveTab('directory');
+                              }}
+                            >
+                              <span>View Roster</span>
+                              <ArrowRight className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* ── VIEW 1: 2D DEPARTMENT COMPETENCY MATRIX HEATMAP ── */}
               {heatmapView === 'matrix' && (

@@ -213,9 +213,34 @@ export default function Home() {
       {/* ── 1. HERO SECTION (Crisp, Impactful, Bold) ── */}
       <section className="relative pt-10 pb-12 sm:pt-14 sm:pb-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322] overflow-hidden">
         
-        {/* Subtle background glow */}
-        <div className="absolute inset-0 pointer-events-none opacity-30">
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[550px] h-[300px] bg-gradient-to-r from-indigo-500/20 via-teal-500/20 to-blue-500/20 rounded-full blur-3xl" />
+        {/* Exotic Multi-Layer Floating Background Orbs */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            animate={{
+              x: [0, 30, -25, 0],
+              y: [0, -35, 20, 0],
+              scale: [1, 1.1, 0.95, 1],
+            }}
+            transition={{
+              duration: 18,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute top-1/4 left-1/4 w-[480px] h-[320px] bg-gradient-to-r from-indigo-500/15 via-blue-500/15 to-purple-500/10 rounded-full blur-3xl opacity-70"
+          />
+          <motion.div
+            animate={{
+              x: [0, -35, 25, 0],
+              y: [0, 30, -25, 0],
+              scale: [0.95, 1.08, 1, 0.95],
+            }}
+            transition={{
+              duration: 22,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute bottom-1/4 right-1/4 w-[420px] h-[300px] bg-gradient-to-r from-teal-500/15 via-emerald-500/10 to-indigo-500/15 rounded-full blur-3xl opacity-60"
+          />
         </div>
 
         <div className="container max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6 relative z-10">
@@ -246,6 +271,42 @@ export default function Home() {
             </p>
           </motion.div>
 
+          {/* Live Telemetry Equalizer Wave (Exotic Vocal Waveform) */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.12 }}
+            className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-indigo-200/80 dark:border-indigo-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-xs text-xs"
+          >
+            <div className="flex items-center gap-1 h-4">
+              {[4, 12, 18, 10, 22, 14, 8, 20, 16, 6, 15, 9].map((h, i) => (
+                <motion.span
+                  key={i}
+                  animate={{
+                    height: [
+                      `${Math.max(4, h * 0.4)}px`,
+                      `${Math.min(20, h * 1.1)}px`,
+                      `${Math.max(3, h * 0.3)}px`,
+                      `${h}px`
+                    ]
+                  }}
+                  transition={{
+                    duration: 1.2 + (i % 4) * 0.25,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: i * 0.08
+                  }}
+                  className="w-0.5 rounded-full bg-indigo-500 dark:bg-indigo-400"
+                />
+              ))}
+            </div>
+            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 font-medium">
+              <span className="font-mono text-indigo-600 dark:text-indigo-400 font-bold">60 FPS</span>
+              <span>Vision & Vocal Cadence Telemetry</span>
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+          </motion.div>
+
           {/* Call to Actions */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -262,12 +323,10 @@ export default function Home() {
             </Link>
 
             <Link href="/tpo">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-sm font-semibold h-11 px-6 gap-2 border-indigo-200 dark:border-indigo-800/80 bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-slate-800 shadow-2xs transition-transform hover:scale-[1.02]">
-                <Building2 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-sm font-semibold h-11 px-6 gap-2 border-indigo-200 dark:border-indigo-800/80 bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-slate-800 shadow-2xs transition-transform hover:scale-[1.02] group">
+                <Building2 className="h-4 w-4 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
                 <span>Institutional TPO Portal</span>
-                <Badge variant="outline" className="text-[10px] ml-1 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 py-0 px-1.5">
-                  Redirect
-                </Badge>
+                <ArrowRight className="h-4 w-4 ml-0.5 text-indigo-500 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </motion.div>
@@ -474,8 +533,8 @@ export default function Home() {
             {/* Main Screenshot & Description Grid */}
             <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
               
-              {/* Image Preview Container */}
-              <div className="lg:col-span-8 rounded-xl border border-slate-200/90 dark:border-slate-800/90 overflow-hidden shadow-sm bg-slate-950">
+              {/* Image Preview Container with Exotic Floating Telemetry */}
+              <div className="lg:col-span-8 rounded-xl border border-slate-200/90 dark:border-slate-800/90 overflow-hidden shadow-sm bg-slate-950 relative group">
                 <AnimatePresence mode="wait">
                   <motion.img 
                     key={activePreview.image}
@@ -488,6 +547,26 @@ export default function Home() {
                     className="w-full h-auto object-cover transform hover:scale-[1.01] transition-transform duration-300"
                   />
                 </AnimatePresence>
+
+                {/* Floating Telemetry Badge Top-Right */}
+                <motion.div
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute top-3 right-3 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-emerald-500/40 text-[11px] text-white shadow-lg backdrop-blur-md"
+                >
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="font-semibold">Webcam Gaze: 88% Direct Lens Focus</span>
+                </motion.div>
+
+                {/* Floating Telemetry Badge Bottom-Left */}
+                <motion.div
+                  animate={{ y: [0, 5, 0] }}
+                  transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                  className="absolute bottom-3 left-3 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-indigo-500/40 text-[11px] text-white shadow-lg backdrop-blur-md"
+                >
+                  <Volume2 className="h-3.5 w-3.5 text-indigo-400" />
+                  <span className="font-semibold">Vocal Cadence: 142 WPM (Optimal Tempo)</span>
+                </motion.div>
               </div>
 
               {/* Explanatory Details */}

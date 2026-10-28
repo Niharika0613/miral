@@ -87,7 +87,9 @@ interface BranchHeatmapItem {
   posture: number;
   key_strength: string;
   primary_bottleneck: string;
+  bottleneck?: string;
   status: string;
+  recruiter_status?: string;
   // Derived multi-dimensional scores for heatmap
   prep_score?: number;
   filler_control_pct?: number;
@@ -1365,7 +1367,7 @@ export default function TPO() {
                                   ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20'
                                   : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
                               }`}>
-                                {item.recruiter_status}
+                                {(item.status || item.recruiter_status || 'Day-1 Ready')}
                               </div>
                             </div>
 
@@ -1499,7 +1501,7 @@ export default function TPO() {
                                 <span>Remedial Priority:</span>
                               </div>
                               <p className="text-slate-600 dark:text-slate-300 text-[11px] mt-1 leading-relaxed">
-                                {item.bottleneck}
+                                {(item.primary_bottleneck || item.bottleneck || 'Practice drills recommended')}
                               </p>
                             </div>
                           </div>

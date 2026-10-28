@@ -248,14 +248,19 @@ def create_app() -> FastAPI:
     
     # Serve static frontend build
     dist_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dist", "public")
+    if not os.path.exists(dist_dir):
+        dist_dir = os.path.join(os.getcwd(), "dist", "public")
     index_path = os.path.join(dist_dir, "index.html")
     
     if os.path.exists(dist_dir):
         assets_dir = os.path.join(dist_dir, "assets")
         if os.path.exists(assets_dir):
             app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+        images_dir = os.path.join(dist_dir, "images")
+        if os.path.exists(images_dir):
+            app.mount("/images", StaticFiles(directory=images_dir), name="images")
         
-    @app.get("/api")
+    @app.api_route("/api", methods=["GET", "HEAD"])
     async def api_info():
         return {
             "message": "VaniDarpan FastAPI Backend",
@@ -263,7 +268,7 @@ def create_app() -> FastAPI:
             "status": "running"
         }
         
-    @app.get("/{full_path:path}")
+    @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
     async def serve_spa(full_path: str = ""):
         if full_path.startswith("api/") or full_path.startswith("ws/"):
             return JSONResponse(status_code=404, content={"message": "Not Found"})

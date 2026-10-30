@@ -151,7 +151,7 @@ async def _try_gemini(
                 "response_mime_type": "application/json"
             }
         }
-        async with httpx.AsyncClient(timeout=4.0) as client:
+        async with httpx.AsyncClient(timeout=12.0) as client:
             resp = await client.post(url, json=payload)
             if resp.status_code == 200:
                 data = resp.json()
@@ -243,7 +243,7 @@ async def _try_openai(
             "temperature": 0.3,
             "response_format": {"type": "json_object"}
         }
-        async with httpx.AsyncClient(timeout=4.0) as client:
+        async with httpx.AsyncClient(timeout=12.0) as client:
             resp = await client.post(url, headers=headers, json=payload)
             if resp.status_code == 200:
                 data = resp.json()

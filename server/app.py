@@ -2,7 +2,7 @@
 from fastapi import FastAPI, Request, status, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
 import time
@@ -267,6 +267,39 @@ def create_app() -> FastAPI:
             "version": "2.0.0",
             "status": "running"
         }
+
+    # Explicit favicon and branding asset handlers with aggressive cache-control
+    @app.get("/favicon.ico")
+    async def favicon_ico():
+        for candidate_dir in [dist_dir, os.path.join(os.getcwd(), "client", "public"), os.path.join(os.getcwd(), "dist", "public")]:
+            p = os.path.join(candidate_dir, "favicon.ico")
+            if os.path.isfile(p):
+                return FileResponse(p, media_type="image/x-icon", headers={"Cache-Control": "public, max-age=86400"})
+        return Response(status_code=404)
+
+    @app.get("/favicon.png")
+    async def favicon_png():
+        for candidate_dir in [dist_dir, os.path.join(os.getcwd(), "client", "public"), os.path.join(os.getcwd(), "dist", "public")]:
+            p = os.path.join(candidate_dir, "favicon.png")
+            if os.path.isfile(p):
+                return FileResponse(p, media_type="image/png", headers={"Cache-Control": "public, max-age=86400"})
+        return Response(status_code=404)
+
+    @app.get("/favicon.svg")
+    async def favicon_svg():
+        for candidate_dir in [dist_dir, os.path.join(os.getcwd(), "client", "public"), os.path.join(os.getcwd(), "dist", "public")]:
+            p = os.path.join(candidate_dir, "favicon.svg")
+            if os.path.isfile(p):
+                return FileResponse(p, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
+        return Response(status_code=404)
+
+    @app.get("/logo.png")
+    async def logo_png():
+        for candidate_dir in [dist_dir, os.path.join(os.getcwd(), "client", "public"), os.path.join(os.getcwd(), "dist", "public")]:
+            p = os.path.join(candidate_dir, "logo.png")
+            if os.path.isfile(p):
+                return FileResponse(p, media_type="image/png", headers={"Cache-Control": "public, max-age=86400"})
+        return Response(status_code=404)
         
     @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
     async def serve_spa(full_path: str = ""):

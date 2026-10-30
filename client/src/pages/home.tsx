@@ -199,6 +199,36 @@ export default function Home() {
     }
   ];
 
+  // Standard Enterprise Scroll & Hover Animation Variants
+  const scrollFadeUp = {
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.05
+      }
+    }
+  };
+
+  const cardItem = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50/70 dark:bg-[#0b0f19] text-slate-900 dark:text-slate-100 font-sans transition-colors">
       
@@ -272,42 +302,6 @@ export default function Home() {
             </p>
           </motion.div>
 
-          {/* Live Telemetry Equalizer Wave (Exotic Vocal Waveform) */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.12 }}
-            className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-indigo-200/80 dark:border-indigo-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-xs text-xs"
-          >
-            <div className="flex items-center gap-1 h-4">
-              {[4, 12, 18, 10, 22, 14, 8, 20, 16, 6, 15, 9].map((h, i) => (
-                <motion.span
-                  key={i}
-                  animate={{
-                    height: [
-                      `${Math.max(4, h * 0.4)}px`,
-                      `${Math.min(20, h * 1.1)}px`,
-                      `${Math.max(3, h * 0.3)}px`,
-                      `${h}px`
-                    ]
-                  }}
-                  transition={{
-                    duration: 1.2 + (i % 4) * 0.25,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: i * 0.08
-                  }}
-                  className="w-0.5 rounded-full bg-indigo-500 dark:bg-indigo-400"
-                />
-              ))}
-            </div>
-            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 font-medium">
-              <span className="font-mono text-indigo-600 dark:text-indigo-400 font-bold">60 FPS</span>
-              <span>Vision & Vocal Cadence Telemetry</span>
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            </div>
-          </motion.div>
-
           {/* Call to Actions */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -361,7 +355,13 @@ export default function Home() {
       <section className="py-12 sm:py-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
         <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           
-          <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={scrollFadeUp}
+            className="text-center max-w-2xl mx-auto mb-8 space-y-2"
+          >
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Choose what you want to practice
             </h2>
@@ -370,26 +370,34 @@ export default function Home() {
             </p>
             <div className="pt-1 flex items-center justify-center">
               <Link href="/scenarios">
-                <Button variant="outline" size="sm" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/60 bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 gap-1.5 h-8 px-4 rounded-full transition-all">
+                <Button variant="outline" size="sm" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/60 bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 gap-1.5 h-8 px-4 rounded-full transition-all hover:scale-105">
                   <span>View all 100+ scenarios</span>
                   <ChevronRight className="h-3.5 w-3.5" />
                 </Button>
               </Link>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Cards Grid: 6 Distinct High-Value Tracks */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+          {/* Cards Grid: 6 Distinct High-Value Tracks with Stagger Animation */}
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            variants={staggerContainer}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4"
+          >
             {categories.map((cat, idx) => {
               const Icon = cat.icon;
               const isSelected = selectedCategoryIdx === idx;
               return (
-                <div
+                <motion.div
                   key={cat.id}
+                  variants={cardItem}
+                  whileHover={{ y: -3, transition: { duration: 0.2 } }}
                   onClick={() => setSelectedCategoryIdx(idx)}
                   className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer text-left flex items-start gap-3.5 ${
                     isSelected
-                      ? 'bg-indigo-50/80 dark:bg-indigo-950/50 border-indigo-500 ring-2 ring-indigo-500/25 shadow-xs'
+                      ? 'bg-indigo-50/80 dark:bg-indigo-950/50 border-indigo-500 ring-2 ring-indigo-500/25 shadow-sm'
                       : 'bg-slate-50/70 dark:bg-slate-900/60 border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100/70 dark:hover:bg-slate-800/50 shadow-2xs'
                   }`}
                 >
@@ -411,13 +419,19 @@ export default function Home() {
                       {cat.tagline}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
-          {/* Selected Scenario Preview Card */}
-          <div className="mt-6 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 p-5 sm:p-6 text-left shadow-xs">
+          {/* Selected Scenario Preview Card with Scroll Reveal */}
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            variants={scrollFadeUp}
+            className="mt-6 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 p-5 sm:p-6 text-left shadow-xs"
+          >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-slate-800">
               <div>
                 <div className="flex items-center gap-2">
@@ -468,7 +482,7 @@ export default function Home() {
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{categories[selectedCategoryIdx].targetPosture}</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </section>
@@ -477,7 +491,13 @@ export default function Home() {
       <section className="py-12 sm:py-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-[#090b10]">
         <div className="container max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
           
-          <div className="text-center max-w-2xl mx-auto space-y-2">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={scrollFadeUp}
+            className="text-center max-w-2xl mx-auto space-y-2"
+          >
             <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-3 py-0.5">
               Inside VaniDarpan Studio
             </Badge>
@@ -487,10 +507,16 @@ export default function Home() {
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
               Explore high-fidelity screenshots of the practice studio, scenario libraries, and progress analytics.
             </p>
-          </div>
+          </motion.div>
 
-          {/* Interactive Showcase Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          {/* Interactive Showcase Tabs with Scroll Animation */}
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            variants={scrollFadeUp}
+            className="flex flex-wrap items-center justify-center gap-2"
+          >
             {previewTabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activePreviewTab === tab.id;
@@ -509,10 +535,16 @@ export default function Home() {
                 </button>
               );
             })}
-          </div>
+          </motion.div>
 
-          {/* Showcase Display Card with Browser Chrome Frame */}
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0e1322] shadow-xl overflow-hidden text-left">
+          {/* Showcase Display Card with Browser Chrome Frame and Scroll Entrance */}
+          <motion.div 
+            initial={{ opacity: 0, y: 35 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0e1322] shadow-xl overflow-hidden text-left"
+          >
             
             {/* Top Window Bar */}
             <div className="px-4 py-3 bg-slate-100/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
@@ -549,25 +581,7 @@ export default function Home() {
                   />
                 </AnimatePresence>
 
-                {/* Floating Telemetry Badge Top-Right */}
-                <motion.div
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute top-3 right-3 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-emerald-500/40 text-[11px] text-white shadow-lg backdrop-blur-md"
-                >
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                  <span className="font-semibold">Webcam Gaze: 88% Direct Lens Focus</span>
-                </motion.div>
 
-                {/* Floating Telemetry Badge Bottom-Left */}
-                <motion.div
-                  animate={{ y: [0, 5, 0] }}
-                  transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                  className="absolute bottom-3 left-3 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-indigo-500/40 text-[11px] text-white shadow-lg backdrop-blur-md"
-                >
-                  <Volume2 className="h-3.5 w-3.5 text-indigo-400" />
-                  <span className="font-semibold">Vocal Cadence: 142 WPM (Optimal Tempo)</span>
-                </motion.div>
               </div>
 
               {/* Explanatory Details */}
@@ -596,7 +610,7 @@ export default function Home() {
 
             </div>
 
-          </div>
+          </motion.div>
 
         </div>
       </section>
@@ -605,7 +619,13 @@ export default function Home() {
       <section className="py-12 sm:py-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0b0f19]">
         <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           
-          <div className="rounded-3xl border border-indigo-200/90 dark:border-indigo-900/60 bg-gradient-to-br from-indigo-50/80 via-white to-slate-50/60 dark:from-indigo-950/40 dark:via-slate-900 dark:to-slate-950 p-6 sm:p-10 lg:p-12 shadow-lg space-y-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 35, scale: 0.99 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-3xl border border-indigo-200/90 dark:border-indigo-900/60 bg-gradient-to-br from-indigo-50/80 via-white to-slate-50/60 dark:from-indigo-950/40 dark:via-slate-900 dark:to-slate-950 p-6 sm:p-10 lg:p-12 shadow-lg space-y-6"
+          >
             
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               
@@ -691,7 +711,7 @@ export default function Home() {
               </div>
             </div>
 
-          </div>
+          </motion.div>
 
         </div>
       </section>
@@ -700,7 +720,13 @@ export default function Home() {
       <section className="py-12 sm:py-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
         <div className="container max-w-6xl mx-auto px-4 sm:px-6">
           
-          <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={scrollFadeUp}
+            className="text-center max-w-2xl mx-auto mb-10 space-y-2"
+          >
             <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-3 py-0.5 font-semibold">
               Multimodal Speaking Intelligence
             </Badge>
@@ -710,12 +736,22 @@ export default function Home() {
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
               In-browser computer vision and acoustic metrics measure your delivery with sub-second latency.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-left">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            variants={staggerContainer}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-left"
+          >
             
             {/* Feature 1 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-5 sm:p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-xs transition-all">
+            <motion.div 
+              variants={cardItem}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-5 sm:p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all"
+            >
               <div className="h-10 w-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 flex items-center justify-center">
                 <Eye className="h-5 w-5" />
               </div>
@@ -723,10 +759,14 @@ export default function Home() {
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 60 FPS in-browser iris detection checks if you maintain steady eye engagement with the camera lens or look away.
               </p>
-            </div>
+            </motion.div>
 
             {/* Feature 2 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-5 sm:p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-xs transition-all">
+            <motion.div 
+              variants={cardItem}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-5 sm:p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all"
+            >
               <div className="h-10 w-10 rounded-xl bg-teal-100 dark:bg-teal-500/15 text-teal-700 dark:text-teal-400 flex items-center justify-center">
                 <Activity className="h-5 w-5" />
               </div>
@@ -734,10 +774,14 @@ export default function Home() {
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Detects slouching, leaning, or downward head tilt in real time so your physical presence projects authority.
               </p>
-            </div>
+            </motion.div>
 
             {/* Feature 3 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-5 sm:p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-xs transition-all">
+            <motion.div 
+              variants={cardItem}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-5 sm:p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all"
+            >
               <div className="h-10 w-10 rounded-xl bg-cyan-100 dark:bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 flex items-center justify-center">
                 <Gauge className="h-5 w-5" />
               </div>
@@ -745,10 +789,14 @@ export default function Home() {
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Measures words per minute live to keep your cadence in the ideal 130–155 WPM conversational clarity zone.
               </p>
-            </div>
+            </motion.div>
 
             {/* Feature 4 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-5 sm:p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-xs transition-all">
+            <motion.div 
+              variants={cardItem}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0b0f19] p-5 sm:p-6 space-y-3 hover:border-indigo-400 dark:hover:border-indigo-500/40 hover:shadow-md transition-all"
+            >
               <div className="h-10 w-10 rounded-xl bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 flex items-center justify-center">
                 <FileText className="h-5 w-5" />
               </div>
@@ -756,9 +804,9 @@ export default function Home() {
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Paste any custom speech, pitch notes, or presentation outline and read naturally while practicing on camera.
               </p>
-            </div>
+            </motion.div>
 
-          </div>
+          </motion.div>
 
         </div>
       </section>
@@ -767,45 +815,69 @@ export default function Home() {
       <section className="py-12 sm:py-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#0b0f19]">
         <div className="container max-w-5xl mx-auto px-4 sm:px-6">
           
-          <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={scrollFadeUp}
+            className="text-center max-w-xl mx-auto mb-10 space-y-2"
+          >
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Three simple steps to speaking mastery.
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
               No software installation required. Runs directly inside your browser.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            variants={staggerContainer}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left"
+          >
             
             {/* Step 1 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-6 space-y-3 shadow-2xs hover:shadow-xs transition-shadow">
+            <motion.div 
+              variants={cardItem}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-6 space-y-3 shadow-2xs hover:shadow-md transition-all"
+            >
               <div className="text-3xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">01</div>
               <h3 className="text-base font-bold text-slate-900 dark:text-white">Pick a Scenario or Write a Script</h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Choose a pre-built practice scenario or paste your custom speech notes into the smart teleprompter.
               </p>
-            </div>
+            </motion.div>
 
             {/* Step 2 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-6 space-y-3 shadow-2xs hover:shadow-xs transition-shadow">
+            <motion.div 
+              variants={cardItem}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-6 space-y-3 shadow-2xs hover:shadow-md transition-all"
+            >
               <div className="text-3xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">02</div>
               <h3 className="text-base font-bold text-slate-900 dark:text-white">Practice with Live Visual Cues</h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Speak on camera. VaniDarpan monitors your eye contact, posture, and speaking tempo with gentle on-screen cues.
               </p>
-            </div>
+            </motion.div>
 
             {/* Step 3 */}
-            <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-6 space-y-3 shadow-2xs hover:shadow-xs transition-shadow">
+            <motion.div 
+              variants={cardItem}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#0e1322] p-6 space-y-3 shadow-2xs hover:shadow-md transition-all"
+            >
               <div className="text-3xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">03</div>
               <h3 className="text-base font-bold text-slate-900 dark:text-white">Review Diagnostic Scorecard</h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 Get an instant breakdown of your confidence score, pacing, filler words, and personalized delivery advice.
               </p>
-            </div>
+            </motion.div>
 
-          </div>
+          </motion.div>
 
         </div>
       </section>
@@ -814,22 +886,35 @@ export default function Home() {
       <section className="py-10 sm:py-14 border-b border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0e1322]">
         <div className="container max-w-3xl mx-auto px-4 sm:px-6">
           
-          <div className="text-center mb-8 space-y-1.5">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={scrollFadeUp}
+            className="text-center mb-8 space-y-1.5"
+          >
             <Badge variant="outline" className="border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-2.5 py-0.5">
               Frequently Asked Questions
             </Badge>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
               Everything you need to know about VaniDarpan.
             </h2>
-          </div>
+          </motion.div>
 
-          <div className="space-y-2.5 text-left">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            variants={staggerContainer}
+            className="space-y-2.5 text-left"
+          >
             {faqs.map((faq, idx) => {
               const isOpen = openFaq === idx;
               return (
-                <div 
+                <motion.div 
                   key={idx}
-                  className="rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-[#090b12] overflow-hidden transition-all"
+                  variants={cardItem}
+                  className="rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-[#090b12] overflow-hidden transition-all hover:border-slate-300 dark:hover:border-slate-700"
                 >
                   <button
                     type="button"
@@ -844,10 +929,10 @@ export default function Home() {
                       {faq.a}
                     </div>
                   )}
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
         </div>
       </section>
@@ -856,7 +941,13 @@ export default function Home() {
       <section className="py-12 sm:py-16 bg-slate-50/70 dark:bg-[#0b0f19] relative overflow-hidden">
         <div className="container max-w-3xl mx-auto px-4 sm:px-6">
           
-          <div className="rounded-2xl border border-indigo-200 dark:border-indigo-500/30 bg-gradient-to-b from-indigo-50/80 via-white to-white dark:from-indigo-950/20 dark:via-[#0e1322] dark:to-[#0b0f19] p-6 sm:p-10 text-center space-y-4 shadow-sm">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-2xl border border-indigo-200 dark:border-indigo-500/30 bg-gradient-to-b from-indigo-50/80 via-white to-white dark:from-indigo-950/20 dark:via-[#0e1322] dark:to-[#0b0f19] p-6 sm:p-10 text-center space-y-4 shadow-sm"
+          >
             
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-indigo-300 dark:border-indigo-500/40 bg-indigo-100/60 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
               <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
@@ -892,7 +983,7 @@ export default function Home() {
               <span className="flex items-center gap-1.5"><Check className="h-3 w-3 text-indigo-500" /> Instant Browser Launch</span>
             </div>
 
-          </div>
+          </motion.div>
 
         </div>
       </section>

@@ -172,6 +172,7 @@ export default function TPO() {
   const [heatmapView, setHeatmapView] = useState<'3d-cards' | 'matrix' | 'timeline' | 'density'>('3d-cards');
   const [heatmapSortBy, setHeatmapSortBy] = useState<'readiness' | 'gaze' | 'wpm' | 'cohort'>('readiness');
   const [heatmapDimensionFocus, setHeatmapDimensionFocus] = useState<'all' | 'gaze' | 'wpm' | 'fillers' | 'posture'>('all');
+  const [densityViewMode, setDensityViewMode] = useState<'3d-cards' | 'table'>('3d-cards');
   const [hoveredCell, setHoveredCell] = useState<{
     branch: string;
     dimension: string;
@@ -419,6 +420,53 @@ export default function TPO() {
     }
     return list;
   }, [heatmap, heatmapSortBy]);
+
+  // Helper for department placement tier distribution & remedial priority
+  const getDepartmentTierDistribution = (item: BranchHeatmapItem) => {
+    let t1 = 20, t2 = 50, t3 = 20, t4 = 10;
+    let action = 'Targeted Intervention';
+    let actionType: 'low' | 'medium' | 'high' | 'super' = 'medium';
+
+    if (item.branch === 'CSE') {
+      t1 = 42; t2 = 48; t3 = 8; t4 = 2;
+      action = 'Low Intervention • Direct Campus Ready';
+      actionType = 'low';
+    } else if (item.branch === 'IT') {
+      t1 = 36; t2 = 52; t3 = 10; t4 = 2;
+      action = 'Low Intervention • Recruiter Ready';
+      actionType = 'low';
+    } else if (item.branch === 'MBA') {
+      t1 = 48; t2 = 42; t3 = 8; t4 = 2;
+      action = 'Super-Dream Focused • Executive Cadence';
+      actionType = 'super';
+    } else if (item.branch === 'ECE') {
+      t1 = 24; t2 = 56; t3 = 16; t4 = 4;
+      action = 'Medium Focus • Pacing & Hesitation Drills';
+      actionType = 'medium';
+    } else if (item.branch === 'ME') {
+      t1 = 12; t2 = 46; t3 = 32; t4 = 10;
+      action = 'High Priority Drills • Camera Gaze Coaching';
+      actionType = 'high';
+    } else if (item.branch === 'CE') {
+      t1 = 10; t2 = 48; t3 = 34; t4 = 8;
+      action = 'High Priority Drills • Vocal Modulation Drills';
+      actionType = 'high';
+    } else {
+      t1 = Math.max(8, Math.min(60, Math.round(item.readiness_score * 0.48)));
+      t4 = Math.max(2, Math.min(25, Math.round((100 - item.readiness_score) * 0.25)));
+      t3 = Math.max(10, Math.min(35, Math.round((100 - item.readiness_score) * 0.55)));
+      t2 = Math.max(10, 100 - (t1 + t3 + t4));
+      action = item.readiness_score >= 80 ? 'Low Intervention • Recruiter Ready' : item.readiness_score >= 70 ? 'Medium Focus • Targeted Drills' : 'High Priority Drills • Faculty Mentorship';
+      actionType = item.readiness_score >= 80 ? 'low' : item.readiness_score >= 70 ? 'medium' : 'high';
+    }
+
+    const t1Count = Math.round((item.students_count * t1) / 100);
+    const t2Count = Math.round((item.students_count * t2) / 100);
+    const t3Count = Math.round((item.students_count * t3) / 100);
+    const t4Count = Math.max(0, item.students_count - (t1Count + t2Count + t3Count));
+
+    return { t1, t2, t3, t4, t1Count, t2Count, t3Count, t4Count, action, actionType };
+  };
 
   // Helper for heatmap cell color scale
   const getHeatmapColorClass = (score: number) => {
@@ -1186,26 +1234,39 @@ export default function TPO() {
             >
               
               {/* Heatmap Controls & Sub-view Switcher */}
-              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-4">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-3.5">
+                {/* Top Row: Sub-view Switcher + Sort & Display Controls */}
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                   
-                  {/* Sub-view switcher */}
-                  <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg text-xs font-medium">
+                  {/* Sub-view switcher pill bar - non-wrapping with horizontal scroll support */}
+                  <div className="inline-flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/90 rounded-xl text-xs font-medium overflow-x-auto max-w-full">
                     <button
                       onClick={() => setHeatmapView('3d-cards')}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                         heatmapView === '3d-cards'
                           ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-bold shadow-xs'
                           : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
                       <Sparkles className="h-3.5 w-3.5" />
-                      <span>3D Department Cards</span>
+                      <span>3D Department Matrix</span>
+                    </button>
+
+                    <button
+                      onClick={() => setHeatmapView('density')}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                        heatmapView === 'density'
+                          ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-bold shadow-xs'
+                          : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <Layers className="h-3.5 w-3.5" />
+                      <span>3D Placement Tier Density</span>
                     </button>
 
                     <button
                       onClick={() => setHeatmapView('matrix')}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                         heatmapView === 'matrix'
                           ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-xs'
                           : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -1217,7 +1278,7 @@ export default function TPO() {
 
                     <button
                       onClick={() => setHeatmapView('timeline')}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                         heatmapView === 'timeline'
                           ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-xs'
                           : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -1226,99 +1287,155 @@ export default function TPO() {
                       <Calendar className="h-3.5 w-3.5" />
                       <span>Activity Rhythm</span>
                     </button>
-
-                    <button
-                      onClick={() => setHeatmapView('density')}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
-                        heatmapView === 'density'
-                          ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold shadow-xs'
-                          : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                      }`}
-                    >
-                      <Layers className="h-3.5 w-3.5" />
-                      <span>Tier Density</span>
-                    </button>
                   </div>
 
-                  {/* Heatmap Sorting */}
-                  {(heatmapView === '3d-cards' || heatmapView === 'matrix') && (
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
-                        <Filter className="h-3.5 w-3.5" />
-                        Sort By:
+                  {/* Heatmap Sorting & View Controls */}
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    {(heatmapView === '3d-cards' || heatmapView === 'density' || heatmapView === 'matrix') && (
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1 whitespace-nowrap">
+                          <Filter className="h-3.5 w-3.5" />
+                          Sort Matrix:
+                        </span>
+                        <select
+                          value={heatmapSortBy}
+                          onChange={(e: any) => setHeatmapSortBy(e.target.value)}
+                          className="text-xs h-8 px-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        >
+                          <option value="readiness">Highest Readiness Score</option>
+                          <option value="gaze">Camera Gaze Focus</option>
+                          <option value="wpm">Speaking Pace (WPM)</option>
+                          <option value="cohort">Cohort Size</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {heatmapView === 'density' && (
+                      <div className="flex items-center p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">
+                        <button
+                          onClick={() => setDensityViewMode('3d-cards')}
+                          className={`px-2.5 py-1 rounded-md transition-all font-medium ${
+                            densityViewMode === '3d-cards'
+                              ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-bold shadow-2xs'
+                              : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                          }`}
+                        >
+                          3D Cards
+                        </button>
+                        <button
+                          onClick={() => setDensityViewMode('table')}
+                          className={`px-2.5 py-1 rounded-md transition-all font-medium ${
+                            densityViewMode === 'table'
+                              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold shadow-2xs'
+                              : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                          }`}
+                        >
+                          Audit Table
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Bottom Row: Contextual Legend & Focus Filters */}
+                <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex flex-col lg:flex-row lg:items-center justify-between gap-3 text-xs">
+                  {/* If 3D Cards */}
+                  {heatmapView === '3d-cards' && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1">
+                        Highlight Dimension:
                       </span>
-                      <select
-                        value={heatmapSortBy}
-                        onChange={(e: any) => setHeatmapSortBy(e.target.value)}
-                        className="text-xs h-8 px-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium"
-                      >
-                        <option value="readiness">Highest Readiness Score</option>
-                        <option value="gaze">Camera Gaze Focus</option>
-                        <option value="wpm">Speaking Pace (WPM)</option>
-                        <option value="cohort">Cohort Size</option>
-                      </select>
+                      {[
+                        { id: 'all', label: 'All Dimensions', icon: BarChart3 },
+                        { id: 'gaze', label: 'Camera Gaze Focus', icon: Eye },
+                        { id: 'wpm', label: 'Cadence (WPM)', icon: Volume2 },
+                        { id: 'fillers', label: 'Filler Control', icon: Gauge },
+                        { id: 'posture', label: 'Posture Poise', icon: UserCheck }
+                      ].map(dim => {
+                        const Icon = dim.icon;
+                        const isActive = heatmapDimensionFocus === dim.id;
+                        return (
+                          <button
+                            key={dim.id}
+                            onClick={() => setHeatmapDimensionFocus(dim.id as any)}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all ${
+                              isActive
+                                ? 'bg-indigo-600 text-white shadow-2xs'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                          >
+                            <Icon className="h-3 w-3" />
+                            <span>{dim.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
 
-                  {/* Chromatic Color Scale Legend */}
-                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-600 dark:text-slate-400">
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">Readiness:</span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded bg-emerald-600 inline-block" />
-                      <span>&ge;82% Super-Dream</span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded bg-emerald-500/80 inline-block" />
-                      <span>76–81% Day-1</span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded bg-teal-600/75 inline-block" />
-                      <span>70–75% Core</span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded bg-amber-500/80 inline-block" />
-                      <span>63–69% Practice</span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded bg-rose-500/85 inline-block" />
-                      <span>&lt;63% Remedial</span>
-                    </span>
-                  </div>
+                  {/* If Tier Density */}
+                  {heatmapView === 'density' && (
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-slate-600 dark:text-slate-400">
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">Recruitment Tier Brackets:</span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 inline-block shadow-xs" />
+                        <span>Tier 1: Product / Super-Dream (12+ LPA)</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-full bg-indigo-500 inline-block shadow-xs" />
+                        <span>Tier 2: Core (6–12 LPA)</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-full bg-amber-500 inline-block shadow-xs" />
+                        <span>Tier 3: Mass (4–6 LPA)</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="h-2.5 w-2.5 rounded-full bg-rose-500 inline-block shadow-xs" />
+                        <span>Tier 4: Remedial (&lt;4 LPA)</span>
+                      </span>
+                    </div>
+                  )}
 
+                  {/* Chromatic Color Scale Legend (for 3D cards and matrix) */}
+                  {(heatmapView === '3d-cards' || heatmapView === 'matrix') && (
+                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-600 dark:text-slate-400 lg:ml-auto">
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">Readiness:</span>
+                      <span className="flex items-center gap-1">
+                        <span className="h-2.5 w-2.5 rounded bg-emerald-600 inline-block" />
+                        <span>&ge;82% Super-Dream</span>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="h-2.5 w-2.5 rounded bg-emerald-500/80 inline-block" />
+                        <span>76–81% Day-1</span>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="h-2.5 w-2.5 rounded bg-teal-600/75 inline-block" />
+                        <span>70–75% Core</span>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="h-2.5 w-2.5 rounded bg-amber-500/80 inline-block" />
+                        <span>63–69% Practice</span>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="h-2.5 w-2.5 rounded bg-rose-500/85 inline-block" />
+                        <span>&lt;63% Remedial</span>
+                      </span>
+                    </div>
+                  )}
+
+                  {heatmapView === 'timeline' && (
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500 lg:ml-auto">
+                      <span>Less Practice</span>
+                      <div className="flex items-center gap-1">
+                        <span className="h-3 w-3 rounded-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
+                        <span className="h-3 w-3 rounded-xs bg-emerald-400/30" />
+                        <span className="h-3 w-3 rounded-xs bg-emerald-500/60" />
+                        <span className="h-3 w-3 rounded-xs bg-emerald-600" />
+                        <span className="h-3 w-3 rounded-xs bg-emerald-700 shadow-xs" />
+                      </div>
+                      <span>Peak Drive Surge</span>
+                    </div>
+                  )}
                 </div>
-
-                {/* Dimension Focus Pills for 3D Cards */}
-                {heatmapView === '3d-cards' && (
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center gap-2">
-                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1">
-                      Highlight Dimension:
-                    </span>
-                    {[
-                      { id: 'all', label: 'All Dimensions', icon: BarChart3 },
-                      { id: 'gaze', label: 'Camera Gaze Focus', icon: Eye },
-                      { id: 'wpm', label: 'Cadence (WPM)', icon: Volume2 },
-                      { id: 'fillers', label: 'Filler Control', icon: Gauge },
-                      { id: 'posture', label: 'Posture Poise', icon: UserCheck }
-                    ].map(dim => {
-                      const Icon = dim.icon;
-                      const isActive = heatmapDimensionFocus === dim.id;
-                      return (
-                        <button
-                          key={dim.id}
-                          onClick={() => setHeatmapDimensionFocus(dim.id as any)}
-                          className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-                            isActive
-                              ? 'bg-indigo-600 text-white shadow-2xs'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                          }`}
-                        >
-                          <Icon className="h-3 w-3" />
-                          <span>{dim.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
 
               {/* ── VIEW 0: 3D DEPARTMENT COMPETENCY CARDS MATRIX ── */}
@@ -1952,107 +2069,307 @@ export default function TPO() {
                 </div>
               )}
 
-              {/* ── VIEW 3: PLACEMENT TIER DENSITY HEATMAP ── */}
+              {/* ── VIEW 3: 3D PLACEMENT TIER DENSITY & RECRUITMENT BRACKETS ── */}
               {heatmapView === 'density' && (
                 <div className="space-y-4">
-                  <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs p-6 space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-                      <div>
-                        <CardTitle className="text-base font-bold text-slate-900 dark:text-white">
-                          Department Placement Tier Distribution Density
-                        </CardTitle>
-                        <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                          Percentage of students categorized into each recruitment bracket per engineering department.
-                        </CardDescription>
-                      </div>
-
-                      <Badge variant="outline" className="w-fit text-xs font-semibold text-slate-600 dark:text-slate-300">
-                        Recruitment Tier Matrix
-                      </Badge>
+                  {/* Top Bar for Tier Density */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-indigo-500" />
+                        <span>Department Placement Tier Distribution Density</span>
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Interactive behavioral qualification breakdown across {sortedHeatmap.length} engineering cohorts. Dynamic sorting by {heatmapSortBy}.
+                      </p>
                     </div>
 
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse text-xs">
-                        <thead>
-                          <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 uppercase text-[11px] font-semibold tracking-wider">
-                            <th className="py-3 px-4">Department</th>
-                            <th className="py-3 px-3 text-center">Tier 1: Product (12+ LPA)</th>
-                            <th className="py-3 px-3 text-center">Tier 2: Core (6–12 LPA)</th>
-                            <th className="py-3 px-3 text-center">Tier 3: Mass (4–6 LPA)</th>
-                            <th className="py-3 px-3 text-center">Tier 4: Faculty Drills (&lt;4 LPA)</th>
-                            <th className="py-3 px-4 text-center">Remedial Priority</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                          {[
-                            { branch: 'CSE', name: 'Computer Science', t1: 42, t2: 48, t3: 8, t4: 2, action: 'Low Intervention' },
-                            { branch: 'IT', name: 'Information Technology', t1: 36, t2: 52, t3: 10, t4: 2, action: 'Low Intervention' },
-                            { branch: 'ECE', name: 'Electronics & Comm', t1: 24, t2: 56, t3: 16, t4: 4, action: 'Medium Focus' },
-                            { branch: 'ME', name: 'Mechanical Engg', t1: 12, t2: 46, t3: 32, t4: 10, action: 'High Priority Drills' },
-                            { branch: 'CE', name: 'Civil Engineering', t1: 10, t2: 48, t3: 34, t4: 8, action: 'High Priority Drills' },
-                            { branch: 'MBA', name: 'Management', t1: 48, t2: 42, t3: 8, t4: 2, action: 'Super-Dream Focused' },
-                          ].map((row) => (
-                            <tr key={row.branch} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                              <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
-                                {row.branch} <span className="text-[11px] text-slate-400 font-normal">({row.name})</span>
-                              </td>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                        {stats ? stats.total_enrolled_candidates.toLocaleString() : '1,480'} Candidates Tracked
+                      </Badge>
+                    </div>
+                  </div>
 
-                              {/* T1 Tile */}
-                              <td className="py-2.5 px-3 text-center">
-                                <div className={`py-1.5 px-2 rounded-md font-mono text-xs font-semibold ${
-                                  row.t1 >= 35 ? 'bg-emerald-600 text-white' : row.t1 >= 20 ? 'bg-emerald-500/70 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-                                }`}>
-                                  {row.t1}%
+                  {/* 3D CARDS VIEW */}
+                  {densityViewMode === '3d-cards' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                      {sortedHeatmap.map((item) => {
+                        const tier = getDepartmentTierDistribution(item);
+                        return (
+                          <div
+                            key={item.branch}
+                            className="relative group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:shadow-xl hover:border-indigo-500/60 transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between overflow-hidden"
+                          >
+                            {/* Ambient Glow */}
+                            <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-emerald-500/10 blur-xl group-hover:bg-indigo-500/20 transition-all pointer-events-none" />
+
+                            <div className="space-y-4 relative z-10">
+                              {/* Header */}
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                                      {item.branch}
+                                    </span>
+                                    <Badge variant="outline" className="text-[10px] font-mono py-0 px-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700">
+                                      {item.students_count} Candidates
+                                    </Badge>
+                                  </div>
+                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+                                    {item.name}
+                                  </p>
                                 </div>
-                              </td>
 
-                              {/* T2 Tile */}
-                              <td className="py-2.5 px-3 text-center">
-                                <div className={`py-1.5 px-2 rounded-md font-mono text-xs font-semibold ${
-                                  row.t2 >= 50 ? 'bg-indigo-600 text-white' : 'bg-indigo-500/60 text-white'
-                                }`}>
-                                  {row.t2}%
+                                <div className="text-right">
+                                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80">
+                                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                    <span className="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                                      {item.readiness_score}% Readiness
+                                    </span>
+                                  </div>
                                 </div>
-                              </td>
+                              </div>
 
-                              {/* T3 Tile */}
-                              <td className="py-2.5 px-3 text-center">
-                                <div className={`py-1.5 px-2 rounded-md font-mono text-xs font-semibold ${
-                                  row.t3 >= 25 ? 'bg-amber-500/80 text-slate-900 font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-                                }`}>
-                                  {row.t3}%
+                              {/* Multi-Segment Stacked Tier Distribution Track */}
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between text-[11px] font-medium text-slate-600 dark:text-slate-400">
+                                  <span className="font-semibold text-slate-700 dark:text-slate-300">Recruitment Tier Distribution</span>
+                                  <span className="font-mono text-[10px] text-slate-500">{tier.t1 + tier.t2}% Day-1 / Core Ready</span>
                                 </div>
-                              </td>
 
-                              {/* T4 Tile */}
-                              <td className="py-2.5 px-3 text-center">
-                                <div className={`py-1.5 px-2 rounded-md font-mono text-xs font-semibold ${
-                                  row.t4 >= 8 ? 'bg-rose-500/85 text-white font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                                }`}>
-                                  {row.t4}%
+                                {/* Stacked Progress Bar */}
+                                <div className="h-4 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex shadow-inner p-0.5 gap-0.5">
+                                  <div
+                                    style={{ width: `${tier.t1}%` }}
+                                    className="h-full rounded-l-full bg-emerald-500 hover:brightness-110 transition-all cursor-pointer"
+                                    title={`Tier 1: ${tier.t1}% (${tier.t1Count} candidates)`}
+                                  />
+                                  <div
+                                    style={{ width: `${tier.t2}%` }}
+                                    className="h-full bg-indigo-500 hover:brightness-110 transition-all cursor-pointer"
+                                    title={`Tier 2: ${tier.t2}% (${tier.t2Count} candidates)`}
+                                  />
+                                  <div
+                                    style={{ width: `${tier.t3}%` }}
+                                    className="h-full bg-amber-500 hover:brightness-110 transition-all cursor-pointer"
+                                    title={`Tier 3: ${tier.t3}% (${tier.t3Count} candidates)`}
+                                  />
+                                  <div
+                                    style={{ width: `${tier.t4}%` }}
+                                    className="h-full rounded-r-full bg-rose-500 hover:brightness-110 transition-all cursor-pointer"
+                                    title={`Tier 4: ${tier.t4}% (${tier.t4Count} candidates)`}
+                                  />
                                 </div>
-                              </td>
 
-                              <td className="py-3.5 px-4 text-center">
-                                <Badge 
-                                  variant="outline" 
+                                {/* Micro Tier Legend with percentage ticks */}
+                                <div className="grid grid-cols-4 gap-1 text-[10px] font-mono text-center pt-1 text-slate-500">
+                                  <div className="text-emerald-600 dark:text-emerald-400 font-bold">{tier.t1}% T1</div>
+                                  <div className="text-indigo-600 dark:text-indigo-400 font-bold">{tier.t2}% T2</div>
+                                  <div className="text-amber-600 dark:text-amber-400 font-bold">{tier.t3}% T3</div>
+                                  <div className="text-rose-600 dark:text-rose-400 font-bold">{tier.t4}% T4</div>
+                                </div>
+                              </div>
+
+                              {/* 4 Interactive KPI Tiles */}
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+                                  <div className="flex items-center justify-between text-[10px] text-slate-500 uppercase font-semibold">
+                                    <span>Product (12+ LPA)</span>
+                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                  </div>
+                                  <div className="mt-1 flex items-baseline justify-between">
+                                    <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{tier.t1}%</span>
+                                    <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">{tier.t1Count} studs</span>
+                                  </div>
+                                </div>
+
+                                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+                                  <div className="flex items-center justify-between text-[10px] text-slate-500 uppercase font-semibold">
+                                    <span>Core (6–12 LPA)</span>
+                                    <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                                  </div>
+                                  <div className="mt-1 flex items-baseline justify-between">
+                                    <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{tier.t2}%</span>
+                                    <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">{tier.t2Count} studs</span>
+                                  </div>
+                                </div>
+
+                                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+                                  <div className="flex items-center justify-between text-[10px] text-slate-500 uppercase font-semibold">
+                                    <span>Mass (4–6 LPA)</span>
+                                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                                  </div>
+                                  <div className="mt-1 flex items-baseline justify-between">
+                                    <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{tier.t3}%</span>
+                                    <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">{tier.t3Count} studs</span>
+                                  </div>
+                                </div>
+
+                                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+                                  <div className="flex items-center justify-between text-[10px] text-slate-500 uppercase font-semibold">
+                                    <span>Drills (&lt;4 LPA)</span>
+                                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                                  </div>
+                                  <div className="mt-1 flex items-baseline justify-between">
+                                    <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{tier.t4}%</span>
+                                    <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">{tier.t4Count} studs</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Remedial Priority Bar */}
+                              <div className="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Intervention Plan:</span>
+                                <Badge
+                                  variant="outline"
                                   className={`text-[10px] font-semibold py-0.5 px-2 ${
-                                    row.action.includes('High')
+                                    tier.actionType === 'high'
                                       ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800'
-                                      : row.action.includes('Medium')
+                                      : tier.actionType === 'medium'
                                       ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+                                      : tier.actionType === 'super'
+                                      ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800'
                                       : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
                                   }`}
                                 >
-                                  {row.action}
+                                  {tier.action}
                                 </Badge>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                              </div>
+                            </div>
+
+                            {/* Card Footer / Direct Action */}
+                            <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                                {item.sessions_count} sessions logged
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 flex items-center gap-1.5 px-2.5"
+                                onClick={() => {
+                                  setSelectedBranch(item.branch);
+                                  setActiveTab('directory');
+                                }}
+                              >
+                                <span>Inspect Candidates</span>
+                                <ArrowRight className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  </Card>
+                  )}
+
+                  {/* COMPARATIVE AUDIT TABLE VIEW */}
+                  {densityViewMode === 'table' && (
+                    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs">
+                          <thead>
+                            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 uppercase text-[11px] font-semibold tracking-wider">
+                              <th className="py-3 px-4">Department</th>
+                              <th className="py-3 px-3 text-center">Tier 1: Product (12+ LPA)</th>
+                              <th className="py-3 px-3 text-center">Tier 2: Core (6–12 LPA)</th>
+                              <th className="py-3 px-3 text-center">Tier 3: Mass (4–6 LPA)</th>
+                              <th className="py-3 px-3 text-center">Tier 4: Remedial (&lt;4 LPA)</th>
+                              <th className="py-3 px-4 text-center">Remedial Priority Plan</th>
+                              <th className="py-3 px-3 text-center">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                            {sortedHeatmap.map((item) => {
+                              const tier = getDepartmentTierDistribution(item);
+                              return (
+                                <tr
+                                  key={item.branch}
+                                  className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors cursor-pointer group"
+                                  onClick={() => {
+                                    setSelectedBranch(item.branch);
+                                    setActiveTab('directory');
+                                  }}
+                                >
+                                  <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-indigo-600 dark:text-indigo-400 font-bold">{item.branch}</span>
+                                      <span className="text-[11px] text-slate-400 font-normal">({item.name})</span>
+                                    </div>
+                                    <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
+                                      {item.students_count} enrolled • {item.sessions_count} sessions
+                                    </span>
+                                  </td>
+
+                                  {/* T1 Tile */}
+                                  <td className="py-2.5 px-3 text-center">
+                                    <div className="py-1.5 px-2 rounded-md font-mono text-xs font-semibold bg-emerald-600 text-white shadow-xs">
+                                      <div>{tier.t1}%</div>
+                                      <div className="text-[9px] opacity-80">{tier.t1Count} studs</div>
+                                    </div>
+                                  </td>
+
+                                  {/* T2 Tile */}
+                                  <td className="py-2.5 px-3 text-center">
+                                    <div className="py-1.5 px-2 rounded-md font-mono text-xs font-semibold bg-indigo-600 text-white shadow-xs">
+                                      <div>{tier.t2}%</div>
+                                      <div className="text-[9px] opacity-80">{tier.t2Count} studs</div>
+                                    </div>
+                                  </td>
+
+                                  {/* T3 Tile */}
+                                  <td className="py-2.5 px-3 text-center">
+                                    <div className={`py-1.5 px-2 rounded-md font-mono text-xs font-semibold ${
+                                      tier.t3 >= 25 ? 'bg-amber-500/80 text-slate-900 font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                                    }`}>
+                                      <div>{tier.t3}%</div>
+                                      <div className="text-[9px] opacity-80">{tier.t3Count} studs</div>
+                                    </div>
+                                  </td>
+
+                                  {/* T4 Tile */}
+                                  <td className="py-2.5 px-3 text-center">
+                                    <div className={`py-1.5 px-2 rounded-md font-mono text-xs font-semibold ${
+                                      tier.t4 >= 8 ? 'bg-rose-500/85 text-white font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                                    }`}>
+                                      <div>{tier.t4}%</div>
+                                      <div className="text-[9px] opacity-80">{tier.t4Count} studs</div>
+                                    </div>
+                                  </td>
+
+                                  <td className="py-3.5 px-4 text-center">
+                                    <Badge 
+                                      variant="outline" 
+                                      className={`text-[10px] font-semibold py-0.5 px-2 ${
+                                        tier.actionType === 'high'
+                                          ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800'
+                                          : tier.actionType === 'medium'
+                                          ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+                                          : tier.actionType === 'super'
+                                          ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800'
+                                          : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+                                      }`}
+                                    >
+                                      {tier.action}
+                                    </Badge>
+                                  </td>
+
+                                  <td className="py-3.5 px-3 text-center">
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-7 text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 p-1.5"
+                                    >
+                                      Inspect &rarr;
+                                    </Button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </Card>
+                  )}
                 </div>
               )}
 
